@@ -20,7 +20,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Global variables
 let scene,
   renderer,
   camera,

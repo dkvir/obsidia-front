@@ -27,9 +27,12 @@ useSeoMeta({
   twitterCard: "summary_large_image",
 });
 
-onMounted(() => {
-  homeStore.changeWebsiteLoaded(true);
-});
+onBeforeMount(() => {
+  useLenisScroll();
+}),
+  onMounted(() => {
+    homeStore.changeWebsiteLoaded(true);
+  });
 </script>
 
 <style lang="scss" scoped></style>

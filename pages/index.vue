@@ -6,7 +6,6 @@
 
 <script setup>
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
@@ -20,14 +19,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-let scene,
-  renderer,
-  camera,
-  controls,
-  statuemesh,
-  envMap,
-  material,
-  alternativeMaterial;
+let scene, renderer, camera, statuemesh, envMap, material;
 let composer, bloomPass, bokehPass;
 let mixer,
   animations,
@@ -35,9 +27,8 @@ let mixer,
 let lineHandler, dustParticles;
 let clock = new THREE.Clock();
 let scrollTimeline, dofTimeline;
-let cursorLight, cursorLightFar, cursorLightFar2; // Added second far light
-let cursorLightFarHelper, cursorLightFarHelper2; // Added helpers
-let rightlight, leftlight; // Store light references
+let cursorLight, cursorLightFar, cursorLightFar2;
+let rightlight, leftlight;
 
 // Mouse rotation variables
 let mouse = new THREE.Vector2();
@@ -49,13 +40,8 @@ let isMouseMoving = false;
 let mouseTimeout;
 let statueGroup;
 
-// ================================
-// CONFIGURATION - EASY TO MODIFY
-// ================================
 const config = {
-  final: false,
-
-  // Regular lighting (final = true)
+  // Lighting
   rightlightIntensity: 10,
   rightlightColor: 0xff0000,
   leftlightIntensity: 20,
@@ -63,12 +49,8 @@ const config = {
 
   // Bloom settings
   bloom: {
-    // Final mode bloom
-    finalStrength: 0.2,
-    finalRadius: 2.0,
-    // Non-final mode bloom (increased for dramatic effect)
-    nonFinalStrength: 0.3,
-    nonFinalRadius: 2.0,
+    strength: 0.2,
+    radius: 2.0,
     threshold: 0.05,
   },
 
@@ -84,23 +66,19 @@ const config = {
   },
   cursorLightFar: {
     enabled: true,
-    // Colors for different modes
-    finalColor: 0xc337ff, // Purple for final mode
-    nonFinalColor: 0xf1f1ff, // White for non-final mode
+    color: 0xc337ff,
     intensity: 0.5,
     distance: 20,
     decay: 0.5,
-    finalDepth: 10, // Original depth for final mode
-    nonFinalDepth: 6, // Closer depth for non-final mode
+    depth: 10,
     smoothing: 0.1,
-    xOffset: 1.2, // X offset for the two lights
+    xOffset: 1.2,
   },
 
   // Other settings
   lineWidth: 6,
   opacity: 1,
   bezierCurveAmount: 0.5,
-  orbitControls: { enabled: false, enableDamping: true, dampingFactor: 0.1 },
   dustParticles: {
     count: 2000,
     size: { min: 0.008, max: 0.06 },
@@ -134,6 +112,7 @@ onMounted(() => {
     init();
     initStatueGroup();
     animate();
+    useGui(config, cursorLightFar, cursorLightFar2);
   });
 
   // Load HDRI environment
@@ -152,14 +131,6 @@ onMounted(() => {
       side: THREE.DoubleSide,
       envMap: envMap,
       envMapIntensity: 0.3,
-    });
-
-    alternativeMaterial = new THREE.MeshStandardMaterial({
-      color: 0x00000,
-      // wireframe: true,
-      roughness: 0.5,
-      transparent: true,
-      opacity: 1,
     });
   });
 
@@ -280,78 +251,6 @@ function updateDOFFocus(focusValue) {
   }
 }
 
-function toggleFinalMode(isFinal) {
-  config.final = isFinal;
-
-  // Update all statue parts materials
-  scene.traverse((child) => {
-    if (
-      child.name &&
-      (child.name.includes("statue_") || child.name.includes("_part"))
-    ) {
-      if (child.material) {
-        child.material = isFinal ? material : alternativeMaterial;
-      }
-    }
-  });
-
-  // Toggle lights based on final mode
-  if (rightlight) {
-    rightlight.visible = isFinal;
-  }
-  if (leftlight) {
-    leftlight.visible = isFinal;
-  }
-  if (cursorLight) {
-    cursorLight.visible = isFinal;
-  }
-
-  // Change both far cursor lights color and depth based on final mode
-  if (cursorLightFar) {
-    cursorLightFar.color.setHex(
-      isFinal
-        ? config.cursorLightFar.finalColor
-        : config.cursorLightFar.nonFinalColor
-    );
-    // Update the config depth for the updateCursorLightPosition function
-    config.cursorLightFar.depth = isFinal
-      ? config.cursorLightFar.finalDepth
-      : config.cursorLightFar.nonFinalDepth;
-  }
-
-  if (cursorLightFar2) {
-    cursorLightFar2.color.setHex(
-      isFinal
-        ? config.cursorLightFar.finalColor
-        : config.cursorLightFar.nonFinalColor
-    );
-  }
-
-  // Update bloom settings based on final mode
-  if (bloomPass) {
-    bloomPass.strength = isFinal
-      ? config.bloom.finalStrength
-      : config.bloom.nonFinalStrength;
-    bloomPass.radius = isFinal
-      ? config.bloom.finalRadius
-      : config.bloom.nonFinalRadius;
-  }
-
-  if (isFinal) {
-    if (scrollTimeline && scrollTimeline.scrollTrigger)
-      scrollTimeline.scrollTrigger.enable();
-    if (dofTimeline && dofTimeline.scrollTrigger)
-      dofTimeline.scrollTrigger.enable();
-  } else {
-    if (scrollTimeline && scrollTimeline.scrollTrigger)
-      scrollTimeline.scrollTrigger.disable();
-    if (dofTimeline && dofTimeline.scrollTrigger)
-      dofTimeline.scrollTrigger.disable();
-  }
-
-  ScrollTrigger.refresh();
-}
-
 function onMouseMove(event) {
   lastMouse.x = mouse.x;
   lastMouse.y = mouse.y;
@@ -406,7 +305,6 @@ function updateCursorLightPosition(event) {
     const targetPositionFar = camera.position
       .clone()
       .add(direction.clone().multiplyScalar(config.cursorLightFar.depth));
-    // Apply X offset to the first far light
     targetPositionFar.x += config.cursorLightFar.xOffset;
     cursorLightFar.position.lerp(
       targetPositionFar,
@@ -418,7 +316,6 @@ function updateCursorLightPosition(event) {
     const targetPositionFar2 = camera.position
       .clone()
       .add(direction.clone().multiplyScalar(config.cursorLightFar.depth));
-    // Apply negative X offset to the second far light
     targetPositionFar2.x -= config.cursorLightFar.xOffset;
     cursorLightFar2.position.lerp(
       targetPositionFar2,
@@ -445,32 +342,26 @@ function createCursorLights() {
     config.cursorLightFar.decay
   );
 
-  // Initialize far light behind the camera instead of in front
   if (camera) {
-    // Get camera's forward direction
     const cameraForward = new THREE.Vector3(0, 0, -1);
     cameraForward.transformDirection(camera.matrixWorld);
 
-    // Position behind the camera with X offset
     const initialPosition = camera.position
       .clone()
-      .add(
-        cameraForward.clone().multiplyScalar(-config.cursorLightFar.finalDepth)
-      );
+      .add(cameraForward.clone().multiplyScalar(-config.cursorLightFar.depth));
     initialPosition.x += config.cursorLightFar.xOffset;
     cursorLightFar.position.copy(initialPosition);
   } else {
-    // Fallback if camera isn't ready yet - position behind origin with X offset
     cursorLightFar.position.set(
       config.cursorLightFar.xOffset,
       0,
-      -config.cursorLightFar.finalDepth
+      -config.cursorLightFar.depth
     );
   }
 
   scene.add(cursorLightFar);
 
-  // Second far cursor light (duplicate)
+  // Second far cursor light
   cursorLightFar2 = new THREE.PointLight(
     config.cursorLightFar.color,
     config.cursorLightFar.intensity,
@@ -478,37 +369,24 @@ function createCursorLights() {
     config.cursorLightFar.decay
   );
 
-  // Initialize second far light behind the camera with negative X offset
   if (camera) {
-    // Get camera's forward direction
     const cameraForward = new THREE.Vector3(0, 0, -1);
     cameraForward.transformDirection(camera.matrixWorld);
 
-    // Position behind the camera with negative X offset
     const initialPosition2 = camera.position
       .clone()
-      .add(
-        cameraForward.clone().multiplyScalar(-config.cursorLightFar.finalDepth)
-      );
+      .add(cameraForward.clone().multiplyScalar(-config.cursorLightFar.depth));
     initialPosition2.x -= config.cursorLightFar.xOffset;
     cursorLightFar2.position.copy(initialPosition2);
   } else {
-    // Fallback if camera isn't ready yet - position behind origin with negative X offset
     cursorLightFar2.position.set(
       -config.cursorLightFar.xOffset,
       0,
-      -config.cursorLightFar.finalDepth
+      -config.cursorLightFar.depth
     );
   }
 
   scene.add(cursorLightFar2);
-
-  // Create helpers for both far lights
-  cursorLightFarHelper = new THREE.PointLightHelper(cursorLightFar, 0.5);
-  // scene.add(cursorLightFarHelper);
-
-  cursorLightFarHelper2 = new THREE.PointLightHelper(cursorLightFar2, 0.5);
-  // scene.add(cursorLightFarHelper2);
 }
 
 function initStatueGroup() {
@@ -607,8 +485,8 @@ function init() {
 
   bloomPass = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
-    config.bloom.finalStrength,
-    config.bloom.finalRadius,
+    config.bloom.strength,
+    config.bloom.radius,
     config.bloom.threshold
   );
 
@@ -640,12 +518,6 @@ function init() {
   composer.addPass(brightnessCompensationPass);
   composer.addPass(gammaCorrectionPass);
 
-  controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = config.orbitControls.enableDamping;
-  controls.dampingFactor = config.orbitControls.dampingFactor;
-  controls.enabled = config.orbitControls.enabled;
-
-  // Store light references for later visibility control
   rightlight = new THREE.PointLight(
     config.rightlightColor,
     config.rightlightIntensity
@@ -665,12 +537,8 @@ function init() {
   if (camera) camera.userData.defaultPosition = camera.position.clone();
 
   createCursorLights();
-  useGui(config, toggleFinalMode);
   dustParticles = new useDustParticles(scene, config.dustParticles);
   createDOFScrollAnimation();
-
-  // Apply initial lighting state based on config.final
-  toggleFinalMode(config.final);
 }
 
 function onWindowResize() {
@@ -715,17 +583,8 @@ function animate() {
       statueGroup.userData.originalRotation.y + rotationOffset.y;
   }
 
-  if (controls.enabled) controls.update();
   if (lineHandler) lineHandler.animate(delta);
   if (dustParticles) dustParticles.animate(delta);
-
-  // Update light helpers to follow their respective lights
-  if (cursorLightFarHelper && cursorLightFar) {
-    cursorLightFarHelper.update();
-  }
-  if (cursorLightFarHelper2 && cursorLightFar2) {
-    cursorLightFarHelper2.update();
-  }
 
   composer.render();
 }

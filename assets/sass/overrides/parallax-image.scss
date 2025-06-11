@@ -1,0 +1,15 @@
+.parallax-image {
+  @media (min-width: 769px) {
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    .img {
+      position: relative;
+      z-index: -1;
+    }
+  }
+  @media (max-width: 768px) {
+    background-image: initial;
+  }
+}

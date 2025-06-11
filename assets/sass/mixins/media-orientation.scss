@@ -1,0 +1,15 @@
+@mixin media-orientation($args...) {
+  @each $item in $args {
+    $property: nth($item, 1);
+    $min: nth($item, 2);
+    $max: nth($item, 3);
+    $screen-size: if(index($item, 4), nth($item, 4), null);
+
+    @media (orientation: landscape) {
+      #{$property}: css-clamp-vh-ratio($min, $max, $screen-size: null);
+    }
+    @media (orientation: portrait) {
+      #{$property}: css-clamp-vw-ratio($min, $max, $screen-size: null);
+    }
+  }
+}

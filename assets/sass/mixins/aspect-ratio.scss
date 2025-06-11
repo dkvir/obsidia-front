@@ -1,0 +1,16 @@
+//
+/// @group Selectors
+/// @param {Length} $width - element width
+/// @param {Length} $height - element height
+/// @param {Boolean} $css-variable - property type
+//
+
+@use "sass:math";
+
+@mixin aspect-ratio($width, $height) {
+  aspect-ratio: var(--aspect-ratio, math.div($width, $height));
+}
+
+@mixin aspect-ratio-var($width, $height) {
+  --aspect-ratio: #{math.div($width, $height)};
+}

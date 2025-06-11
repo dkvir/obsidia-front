@@ -1,0 +1,33 @@
+html,
+body {
+  width: 100%;
+  height: auto;
+  width: 100svw;
+  min-height: 100svh;
+  overscroll-behavior: none;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+html {
+  font-size: 16px;
+  font-family: var(--font-helvetica);
+  color: var(--color-white);
+  background-color: var(--color-black);
+  opacity: var(--html-opacity, 0);
+  transition: 0.75s opacity ease-in-out;
+  &.is-loaded {
+    --html-opacity: 1;
+  }
+}
+
+body {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background-color: var(--selection-fill);
+  color: var(--selection-color);
+}

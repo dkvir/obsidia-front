@@ -1,0 +1,12 @@
+//
+/// uppercase for texts
+//
+
+@mixin uppercase {
+  text-transform: uppercase;
+  @include font-feature-settings("case");
+}
+
+@mixin lowercase {
+  text-transform: lowercase;
+}

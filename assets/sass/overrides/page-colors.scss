@@ -1,0 +1,23 @@
+[data-page-color="red"] {
+  --primary-color: var(--color-red);
+  --secondary-color: var(--color-white);
+  --third-color: var(--color-black);
+
+  --selection-fill: var(--color-white);
+  --selection-color: var(--color-red);
+}
+[data-page-color="black"] {
+  --primary-color: var(--color-black);
+  --secondary-color: var(--color-white);
+  --third-color: var(--color-red);
+}
+[data-page-color="gray"] {
+  --primary-color: var(--color-alto);
+  --secondary-color: var(--color-black);
+  --third-color: var(--color-red);
+}
+[data-page-color="white"] {
+  --primary-color: var(--color-white);
+  --secondary-color: var(--color-black);
+  --third-color: var(--color-red);
+}

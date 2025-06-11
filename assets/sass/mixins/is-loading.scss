@@ -1,0 +1,14 @@
+//
+// is-loading mixin
+//
+
+@mixin intro-loading() {
+  .intro-loading & {
+    @content;
+  }
+}
+@mixin is-loading() {
+  .is-loading & {
+    @content;
+  }
+}

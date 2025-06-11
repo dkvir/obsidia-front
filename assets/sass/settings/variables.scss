@@ -1,0 +1,31 @@
+@use "sass:math";
+
+$default-window-width: 1920 !default;
+$default-window-height: 1080 !default;
+
+$default-timing-speed: 0.35s;
+$default-timing-func: cubic-bezier(0.33, 1, 0.68, 1);
+
+$square-size: 20px;
+
+$sizes: "xxs", "xs", "s", "m", "l", "xl", "xxl", "3xl", "4xl", "5xl";
+
+$colors: (
+  "transparent": transparent,
+  "black": #000,
+  "white": #fff,
+  "gray": #666666,
+);
+
+$fonts: (
+  "helvetica": "Helvetica",
+  "parmigiano-light": "ParmigianoHeadlineL-Light",
+  "parmigiano-regular": "ParmigianoHeadlineL-Regular",
+  "parmigiano-thin": "ParmigianoHeadlineL-Thin",
+  "pingl-light": "PingL-Light",
+  "pingl-regular": "PingL-Regular",
+  "pingl-medium": "PingL-Medium",
+  "pingl-bold": "PingL-Bold",
+  "pingroundgelvariable-regular": "PingRoundGeLVariable-Regular",
+  "pingvariablexstrial-regular": "PingVariablexsTRIAL-Regular",
+);

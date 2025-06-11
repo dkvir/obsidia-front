@@ -1,0 +1,15 @@
+.split-text-container {
+  &,
+  .line,
+  .words {
+    position: relative;
+    overflow: hidden;
+  }
+  .line {
+    display: flex;
+  }
+  .words {
+    display: inline-block;
+    height: 100%;
+  }
+}

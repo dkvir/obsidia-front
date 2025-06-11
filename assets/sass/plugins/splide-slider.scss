@@ -1,0 +1,8 @@
+[data-page-name="index"] {
+  .splide__track {
+    height: var(--default-slider-height) !important;
+  }
+  .splide__arrows {
+    display: none;
+  }
+}

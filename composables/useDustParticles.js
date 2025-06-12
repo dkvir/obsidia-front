@@ -493,14 +493,4 @@ export const useDustParticles = class DustParticles {
       // You could implement this by disposing and reinitializing
     }
   }
-
-  // Clean up method to remove particles from scene
-  dispose() {
-    if (this.particles) {
-      this.scene.remove(this.particles);
-      this.particlesGeometry.dispose();
-      this.particlesMaterial.dispose();
-      this.particles = null;
-    }
-  }
 };

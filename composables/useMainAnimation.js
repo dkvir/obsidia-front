@@ -99,106 +99,143 @@ export function useThreeScene(canvasId = "canvas") {
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000000);
 
-  function setupLoadingManager() {
-    const loadingManager = new THREE.LoadingManager();
-
-    loadingManager.onLoad = () => {
-      init();
-      initStatueGroup();
-      animate();
-      useGui(config, cursorLightFar, cursorLightFar2);
-    };
-    return loadingManager;
+  // Sequential loading: HDRI first, then model
+  function setupSequentialLoading() {
+    // First load HDRI
+    loadEnvironment()
+      .then(() => {
+        console.log("HDRI loaded, now loading model...");
+        // Then load model
+        return loadModel();
+      })
+      .then(() => {
+        console.log("Model loaded, initializing scene...");
+        // Initialize everything after both are loaded
+        init();
+        initStatueGroup();
+        animate();
+        useGui(config, cursorLightFar, cursorLightFar2);
+      })
+      .catch((error) => {
+        console.error("Loading sequence failed:", error);
+        // Initialize with fallbacks
+        init();
+        initStatueGroup();
+        animate();
+        useGui(config, cursorLightFar, cursorLightFar2);
+      });
   }
 
-  function loadEnvironment(loadingManager) {
-    const hdriLoader = new RGBELoader(loadingManager);
+  // Load environment with Promise
+  function loadEnvironment() {
+    return new Promise((resolve, reject) => {
+      const hdriLoader = new RGBELoader();
 
-    hdriLoader.load(
-      "images/03.hdr",
-      function (texture) {
-        console.log("HDRI loaded successfully");
-        envMap = texture;
-        envMap.mapping = THREE.EquirectangularReflectionMapping;
-        scene.environment = envMap;
+      hdriLoader.load(
+        "images/03.hdr",
+        function (texture) {
+          console.log("HDRI loaded successfully");
+          envMap = texture;
+          envMap.mapping = THREE.EquirectangularReflectionMapping;
+          scene.environment = envMap;
 
-        const normal = new THREE.TextureLoader().load("./images/normal.jpg");
-        material = new THREE.MeshPhysicalMaterial({
-          color: 0x000000,
-          normalMap: normal,
-          metalness: 0.1,
-          roughness: 0.5,
-          thickness: 0.5,
-          side: THREE.DoubleSide,
-          envMap: envMap,
-          envMapIntensity: 0.3,
-        });
-      },
-      undefined,
-      function (error) {
-        console.warn("HDRI loading failed, using fallback environment:", error);
-        // Create fallback environment
-      }
-    );
-  }
-
-  // Load 3D model with fallback
-  function loadModel(loadingManager) {
-    const loader = new GLTFLoader(loadingManager);
-
-    loader.load(
-      "mesh/man3.glb",
-      (gltf) => {
-        console.log("GLTF model loaded successfully");
-
-        // Use camera from model if available
-        if (gltf.cameras && gltf.cameras.length > 0) {
-          camera = gltf.cameras[0];
-          camera.aspect = window.innerWidth / window.innerHeight;
-          camera.updateProjectionMatrix();
-        }
-
-        gltf.scene.traverse((child) => {
-          if (child.name.includes("statue_")) {
-            statuemesh = child;
-            if (material) {
-              statuemesh.material = material;
-            }
-          }
-          if (child.name.includes("line_") || child.name.includes("inside_")) {
-            child.visible = false;
-          }
-        });
-
-        scene.add(gltf.scene);
-
-        if (gltf.animations && gltf.animations.length > 0) {
-          animations = gltf.animations;
-          mixer = new THREE.AnimationMixer(gltf.scene);
-
-          for (let i = 0; i < animations.length; i++) {
-            const action = mixer.clipAction(animations[i]);
-            action.timeScale = 1;
-            action.setLoop(THREE.LoopOnce);
-            action.clampWhenFinished = true;
-            action.play();
-            animationActions.push(action);
-          }
-
-          createAnimationController(mixer, animationActions, animations);
-
-          lineHandler = new useLineHandler(config);
-          lineHandler.createCurvesFromEdgeModel(gltf.scene).forEach((curve) => {
-            curve.renderOrder = -1;
-            scene.add(curve);
+          const normal = new THREE.TextureLoader().load("./images/normal.jpg");
+          material = new THREE.MeshPhysicalMaterial({
+            color: 0x000000,
+            normalMap: normal,
+            metalness: 0.1,
+            roughness: 0.5,
+            thickness: 0.5,
+            side: THREE.DoubleSide,
+            envMap: envMap,
+            envMapIntensity: 0.3,
           });
+
+          resolve(texture);
+        },
+        undefined,
+        function (error) {
+          console.warn(
+            "HDRI loading failed, using fallback environment:",
+            error
+          );
         }
-      },
-      undefined,
-      (error) => {
-        console.warn("GLTF model loading failed, using fallback:", error);
-      }
-    );
+      );
+    });
+  }
+
+  // Load 3D model with Promise
+  function loadModel() {
+    return new Promise((resolve, reject) => {
+      const loader = new GLTFLoader();
+
+      loader.load(
+        "mesh/man3.glb",
+        (gltf) => {
+          console.log("GLTF model loaded successfully");
+
+          // Use camera from model if available
+          if (gltf.cameras && gltf.cameras.length > 0) {
+            camera = gltf.cameras[0];
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+          }
+
+          gltf.scene.traverse((child) => {
+            if (child.name.includes("statue_")) {
+              statuemesh = child;
+              if (material) {
+                statuemesh.material = material;
+              }
+            }
+            if (
+              child.name.includes("line_") ||
+              child.name.includes("inside_")
+            ) {
+              child.visible = false;
+            }
+          });
+
+          scene.add(gltf.scene);
+
+          if (gltf.animations && gltf.animations.length > 0) {
+            animations = gltf.animations;
+            mixer = new THREE.AnimationMixer(gltf.scene);
+
+            for (let i = 0; i < animations.length; i++) {
+              const action = mixer.clipAction(animations[i]);
+              action.timeScale = 1;
+              action.setLoop(THREE.LoopOnce);
+              action.clampWhenFinished = true;
+              action.play();
+              animationActions.push(action);
+            }
+
+            createAnimationController(mixer, animationActions, animations);
+
+            lineHandler = new useLineHandler(config);
+            lineHandler
+              .createCurvesFromEdgeModel(gltf.scene)
+              .forEach((curve) => {
+                curve.renderOrder = -1;
+                scene.add(curve);
+              });
+          }
+
+          resolve(gltf);
+        },
+        function (progress) {
+          console.log(
+            "Model loading progress:",
+            (progress.loaded / progress.total) * 100 + "%"
+          );
+        },
+        (error) => {
+          console.warn("GLTF model loading failed:", error);
+          reject(error);
+        }
+      );
+    });
   }
 
   // Animation controller
@@ -644,15 +681,7 @@ export function useThreeScene(canvasId = "canvas") {
     composer.render();
   }
 
-  // Main initialization function
-  function initializeScene() {
-    const loadingManager = setupLoadingManager();
-    loadEnvironment(loadingManager);
-    loadModel(loadingManager);
-  }
-
-  // Return reactive values and methods
   return {
-    initializeScene,
+    setupSequentialLoading,
   };
 }

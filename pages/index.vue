@@ -6,8 +6,8 @@
 
 <script setup>
 onMounted(() => {
-  const { initializeScene } = useThreeScene("canvas");
-  initializeScene();
+  const { setupSequentialLoading } = useThreeScene("canvas");
+  setupSequentialLoading();
 });
 </script>
 

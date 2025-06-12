@@ -142,13 +142,6 @@ export const useLineHandler = class LineHandler {
       }
     });
 
-    console.log(
-      `Collected ${allVertices.length} unique vertices from line objects`
-    );
-    console.log(
-      `Found ${mainLinePaths.size} main line paths and ${insideLinePaths.size} inside line paths`
-    );
-
     return { vertices: allVertices, mainLinePaths, insideLinePaths };
   }
 
@@ -238,8 +231,6 @@ export const useLineHandler = class LineHandler {
         lineIndex++;
       }
     });
-
-    console.log(`Created ${this.mainLines.length} main line curves`);
   }
 
   processInsidePaths(insideLinePaths, totalVertices) {
@@ -260,8 +251,6 @@ export const useLineHandler = class LineHandler {
         lineIndex++;
       }
     });
-
-    console.log(`Created ${this.insideLines.length} inside line curves`);
   }
 
   /**

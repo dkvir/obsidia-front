@@ -118,15 +118,6 @@ export function useThreeScene(canvasId = "canvas") {
       })
       .catch((error) => {
         console.error("Loading sequence failed:", error);
-        // Initialize with fallbacks
-        init();
-        initStatueGroup();
-        animate();
-        useGui(
-          config,
-          cursorLightsHandler?.getLights().cursorLightFar,
-          cursorLightsHandler?.getLights().cursorLightFar2
-        );
       });
   }
 

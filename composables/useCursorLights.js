@@ -134,7 +134,6 @@ export const useCursorLights = (scene, camera) => {
   return {
     createCursorLights,
     updateCursorLightPosition,
-    dispose,
     getLights,
   };
 };

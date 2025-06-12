@@ -104,13 +104,9 @@ export function useThreeScene(canvasId = "canvas") {
     // First load HDRI
     loadEnvironment()
       .then(() => {
-        console.log("HDRI loaded, now loading model...");
-        // Then load model
         return loadModel();
       })
       .then(() => {
-        console.log("Model loaded, initializing scene...");
-        // Initialize everything after both are loaded
         init();
         initStatueGroup();
         animate();
@@ -134,7 +130,6 @@ export function useThreeScene(canvasId = "canvas") {
       hdriLoader.load(
         "images/03.hdr",
         function (texture) {
-          console.log("HDRI loaded successfully");
           envMap = texture;
           envMap.mapping = THREE.EquirectangularReflectionMapping;
           scene.environment = envMap;
@@ -172,8 +167,6 @@ export function useThreeScene(canvasId = "canvas") {
       loader.load(
         "mesh/man3.glb",
         (gltf) => {
-          console.log("GLTF model loaded successfully");
-
           // Use camera from model if available
           if (gltf.cameras && gltf.cameras.length > 0) {
             camera = gltf.cameras[0];
@@ -224,12 +217,7 @@ export function useThreeScene(canvasId = "canvas") {
 
           resolve(gltf);
         },
-        function (progress) {
-          console.log(
-            "Model loading progress:",
-            (progress.loaded / progress.total) * 100 + "%"
-          );
-        },
+        undefined,
         (error) => {
           console.warn("GLTF model loading failed:", error);
           reject(error);
@@ -534,10 +522,6 @@ export function useThreeScene(canvasId = "canvas") {
   // Initialize renderer and effects
   function init() {
     const canvas = document.querySelector(`#${canvasId}`);
-    if (!canvas) {
-      console.error(`Canvas with id "${canvasId}" not found`);
-      return;
-    }
 
     renderer = new THREE.WebGLRenderer({
       antialias: true,

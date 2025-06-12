@@ -5,8 +5,8 @@
 </template>
 
 <script setup>
-const { initializeScene } = useThreeScene("canvas");
 onMounted(() => {
+  const { initializeScene } = useThreeScene("canvas");
   initializeScene();
 });
 </script>

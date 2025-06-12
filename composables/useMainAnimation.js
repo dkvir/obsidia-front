@@ -20,11 +20,11 @@ export function useThreeScene(canvasId = "canvas") {
   let lineHandler, dustParticles;
   let clock = new THREE.Clock();
   let scrollTimeline, dofTimeline;
-  let cursorLight, cursorLightFar, cursorLightFar2;
   let rightlight, leftlight;
   let statueGroup;
+  let cursorLightsHandler; // Handler for cursor lights
 
-  // Mouse rotation variables
+  // Mouse rotation variables (separate from cursor lights)
   let mouse = new THREE.Vector2();
   let lastMouse = new THREE.Vector2();
   let rotationOffset = new THREE.Vector2();
@@ -48,7 +48,7 @@ export function useThreeScene(canvasId = "canvas") {
       threshold: 0.05,
     },
 
-    // Cursor lights
+    // Cursor lights configuration
     cursorLight: {
       enabled: true,
       color: new THREE.Color(0xfcd2d8),
@@ -110,7 +110,11 @@ export function useThreeScene(canvasId = "canvas") {
         init();
         initStatueGroup();
         animate();
-        useGui(config, cursorLightFar, cursorLightFar2);
+        useGui(
+          config,
+          cursorLightsHandler?.getLights().cursorLightFar,
+          cursorLightsHandler?.getLights().cursorLightFar2
+        );
       })
       .catch((error) => {
         console.error("Loading sequence failed:", error);
@@ -118,7 +122,11 @@ export function useThreeScene(canvasId = "canvas") {
         init();
         initStatueGroup();
         animate();
-        useGui(config, cursorLightFar, cursorLightFar2);
+        useGui(
+          config,
+          cursorLightsHandler?.getLights().cursorLightFar,
+          cursorLightsHandler?.getLights().cursorLightFar2
+        );
       });
   }
 
@@ -315,6 +323,7 @@ export function useThreeScene(canvasId = "canvas") {
     let deltaX = mouse.x - lastMouse.x;
     let deltaY = mouse.y - lastMouse.y;
 
+    // Handle statue rotation
     if (Math.abs(deltaX) > 0.004 || Math.abs(deltaY) > 0.004) {
       rotationOffset.x = Math.max(
         -0.5,
@@ -333,119 +342,10 @@ export function useThreeScene(canvasId = "canvas") {
       }, 100);
     }
 
-    updateCursorLightPosition(event);
-  }
-
-  function updateCursorLightPosition(event) {
-    if (!camera) return;
-
-    const mouse3D = new THREE.Vector3(
-      (event.clientX / window.innerWidth) * 2 - 1,
-      -(event.clientY / window.innerHeight) * 2 + 1,
-      0.5
-    );
-
-    mouse3D.unproject(camera);
-    const direction = mouse3D.sub(camera.position).normalize();
-
-    if (cursorLight && config.cursorLight.enabled) {
-      const targetPosition = camera.position
-        .clone()
-        .add(direction.clone().multiplyScalar(config.cursorLight.depth));
-      cursorLight.position.lerp(targetPosition, config.cursorLight.smoothing);
+    // Update cursor lights
+    if (cursorLightsHandler) {
+      cursorLightsHandler.updateCursorLightPosition(event, config);
     }
-
-    if (cursorLightFar && config.cursorLightFar.enabled) {
-      const targetPositionFar = camera.position
-        .clone()
-        .add(direction.clone().multiplyScalar(config.cursorLightFar.depth));
-      targetPositionFar.x += config.cursorLightFar.xOffset;
-      cursorLightFar.position.lerp(
-        targetPositionFar,
-        config.cursorLightFar.smoothing
-      );
-    }
-
-    if (cursorLightFar2 && config.cursorLightFar.enabled) {
-      const targetPositionFar2 = camera.position
-        .clone()
-        .add(direction.clone().multiplyScalar(config.cursorLightFar.depth));
-      targetPositionFar2.x -= config.cursorLightFar.xOffset;
-      cursorLightFar2.position.lerp(
-        targetPositionFar2,
-        config.cursorLightFar.smoothing
-      );
-    }
-  }
-
-  // Create cursor lights
-  function createCursorLights() {
-    cursorLight = new THREE.PointLight(
-      config.cursorLight.color,
-      config.cursorLight.intensity,
-      config.cursorLight.distance,
-      config.cursorLight.decay
-    );
-    cursorLight.position.set(0, 0, config.cursorLight.depth);
-    scene.add(cursorLight);
-
-    // First far cursor light
-    cursorLightFar = new THREE.PointLight(
-      config.cursorLightFar.color,
-      config.cursorLightFar.intensity,
-      config.cursorLightFar.distance,
-      config.cursorLightFar.decay
-    );
-
-    if (camera) {
-      const cameraForward = new THREE.Vector3(0, 0, -1);
-      cameraForward.transformDirection(camera.matrixWorld);
-
-      const initialPosition = camera.position
-        .clone()
-        .add(
-          cameraForward.clone().multiplyScalar(-config.cursorLightFar.depth)
-        );
-      initialPosition.x += config.cursorLightFar.xOffset;
-      cursorLightFar.position.copy(initialPosition);
-    } else {
-      cursorLightFar.position.set(
-        config.cursorLightFar.xOffset,
-        0,
-        -config.cursorLightFar.depth
-      );
-    }
-
-    scene.add(cursorLightFar);
-
-    // Second far cursor light
-    cursorLightFar2 = new THREE.PointLight(
-      config.cursorLightFar.color,
-      config.cursorLightFar.intensity,
-      config.cursorLightFar.distance,
-      config.cursorLightFar.decay
-    );
-
-    if (camera) {
-      const cameraForward = new THREE.Vector3(0, 0, -1);
-      cameraForward.transformDirection(camera.matrixWorld);
-
-      const initialPosition2 = camera.position
-        .clone()
-        .add(
-          cameraForward.clone().multiplyScalar(-config.cursorLightFar.depth)
-        );
-      initialPosition2.x -= config.cursorLightFar.xOffset;
-      cursorLightFar2.position.copy(initialPosition2);
-    } else {
-      cursorLightFar2.position.set(
-        -config.cursorLightFar.xOffset,
-        0,
-        -config.cursorLightFar.depth
-      );
-    }
-
-    scene.add(cursorLightFar2);
   }
 
   // Initialize statue group
@@ -599,7 +499,9 @@ export function useThreeScene(canvasId = "canvas") {
 
     if (camera) camera.userData.defaultPosition = camera.position.clone();
 
-    createCursorLights();
+    // Initialize cursor lights using the composable
+    cursorLightsHandler = useCursorLights(scene, camera);
+    cursorLightsHandler.createCursorLights(config);
 
     // Only create dust particles if the class exists
     if (typeof useDustParticles === "function") {

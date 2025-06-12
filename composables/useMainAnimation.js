@@ -10,8 +10,6 @@ import { GammaCorrectionShader } from "three/examples/jsm/shaders/GammaCorrectio
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-gsap.registerPlugin(ScrollTrigger);
-
 export function useThreeScene(canvasId = "canvas") {
   // Three.js variables
   let scene, renderer, camera, statuemesh, envMap, material;
@@ -205,6 +203,8 @@ export function useThreeScene(canvasId = "canvas") {
 
   // Animation controller
   function createAnimationController(mixer, actions, clips) {
+    gsap.registerPlugin(ScrollTrigger);
+
     let proxy = {
       get time() {
         return mixer.time;

@@ -6,7 +6,8 @@
 
 <script setup>
 onMounted(() => {
-  const { setupSequentialLoading } = useThreeScene("canvas");
+  const canvas = document.getElementById("canvas");
+  const { setupSequentialLoading } = useThreeScene(canvas);
   setupSequentialLoading();
 });
 </script>
@@ -22,7 +23,7 @@ onMounted(() => {
     top: 0;
     left: 0;
     width: 100%;
-    height: 100vh;
+    height: 100lvh;
   }
 }
 </style>

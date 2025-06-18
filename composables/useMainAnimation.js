@@ -5,21 +5,19 @@ import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
-import { BokehPass } from "three/examples/jsm/postprocessing/BokehPass.js";
 import { GammaCorrectionShader } from "three/examples/jsm/shaders/GammaCorrectionShader.js";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-export function useThreeScene(canvasId = "canvas") {
+export function useThreeScene(canvas) {
   // Three.js variables
   let scene, renderer, camera, statuemesh, envMap, material;
-  let composer, bloomPass, bokehPass;
+  let composer, bloomPass;
   let mixer,
     animations,
     animationActions = [];
   let lineHandler, dustParticles;
   let clock = new THREE.Clock();
-  let scrollTimeline, dofTimeline;
   let rightlight, leftlight;
   let statueGroup;
   let cursorLightsHandler; // Handler for cursor lights
@@ -85,16 +83,9 @@ export function useThreeScene(canvasId = "canvas") {
         lightness: { min: 70, max: 100 },
       },
     },
-    dof: { focus: 2.5, aperture: 0.001, maxblur: 0.5, enabled: false },
     insideLineWidth: 0.7,
     insideLineOpacity: 1,
   };
-
-  const dofFocusPoints = [
-    { position: 0, focus: 5.5 },
-    { position: 0.6, focus: 0.2 },
-    { position: 1, focus: 0.1 },
-  ];
 
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000000);
@@ -169,7 +160,7 @@ export function useThreeScene(canvasId = "canvas") {
           // Use camera from model if available
           if (gltf.cameras && gltf.cameras.length > 0) {
             camera = gltf.cameras[0];
-            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.aspect = canvas.clientWidth / canvas.clientHeight;
             camera.updateProjectionMatrix();
           }
 
@@ -229,6 +220,11 @@ export function useThreeScene(canvasId = "canvas") {
   function createAnimationController(mixer, actions, clips) {
     gsap.registerPlugin(ScrollTrigger);
 
+    ScrollTrigger.config({
+      limitCallbacks: true,
+      ignoreMobileResize: true,
+    });
+
     let proxy = {
       get time() {
         return mixer.time;
@@ -247,12 +243,14 @@ export function useThreeScene(canvasId = "canvas") {
     proxy.time = 0;
     const maxDuration = Math.max(...clips.map((clip) => clip.duration));
 
-    scrollTimeline = gsap.timeline({
+    const scrollTimeline = gsap.timeline({
       scrollTrigger: {
         trigger: document.body,
         start: "top top",
         end: "bottom bottom",
         scrub: true,
+        invalidateOnRefresh: false,
+        markers: true,
         onUpdate: function (self) {
           proxy.time = self.progress * maxDuration;
         },
@@ -262,54 +260,13 @@ export function useThreeScene(canvasId = "canvas") {
     window.scrollTo(0, 0);
   }
 
-  // DOF scroll animation
-  function createDOFScrollAnimation() {
-    const dofProxy = { focus: dofFocusPoints[0].focus };
-
-    dofTimeline = gsap.timeline({
-      scrollTrigger: {
-        trigger: document.body,
-        start: "top top",
-        end: "bottom bottom",
-        scrub: true,
-      },
-    });
-
-    dofTimeline.to(dofProxy, {
-      focus: dofFocusPoints[1].focus,
-      duration: 0.5,
-      ease: "none",
-      onUpdate: function () {
-        updateDOFFocus(dofProxy.focus);
-      },
-    });
-
-    dofTimeline.to(dofProxy, {
-      focus: dofFocusPoints[2].focus,
-      duration: 0.5,
-      ease: "none",
-      onUpdate: function () {
-        updateDOFFocus(dofProxy.focus);
-      },
-    });
-
-    return dofTimeline;
-  }
-
-  function updateDOFFocus(focusValue) {
-    if (bokehPass) {
-      config.dof.focus = focusValue;
-      bokehPass.uniforms["focus"].value = focusValue;
-    }
-  }
-
   // Mouse event handlers
   function onMouseMove(event) {
     lastMouse.x = mouse.x;
     lastMouse.y = mouse.y;
 
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    mouse.x = (event.clientX / canvas.clientWidth) * 2 - 1;
+    mouse.y = -(event.clientY / canvas.clientHeight) * 2 + 1;
 
     let deltaX = mouse.x - lastMouse.x;
     let deltaY = mouse.y - lastMouse.y;
@@ -412,14 +369,12 @@ export function useThreeScene(canvasId = "canvas") {
 
   // Initialize renderer and effects
   function init() {
-    const canvas = document.querySelector(`#${canvasId}`);
-
     renderer = new THREE.WebGLRenderer({
       antialias: true,
       canvas: canvas,
     });
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
     renderer.shadowMap.enabled = true;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.5;
@@ -428,17 +383,8 @@ export function useThreeScene(canvasId = "canvas") {
     composer = new EffectComposer(renderer);
     const renderPass = new RenderPass(scene, camera);
 
-    bokehPass = new BokehPass(scene, camera, {
-      focus: config.dof.focus,
-      aperture: config.dof.aperture,
-      maxblur: config.dof.maxblur,
-      width: window.innerWidth,
-      height: window.innerHeight,
-    });
-    bokehPass.enabled = config.dof.enabled;
-
     bloomPass = new UnrealBloomPass(
-      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      new THREE.Vector2(canvas.clientWidth, canvas.clientHeight),
       config.bloom.strength,
       config.bloom.radius,
       config.bloom.threshold
@@ -467,7 +413,6 @@ export function useThreeScene(canvasId = "canvas") {
     });
 
     composer.addPass(renderPass);
-    composer.addPass(bokehPass);
     composer.addPass(bloomPass);
     composer.addPass(brightnessCompensationPass);
     composer.addPass(gammaCorrectionPass);
@@ -498,28 +443,20 @@ export function useThreeScene(canvasId = "canvas") {
     if (typeof useDustParticles === "function") {
       dustParticles = new useDustParticles(scene, config.dustParticles);
     }
-
-    createDOFScrollAnimation();
   }
 
   // Window resize handler
   function onWindowResize() {
-    if (!camera || !renderer || !composer) return;
+    if (!camera || !renderer || !composer || useDevice().isMobileOrTablet)
+      return;
 
-    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.aspect = canvas.clientWidth / canvas.clientHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    composer.setSize(window.innerWidth, window.innerHeight);
-
-    if (bokehPass && bokehPass.renderTargetDepth) {
-      bokehPass.renderTargetDepth.setSize(
-        window.innerWidth,
-        window.innerHeight
-      );
-    }
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    composer.setSize(canvas.clientWidth, canvas.clientHeight);
 
     if (dustParticles && dustParticles.updateSettings) {
-      const aspectRatio = window.innerWidth / window.innerHeight;
+      const aspectRatio = canvas.clientWidth / canvas.clientHeight;
       dustParticles.updateSettings({
         area: { width: 15 * aspectRatio, height: 15, depth: 15 * aspectRatio },
       });

@@ -6,6 +6,13 @@ export const useCursorLights = (scene, camera) => {
 
   // Create cursor lights with provided config
   function createCursorLights(config) {
+    // Define the initial position you want
+    const initialPosition = new THREE.Vector3(
+      -1.4627038684521625,
+      -0.5280486146263911,
+      0.04583145543954181
+    );
+
     // Main cursor light
     cursorLight = new THREE.PointLight(
       config.cursorLight.color,
@@ -13,7 +20,7 @@ export const useCursorLights = (scene, camera) => {
       config.cursorLight.distance,
       config.cursorLight.decay
     );
-    cursorLight.position.set(0, 0, config.cursorLight.depth);
+    cursorLight.position.copy(initialPosition);
     scene.add(cursorLight);
 
     // First far cursor light
@@ -24,25 +31,11 @@ export const useCursorLights = (scene, camera) => {
       config.cursorLightFar.decay
     );
 
-    if (camera) {
-      const cameraForward = new THREE.Vector3(0, 0, -1);
-      cameraForward.transformDirection(camera.matrixWorld);
-
-      const initialPosition = camera.position
-        .clone()
-        .add(
-          cameraForward.clone().multiplyScalar(-config.cursorLightFar.depth)
-        );
-      initialPosition.x += config.cursorLightFar.xOffset;
-      cursorLightFar.position.copy(initialPosition);
-    } else {
-      cursorLightFar.position.set(
-        config.cursorLightFar.xOffset,
-        0,
-        -config.cursorLightFar.depth
-      );
-    }
-
+    // Set initial position for far light (you can adjust this offset as needed)
+    const farLightPosition = initialPosition.clone();
+    farLightPosition.x += config.cursorLightFar.xOffset;
+    farLightPosition.z = -config.cursorLightFar.depth;
+    cursorLightFar.position.copy(farLightPosition);
     scene.add(cursorLightFar);
 
     // Second far cursor light (mirrored)
@@ -53,25 +46,11 @@ export const useCursorLights = (scene, camera) => {
       config.cursorLightFar.decay
     );
 
-    if (camera) {
-      const cameraForward = new THREE.Vector3(0, 0, -1);
-      cameraForward.transformDirection(camera.matrixWorld);
-
-      const initialPosition2 = camera.position
-        .clone()
-        .add(
-          cameraForward.clone().multiplyScalar(-config.cursorLightFar.depth)
-        );
-      initialPosition2.x -= config.cursorLightFar.xOffset;
-      cursorLightFar2.position.copy(initialPosition2);
-    } else {
-      cursorLightFar2.position.set(
-        -config.cursorLightFar.xOffset,
-        0,
-        -config.cursorLightFar.depth
-      );
-    }
-
+    // Set initial position for second far light (mirrored)
+    const farLightPosition2 = initialPosition.clone();
+    farLightPosition2.x -= config.cursorLightFar.xOffset;
+    farLightPosition2.z = -config.cursorLightFar.depth;
+    cursorLightFar2.position.copy(farLightPosition2);
     scene.add(cursorLightFar2);
   }
 

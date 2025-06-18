@@ -31,6 +31,10 @@ export function useThreeScene(canvas) {
   let isMouseMoving = false;
   let mouseTimeout;
 
+  let cloudShaderHandler;
+  let cloudShaderHandler2;
+  let cloudShaderHandler3;
+
   // Configuration
   const config = {
     // Lighting
@@ -67,6 +71,27 @@ export function useThreeScene(canvas) {
       xOffset: 1.2,
     },
 
+    cloudShaders: {
+      one: {
+        size: { width: 2, height: 1 },
+        position: { x: -0.6, y: -0.4, z: 2.0 },
+        rotation: { x: 0, y: 0, z: 0 },
+        timeSpeed: 1.2,
+      },
+      two: {
+        size: { width: 5, height: 2 },
+        position: { x: 0.0, y: -0.7, z: 0.3 },
+        rotation: { x: 0, y: 0, z: 0 },
+        timeSpeed: 0.7,
+      },
+      three: {
+        size: { width: 6, height: 3 },
+        position: { x: 2.0, y: -1.5, z: -2.0 },
+        rotation: { x: 0, y: 0, z: 0 },
+        timeSpeed: 0.9,
+      },
+    },
+
     // Other settings
     lineWidth: 6,
     opacity: 1,
@@ -101,6 +126,17 @@ export function useThreeScene(canvas) {
         init();
         initStatueGroup();
         animate();
+        // Create cloud shader handler
+        cloudShaderHandler = new useCloudShader(config.cloudShaders.one);
+        // Create cloud shader handler
+        cloudShaderHandler2 = new useCloudShader(config.cloudShaders.two);
+        // Create cloud shader handler
+        cloudShaderHandler3 = new useCloudShader(config.cloudShaders.three);
+
+        // Initialize with configuration
+        cloudShaderHandler.init(scene);
+        cloudShaderHandler2.init(scene);
+        cloudShaderHandler3.init(scene);
         useGui(
           config,
           cursorLightsHandler?.getLights().cursorLightFar,
@@ -250,7 +286,6 @@ export function useThreeScene(canvas) {
         end: "bottom bottom",
         scrub: true,
         invalidateOnRefresh: false,
-        markers: true,
         onUpdate: function (self) {
           proxy.time = self.progress * maxDuration;
         },
@@ -490,6 +525,12 @@ export function useThreeScene(canvas) {
 
     if (dustParticles && dustParticles.animate) {
       dustParticles.animate(delta);
+    }
+
+    if (cloudShaderHandler) {
+      cloudShaderHandler.update(delta);
+      cloudShaderHandler2.update(delta);
+      cloudShaderHandler3.update(delta);
     }
 
     composer.render();

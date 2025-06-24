@@ -35,6 +35,29 @@ export function useThreeScene(canvas) {
   let cloudShaderHandler2;
   let cloudShaderHandler3;
 
+  const cameraAnimationOptions = [
+    {
+      trigger: ".home-page .header",
+      startDuration: 0,
+      maxDuration: 4,
+    },
+    {
+      trigger: ".home-page .stop-1",
+      startDuration: 4,
+      maxDuration: 8,
+    },
+    {
+      trigger: ".home-page .stop-2",
+      startDuration: 8,
+      maxDuration: 12,
+    },
+    {
+      trigger: ".footer",
+      startDuration: 12,
+      maxDuration: 15.833333015441895,
+    },
+  ];
+
   // Configuration
   const config = {
     // Lighting
@@ -230,7 +253,18 @@ export function useThreeScene(canvas) {
               animationActions.push(action);
             }
 
-            createAnimationController(mixer, animationActions, animations);
+            gsap.registerPlugin(ScrollTrigger);
+
+            ScrollTrigger.config({
+              limitCallbacks: true,
+              ignoreMobileResize: true,
+            });
+
+            cameraAnimationOptions.forEach((item, index) => {
+              createAnimationController(mixer, animationActions, item);
+            });
+
+            window.scrollTo(0, 0);
 
             lineHandler = new useLineHandler(config);
             lineHandler
@@ -253,14 +287,7 @@ export function useThreeScene(canvas) {
   }
 
   // Animation controller
-  function createAnimationController(mixer, actions, clips) {
-    gsap.registerPlugin(ScrollTrigger);
-
-    ScrollTrigger.config({
-      limitCallbacks: true,
-      ignoreMobileResize: true,
-    });
-
+  function createAnimationController(mixer, actions, item) {
     let proxy = {
       get time() {
         return mixer.time;
@@ -277,22 +304,24 @@ export function useThreeScene(canvas) {
     };
 
     proxy.time = 0;
-    const maxDuration = Math.max(...clips.map((clip) => clip.duration));
 
     const scrollTimeline = gsap.timeline({
       scrollTrigger: {
-        trigger: document.body,
+        trigger: item.trigger,
         start: "top top",
-        end: "bottom bottom",
+        end: "bottom top",
         scrub: true,
         invalidateOnRefresh: false,
+        markers: true,
         onUpdate: function (self) {
-          proxy.time = self.progress * maxDuration;
+          proxy.time =
+            item.startDuration +
+            self.progress * (item.maxDuration - item.startDuration);
+
+          console.log(proxy.time);
         },
       },
     });
-
-    window.scrollTo(0, 0);
   }
 
   // Mouse event handlers

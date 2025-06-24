@@ -8,10 +8,11 @@ import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPa
 import { GammaCorrectionShader } from "three/examples/jsm/shaders/GammaCorrectionShader.js";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ref } from "vue";
 
-export function useThreeScene(canvas) {
+export function useThreeScene(canvasId) {
   // Three.js variables
-  let scene, renderer, camera, statuemesh, envMap, material;
+  let canvas, scene, renderer, camera, statuemesh, envMap, material;
   let composer, bloomPass;
   let mixer,
     animations,
@@ -20,7 +21,7 @@ export function useThreeScene(canvas) {
   let clock = new THREE.Clock();
   let rightlight, leftlight;
   let statueGroup;
-  let cursorLightsHandler; // Handler for cursor lights
+  let cursorLightsHandler;
 
   // Mouse rotation variables (separate from cursor lights)
   let mouse = new THREE.Vector2();
@@ -35,6 +36,7 @@ export function useThreeScene(canvas) {
   let cloudShaderHandler2;
   let cloudShaderHandler3;
 
+  let activeTextIndex = ref(0);
   const cameraAnimationOptions = [
     {
       trigger: ".home-page .header",
@@ -219,6 +221,7 @@ export function useThreeScene(canvas) {
           // Use camera from model if available
           if (gltf.cameras && gltf.cameras.length > 0) {
             camera = gltf.cameras[0];
+            if (!canvas) canvas = document.querySelector(canvasId);
             camera.aspect = canvas.clientWidth / canvas.clientHeight;
             camera.updateProjectionMatrix();
           }
@@ -261,7 +264,7 @@ export function useThreeScene(canvas) {
             });
 
             cameraAnimationOptions.forEach((item, index) => {
-              createAnimationController(mixer, animationActions, item);
+              createAnimationController(mixer, animationActions, item, index);
             });
 
             window.scrollTo(0, 0);
@@ -287,7 +290,7 @@ export function useThreeScene(canvas) {
   }
 
   // Animation controller
-  function createAnimationController(mixer, actions, item) {
+  function createAnimationController(mixer, actions, item, index) {
     let proxy = {
       get time() {
         return mixer.time;
@@ -313,12 +316,22 @@ export function useThreeScene(canvas) {
         scrub: true,
         invalidateOnRefresh: false,
         markers: true,
+        onEnter: () => {
+          activeTextIndex.value = null;
+        },
+        onLeave: () => {
+          activeTextIndex.value = index;
+        },
+        onEnterBack: () => {
+          activeTextIndex.value = null;
+        },
+        onLeaveBack: () => {
+          activeTextIndex.value = index;
+        },
         onUpdate: function (self) {
           proxy.time =
             item.startDuration +
             self.progress * (item.maxDuration - item.startDuration);
-
-          console.log(proxy.time);
         },
       },
     });
@@ -433,6 +446,8 @@ export function useThreeScene(canvas) {
 
   // Initialize renderer and effects
   function init() {
+    if (!canvas) canvas = document.querySelector(canvasId);
+
     renderer = new THREE.WebGLRenderer({
       antialias: true,
       canvas: canvas,
@@ -567,5 +582,6 @@ export function useThreeScene(canvas) {
 
   return {
     setupSequentialLoading,
+    activeTextIndex,
   };
 }

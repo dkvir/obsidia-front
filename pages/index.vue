@@ -1,21 +1,30 @@
 <template>
   <div class="home-page">
     <canvas id="canvas"></canvas>
-    <div class="header stop"></div>
+    <div class="header stop">
+      <div class="marker"></div>
+    </div>
     <div class="separator"></div>
-    <div class="stop-1 stop"></div>
+    <div class="stop-1 stop">
+      <div class="marker"></div>
+    </div>
     <div class="separator"></div>
-    <div class="stop-2 stop"></div>
+    <div class="stop-2 stop">
+      <div class="marker"></div>
+    </div>
     <div class="separator"></div>
-    <div class="footer stop"></div>
+    <div class="footer stop">
+      <div class="marker"></div>
+    </div>
+    <div class="separator"></div>
     <div class="separator"></div>
     <ul class="texts">
       <li
         v-for="(item, index) in 4"
+        :style="`--trigger-progress: ${triggerProgress}`"
         :class="[
           'text',
           {
-            'is-active': activeTextIndex == index,
             'is-even': index % 2 !== 0,
           },
         ]"
@@ -28,17 +37,9 @@
 </template>
 
 <script setup>
-import gsap from "gsap";
-const { setupSequentialLoading, activeTextIndex } = useThreeScene("#canvas");
+const { setupSequentialLoading, triggerProgress } = useThreeScene("#canvas");
 
 onMounted(() => {
-  gsap.registerPlugin(SplitText);
-
-  let split = SplitText.create(".home-page .texts .text", {
-    type: "lines",
-    mask: "line-mask",
-  });
-
   setupSequentialLoading();
 });
 </script>
@@ -49,8 +50,16 @@ onMounted(() => {
   min-height: 100vh;
   position: relative;
   .stop {
+    position: relative;
     width: 100vw;
     height: 100vh;
+  }
+  .marker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 200vh;
   }
 
   .separator {
@@ -76,14 +85,9 @@ onMounted(() => {
     width: 40%;
     font-size: 36px;
     font-family: var(--font-parmigiano-light);
-    opacity: var(--text-opacity, 0);
-    @include default-transitions(opacity);
     &.is-even {
       right: initial;
       left: 0;
-    }
-    &.is-active {
-      --text-opacity: 1;
     }
   }
 }

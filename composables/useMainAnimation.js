@@ -36,7 +36,7 @@ export function useThreeScene(canvasId) {
   let cloudShaderHandler2;
   let cloudShaderHandler3;
 
-  let activeTextIndex = ref(0);
+  let triggerProgress = ref(0);
   const cameraAnimationOptions = [
     {
       trigger: ".home-page .header",
@@ -256,18 +256,7 @@ export function useThreeScene(canvasId) {
               animationActions.push(action);
             }
 
-            gsap.registerPlugin(ScrollTrigger);
-
-            ScrollTrigger.config({
-              limitCallbacks: true,
-              ignoreMobileResize: true,
-            });
-
-            cameraAnimationOptions.forEach((item, index) => {
-              createAnimationController(mixer, animationActions, item, index);
-            });
-
-            window.scrollTo(0, 0);
+            createGsap();
 
             lineHandler = new useLineHandler(config);
             lineHandler
@@ -289,8 +278,51 @@ export function useThreeScene(canvasId) {
     });
   }
 
+  function createGsap() {
+    gsap.registerPlugin(ScrollTrigger, SplitText);
+
+    ScrollTrigger.config({
+      limitCallbacks: true,
+      ignoreMobileResize: true,
+    });
+
+    const listItems = document.querySelectorAll(".home-page .texts .text");
+    const separators = document.querySelectorAll(".home-page .marker");
+
+    listItems.forEach((item, index) => {
+      let split = SplitText.create(item, {
+        type: "lines, words",
+        mask: "line",
+      });
+
+      gsap.set(item, {
+        opacity: 0,
+      });
+
+      createAnimationController(
+        mixer,
+        animationActions,
+        separators[index],
+        item,
+        index,
+        split,
+        cameraAnimationOptions[index]
+      );
+    });
+
+    window.scrollTo(0, 0);
+  }
+
   // Animation controller
-  function createAnimationController(mixer, actions, item, index) {
+  function createAnimationController(
+    mixer,
+    actions,
+    separator,
+    item,
+    index,
+    splitItem,
+    triggerItem
+  ) {
     let proxy = {
       get time() {
         return mixer.time;
@@ -308,31 +340,52 @@ export function useThreeScene(canvasId) {
 
     proxy.time = 0;
 
-    const scrollTimeline = gsap.timeline({
-      scrollTrigger: {
-        trigger: item.trigger,
-        start: "top top",
-        end: "bottom top",
-        scrub: true,
-        invalidateOnRefresh: false,
-        markers: true,
-        onEnter: () => {
-          activeTextIndex.value = null;
-        },
-        onLeave: () => {
-          activeTextIndex.value = index;
-        },
-        onEnterBack: () => {
-          activeTextIndex.value = null;
-        },
-        onLeaveBack: () => {
-          activeTextIndex.value = index;
-        },
-        onUpdate: function (self) {
-          proxy.time =
-            item.startDuration +
-            self.progress * (item.maxDuration - item.startDuration);
-        },
+    ScrollTrigger.create({
+      trigger: triggerItem.trigger,
+      start: "top top",
+      end: "bottom top",
+      invalidateOnRefresh: false,
+      scrub: true,
+      onUpdate: function (self) {
+        proxy.time =
+          triggerItem.startDuration +
+          self.progress * (triggerItem.maxDuration - triggerItem.startDuration);
+      },
+    });
+
+    ScrollTrigger.create({
+      trigger: separator,
+      start: "top top",
+      end: "bottom top",
+      markers: true,
+      scrub: true,
+      toggleActions: "play reset play pause",
+      invalidateOnRefresh: false,
+      animation: gsap.from(splitItem.words, {
+        rotate: 3,
+        yPercent: 50,
+        opacity: 0,
+        stagger: 0.05,
+      }),
+      onEnter: () => {
+        gsap.to(item, {
+          opacity: 1,
+        });
+      },
+      onLeave: () => {
+        gsap.to(item, {
+          opacity: 0,
+        });
+      },
+      onEnterBack: () => {
+        gsap.to(item, {
+          opacity: 1,
+        });
+      },
+      onLeaveBack: () => {
+        gsap.to(item, {
+          opacity: 0,
+        });
       },
     });
   }
@@ -582,6 +635,6 @@ export function useThreeScene(canvasId) {
 
   return {
     setupSequentialLoading,
-    activeTextIndex,
+    triggerProgress,
   };
 }

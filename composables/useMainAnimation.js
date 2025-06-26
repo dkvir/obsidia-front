@@ -54,7 +54,7 @@ export function useThreeScene(canvasId) {
       maxDuration: 12,
     },
     {
-      trigger: ".footer",
+      trigger: ".home-page .footer",
       startDuration: 12,
       maxDuration: 15.833333015441895,
     },
@@ -311,8 +311,8 @@ export function useThreeScene(canvasId) {
     const scrollTimeline = gsap.timeline({
       scrollTrigger: {
         trigger: item.trigger,
-        start: "top top",
-        end: "bottom top",
+        start: "top+=20 top",
+        end: "bottom-=20 top",
         scrub: true,
         invalidateOnRefresh: false,
         markers: true,
@@ -320,7 +320,7 @@ export function useThreeScene(canvasId) {
           activeTextIndex.value = null;
         },
         onLeave: () => {
-          activeTextIndex.value = index;
+          activeTextIndex.value = index + 1;
         },
         onEnterBack: () => {
           activeTextIndex.value = null;

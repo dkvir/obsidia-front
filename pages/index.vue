@@ -11,7 +11,7 @@
     <div class="separator"></div>
     <ul class="texts">
       <li
-        v-for="(item, index) in 4"
+        v-for="(item, index) in 5"
         :class="[
           'text',
           {
@@ -20,24 +20,78 @@
           },
         ]"
       >
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore,
-        eos! Ipsa minima sint a dolorem, sapiente quas commodi ducimus numquam?
+        {{ index }} Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+        Inventore, eos! Ipsa minima sint a dolorem, sapiente quas commodi
+        ducimus numquam?
       </li>
     </ul>
   </div>
 </template>
 
 <script setup>
-import gsap from "gsap";
 const { setupSequentialLoading, activeTextIndex } = useThreeScene("#canvas");
+import gsap from "gsap";
+
+// const split = ref(null);
+let listItems = ref(null);
+const splitArr = ref([]);
+
+watch(
+  () => activeTextIndex.value,
+  (curr, prev) => {
+    if (curr !== null) {
+      gsap.to(splitArr.value[curr].lines, {
+        yPercent: 0,
+        rotate: 0,
+        opacity: 1,
+        ease: "power2.out",
+        duration: 0.9,
+        stagger: 0.07,
+      });
+    }
+
+    if (prev !== null) {
+      gsap.to(splitArr.value[prev].lines, {
+        yPercent: 200,
+        rotate: 5,
+        opacity: 0,
+        ease: "power2.out",
+        duration: 0.9,
+        stagger: 0.05,
+      });
+    }
+  }
+);
 
 onMounted(() => {
   gsap.registerPlugin(SplitText);
 
-  let split = SplitText.create(".home-page .texts .text", {
-    type: "lines",
-    mask: "line-mask",
+  listItems.value = document.querySelectorAll(".texts .text");
+
+  listItems.value.forEach((item, index) => {
+    let split = SplitText.create(item, {
+      type: "lines",
+      mask: "lines",
+      linesClass: "line",
+    });
+    gsap.set(split.lines, {
+      yPercent: 250,
+      rotate: 10,
+      opacity: 0,
+    });
+    splitArr.value.push(split);
   });
+
+  setTimeout(() => {
+    gsap.to(splitArr.value[0].lines, {
+      yPercent: 0,
+      rotate: 0,
+      opacity: 1,
+      ease: "power2.out",
+      duration: 0.9,
+      stagger: 0.1,
+    });
+  }, 1000);
 
   setupSequentialLoading();
 });
@@ -50,12 +104,12 @@ onMounted(() => {
   position: relative;
   .stop {
     width: 100vw;
-    height: 100vh;
+    height: 200vh;
   }
 
   .separator {
     width: 100vw;
-    height: 100vh;
+    height: 200vh;
   }
 
   #canvas,
@@ -67,7 +121,7 @@ onMounted(() => {
     height: 100lvh;
   }
 
-  .text {
+  :deep(.text) {
     position: absolute;
     top: 50%;
     right: 0;
@@ -76,7 +130,7 @@ onMounted(() => {
     width: 40%;
     font-size: 36px;
     font-family: var(--font-parmigiano-light);
-    opacity: var(--text-opacity, 0);
+    // opacity: var(--text-opacity, 0);
     @include default-transitions(opacity);
     &.is-even {
       right: initial;
@@ -84,6 +138,9 @@ onMounted(() => {
     }
     &.is-active {
       --text-opacity: 1;
+    }
+    .line-mask {
+      overflow: hidden;
     }
   }
 }

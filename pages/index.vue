@@ -1,32 +1,94 @@
 <template>
   <div class="home-page">
     <canvas id="canvas"></canvas>
-    <div class="header stop">
-      <div class="marker"></div>
+    <div v-for="(item, index) in content" :key="index" class="couple">
+      <div :class="`stop stop-${index}`"></div>
+      <div class="separator"></div>
     </div>
-    <div class="separator"></div>
-    <div class="stop-1 stop">
-      <div class="marker"></div>
-    </div>
-    <div class="separator"></div>
-    <div class="stop-2 stop">
-      <div class="marker"></div>
-    </div>
-    <div class="separator"></div>
-    <div class="footer stop">
-      <div class="marker"></div>
-    </div>
-    <div class="separator"></div>
-    <div class="separator"></div>
-    <home-content :activeTextIndex="activeTextIndex" />
+    <home-content />
   </div>
 </template>
 
 <script setup>
-const { setupSequentialLoading, triggerProgress } = useThreeScene("#canvas");
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+const { tm } = useI18n();
+const { setupSequentialLoading, activeTextIndex } = useThreeScene("#canvas");
+
+const content = computed(() => tm("home.welcome"));
 
 onMounted(() => {
+  gsap.registerPlugin(ScrollTrigger, SplitText);
+  ScrollTrigger.config({
+    limitCallbacks: true,
+    ignoreMobileResize: true,
+  });
+
   setupSequentialLoading();
+
+  const contentItems = document.querySelectorAll(".home-page .content .item");
+  const couples = document.querySelectorAll(".home-page .couple");
+
+  contentItems.forEach((item, index) => {
+    let split = SplitText.create(item.querySelector(".title"), {
+      type: "lines, chars",
+      mask: "lines",
+      linesClass: "line",
+      charsClass: "char",
+    });
+
+    const subtitle = item.querySelector(".subtitle");
+    const descriptions = item.querySelector(".descriptions");
+
+    if (subtitle) {
+      gsap.set(subtitle, {
+        opacity: 0,
+      });
+    }
+
+    if (descriptions) {
+      gsap.set(descriptions, {
+        opacity: 0,
+      });
+    }
+
+    gsap.set(split.chars, {
+      yPercent: 100,
+    });
+
+    if (index == 0) {
+      setTimeout(() => {
+        gsap.to(split.chars, {
+          yPercent: 0,
+          duration: 0.5,
+          stagger: { amount: 0.3, from: "start" },
+          onComplete: () => {
+            ScrollTrigger.create({
+              trigger: couples[index],
+              start: "top top",
+              end: "bottom top",
+              scrub: true,
+              invalidateOnRefresh: false,
+              markers: true,
+              toggleActions: "play none none play",
+              animation: useTimelines[index](split.chars, item),
+            });
+          },
+        });
+      }, 1000);
+    } else {
+      ScrollTrigger.create({
+        trigger: couples[index],
+        start: "top top",
+        end: "bottom top",
+        scrub: true,
+        invalidateOnRefresh: false,
+        markers: true,
+        toggleActions: "play none none play",
+        animation: useTimelines[index](split.chars, item),
+      });
+    }
+  });
 });
 </script>
 
@@ -35,6 +97,10 @@ onMounted(() => {
   position: relative;
   width: 100vw;
   min-height: 100vh;
+  .couple {
+    width: 100vw;
+    height: 200vh;
+  }
   .stop {
     position: relative;
     width: 100vw;

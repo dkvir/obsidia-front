@@ -5,7 +5,6 @@
       :class="[
         `item flex-column justify-center`,
         {
-          'is-active': activeTextIndex == index,
           'align-center': item.position == 'center',
           'align-end': item.position == 'right',
         },
@@ -30,11 +29,9 @@
 </template>
 
 <script setup>
-const props = defineProps({
-  activeTextIndex: {
-    type: Number,
-  },
-});
+import gsap from "gsap";
+
+onMounted(() => {});
 </script>
 
 <style lang="scss" scoped>
@@ -52,11 +49,6 @@ const props = defineProps({
     padding: var(--page-offset-padding);
     font-size: 36px;
     font-family: var(--font-parmigiano-light);
-    opacity: var(--item-opacity, 0);
-    @include default-transitions(opacity);
-    &.is-active {
-      --item-opacity: 1;
-    }
     &.position-center {
       top: 50%;
       left: 50%;
@@ -85,6 +77,10 @@ const props = defineProps({
     margin-top: 10px;
     color: var(--color-white);
     line-height: 1;
+
+    .line-mask {
+      overflow: hidden;
+    }
 
     &.is-large {
       text-align: center;

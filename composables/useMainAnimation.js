@@ -36,10 +36,9 @@ export function useThreeScene(canvasId) {
   let cloudShaderHandler2;
   let cloudShaderHandler3;
 
-  let triggerProgress = ref(0);
   const cameraAnimationOptions = [
     {
-      trigger: ".home-page .header",
+      trigger: ".home-page .stop-0",
       startDuration: 0,
       maxDuration: 4,
     },
@@ -54,7 +53,7 @@ export function useThreeScene(canvasId) {
       maxDuration: 12,
     },
     {
-      trigger: ".footer",
+      trigger: ".stop-3",
       startDuration: 12,
       maxDuration: 15.833333015441895,
     },
@@ -341,51 +340,15 @@ export function useThreeScene(canvasId) {
     proxy.time = 0;
 
     ScrollTrigger.create({
-      trigger: triggerItem.trigger,
+      trigger: item.trigger,
       start: "top top",
       end: "bottom top",
-      invalidateOnRefresh: false,
       scrub: true,
+      invalidateOnRefresh: false,
       onUpdate: function (self) {
         proxy.time =
-          triggerItem.startDuration +
-          self.progress * (triggerItem.maxDuration - triggerItem.startDuration);
-      },
-    });
-
-    ScrollTrigger.create({
-      trigger: separator,
-      start: "top top",
-      end: "bottom top",
-      markers: true,
-      scrub: true,
-      toggleActions: "play reset play pause",
-      invalidateOnRefresh: false,
-      animation: gsap.from(splitItem.words, {
-        rotate: 3,
-        yPercent: 50,
-        opacity: 0,
-        stagger: 0.05,
-      }),
-      onEnter: () => {
-        gsap.to(item, {
-          opacity: 1,
-        });
-      },
-      onLeave: () => {
-        gsap.to(item, {
-          opacity: 0,
-        });
-      },
-      onEnterBack: () => {
-        gsap.to(item, {
-          opacity: 1,
-        });
-      },
-      onLeaveBack: () => {
-        gsap.to(item, {
-          opacity: 0,
-        });
+          item.startDuration +
+          self.progress * (item.maxDuration - item.startDuration);
       },
     });
   }
@@ -635,6 +598,5 @@ export function useThreeScene(canvasId) {
 
   return {
     setupSequentialLoading,
-    triggerProgress,
   };
 }

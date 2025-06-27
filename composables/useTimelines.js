@@ -2,6 +2,10 @@ import gsap from "gsap";
 
 const usetl0 = (trigger, item) => {
   const tl = gsap.timeline({ ease: "power1.out" });
+  tl.to(trigger, {
+    yPercent: 0,
+    duration: 1.2,
+  });
   tl.fromTo(
     trigger,
     {
@@ -9,7 +13,7 @@ const usetl0 = (trigger, item) => {
     },
     {
       yPercent: 100,
-      duration: 0.9,
+      duration: 0.6,
       stagger: { amount: 0.3, from: "start" },
     }
   ).to(

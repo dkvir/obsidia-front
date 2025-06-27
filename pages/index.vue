@@ -18,21 +18,7 @@
     </div>
     <div class="separator"></div>
     <div class="separator"></div>
-    <ul class="texts">
-      <li
-        v-for="(item, index) in 4"
-        :style="`--trigger-progress: ${triggerProgress}`"
-        :class="[
-          'text',
-          {
-            'is-even': index % 2 !== 0,
-          },
-        ]"
-      >
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore,
-        eos! Ipsa minima sint a dolorem, sapiente quas commodi ducimus numquam?
-      </li>
-    </ul>
+    <home-content :activeTextIndex="activeTextIndex" />
   </div>
 </template>
 
@@ -46,9 +32,9 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .home-page {
-  width: 100%;
-  min-height: 100vh;
   position: relative;
+  width: 100vw;
+  min-height: 100vh;
   .stop {
     position: relative;
     width: 100vw;
@@ -67,12 +53,11 @@ onMounted(() => {
     height: 100vh;
   }
 
-  #canvas,
-  .texts {
+  #canvas {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
+    width: 100vw;
     height: 100lvh;
   }
 

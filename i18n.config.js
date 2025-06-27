@@ -5,5 +5,5 @@ export default defineI18nConfig(() => ({
   locale: "en",
   fallbackLocale: "en",
   availableLocales: ["en"],
-  languages: languages,
+  messages: languages,
 }));

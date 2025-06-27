@@ -27,7 +27,31 @@ export default defineNuxtConfig({
       siteUrl: process.env.PUBLIC_SITE_URL,
     },
   },
-  modules: ["nuxt-icons", "@pinia/nuxt", "@nuxtjs/robots", "@nuxtjs/sitemap", "@nuxtjs/device"],
+  modules: [
+    "nuxt-icons",
+    "@pinia/nuxt",
+    "@nuxtjs/robots",
+    "@nuxtjs/sitemap",
+    "@nuxtjs/device",
+    "@nuxtjs/i18n",
+  ],
+  i18n: {
+    strategy: "no_prefix",
+    detectBrowserLanguage: {
+      alwaysRedirect: true,
+      useCookie: true,
+      cookieKey: "i18n_redirected",
+      redirectOn: "root",
+    },
+    locales: [
+      {
+        code: "en",
+        iso: "en-US",
+      },
+    ],
+    baseUrl: process.env.PUBLIC_SITE_URL,
+    vueI18n: "~/i18n.config.js",
+  },
   css: ["@/assets/sass/style.scss"],
   vite: {
     css: {

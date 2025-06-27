@@ -255,7 +255,17 @@ export function useThreeScene(canvasId) {
               animationActions.push(action);
             }
 
-            createGsap();
+            gsap.registerPlugin(ScrollTrigger);
+
+            ScrollTrigger.config({
+              limitCallbacks: true,
+              ignoreMobileResize: true,
+            });
+            cameraAnimationOptions.forEach((item, index) => {
+              createAnimationController(mixer, animationActions, item, index);
+            });
+
+            window.scrollTo(0, 0);
 
             lineHandler = new useLineHandler(config);
             lineHandler
@@ -277,51 +287,8 @@ export function useThreeScene(canvasId) {
     });
   }
 
-  function createGsap() {
-    gsap.registerPlugin(ScrollTrigger, SplitText);
-
-    ScrollTrigger.config({
-      limitCallbacks: true,
-      ignoreMobileResize: true,
-    });
-
-    const listItems = document.querySelectorAll(".home-page .texts .text");
-    const separators = document.querySelectorAll(".home-page .marker");
-
-    listItems.forEach((item, index) => {
-      let split = SplitText.create(item, {
-        type: "lines, words",
-        mask: "line",
-      });
-
-      gsap.set(item, {
-        opacity: 0,
-      });
-
-      createAnimationController(
-        mixer,
-        animationActions,
-        separators[index],
-        item,
-        index,
-        split,
-        cameraAnimationOptions[index]
-      );
-    });
-
-    window.scrollTo(0, 0);
-  }
-
   // Animation controller
-  function createAnimationController(
-    mixer,
-    actions,
-    separator,
-    item,
-    index,
-    splitItem,
-    triggerItem
-  ) {
+  function createAnimationController(mixer, actions, item, index) {
     let proxy = {
       get time() {
         return mixer.time;

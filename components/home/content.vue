@@ -112,6 +112,9 @@ onMounted(() => {});
     font-size: 21px;
     font-family: var(--font-pingl-light);
     color: var(--color-silver);
+    .line-mask {
+      overflow: hidden;
+    }
     .description {
       @include list-distance(top, 20px);
     }

@@ -30,15 +30,31 @@ onMounted(() => {
   const couples = document.querySelectorAll(".home-page .couple");
 
   contentItems.forEach((item, index) => {
-    let split = SplitText.create(item.querySelector(".title"), {
+    const title = item.querySelector(".title");
+    const subtitle = item.querySelector(".subtitle");
+    const descriptions = item.querySelector(".descriptions");
+    let splitDesc = null;
+
+    let splitTitle = SplitText.create(title, {
       type: "lines, chars",
       mask: "lines",
       linesClass: "line",
       charsClass: "char",
     });
 
-    const subtitle = item.querySelector(".subtitle");
-    const descriptions = item.querySelector(".descriptions");
+    if (descriptions) {
+      splitDesc = SplitText.create(item.querySelectorAll(".description"), {
+        type: "lines, words",
+        mask: "lines",
+        linesClass: "line",
+        wordClass: "word",
+      });
+
+      gsap.set(splitDesc.lines, {
+        yPercent: 200,
+        rotate: 5,
+      });
+    }
 
     if (subtitle) {
       gsap.set(subtitle, {
@@ -46,19 +62,13 @@ onMounted(() => {
       });
     }
 
-    if (descriptions) {
-      gsap.set(descriptions, {
-        opacity: 0,
-      });
-    }
-
-    gsap.set(split.chars, {
+    gsap.set(splitTitle.chars, {
       yPercent: 100,
     });
 
     if (index == 0) {
       setTimeout(() => {
-        gsap.to(split.chars, {
+        gsap.to(splitTitle.chars, {
           yPercent: 0,
           duration: 0.9,
           ease: "power3.out",
@@ -72,7 +82,11 @@ onMounted(() => {
               invalidateOnRefresh: false,
               markers: true,
               toggleActions: "play none none play",
-              animation: useTimelines[index](split.chars, item),
+              animation: useTimelines[index](
+                splitTitle.chars,
+                splitDesc?.lines,
+                item
+              ),
             });
           },
         });
@@ -86,7 +100,11 @@ onMounted(() => {
         invalidateOnRefresh: false,
         markers: true,
         toggleActions: "play none none play",
-        animation: useTimelines[index](split.chars, item),
+        animation: useTimelines[index](
+          splitTitle.chars,
+          splitDesc?.lines,
+          item
+        ),
       });
     }
   });

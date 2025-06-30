@@ -85,6 +85,7 @@ onMounted(() => {
               animation: useTimelines[index](
                 splitTitle.chars,
                 splitDesc?.lines,
+                subtitle,
                 item
               ),
             });
@@ -103,6 +104,7 @@ onMounted(() => {
         animation: useTimelines[index](
           splitTitle.chars,
           splitDesc?.lines,
+          subtitle,
           item
         ),
       });

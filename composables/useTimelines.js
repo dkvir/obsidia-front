@@ -4,7 +4,7 @@ const usetl0 = (triggerTitle, triggerDesc = null, subtitle, item) => {
   const tl = gsap.timeline({ ease: "power1.out" });
   tl.to(triggerTitle, {
     yPercent: 0,
-    duration: 1.2,
+    duration: 1,
   })
     .fromTo(
       triggerTitle,
@@ -13,15 +13,16 @@ const usetl0 = (triggerTitle, triggerDesc = null, subtitle, item) => {
       },
       {
         yPercent: 100,
-        duration: 0.6,
-        stagger: { amount: 0.3, from: "start" },
-      }
+        duration: 0.5,
+        stagger: { amount: 0.07, from: "start" },
+      },
+      ">+=0.9"
     )
     .to(
       item,
       {
-        yPercent: -70,
-        duration: 1.5,
+        yPercent: -50,
+        duration: 0.9,
       },
       "<"
     );

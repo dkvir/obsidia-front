@@ -76,8 +76,8 @@ onMounted(() => {
           onComplete: () => {
             ScrollTrigger.create({
               trigger: couples[index],
-              start: "top top",
-              end: "bottom top",
+              start: "top+=35% top",
+              end: "bottom+=35% top",
               scrub: true,
               invalidateOnRefresh: false,
               markers: true,
@@ -95,8 +95,8 @@ onMounted(() => {
     } else {
       ScrollTrigger.create({
         trigger: couples[index],
-        start: "top top",
-        end: "bottom top",
+        start: "top+=35% top",
+        end: "bottom+=35% top",
         scrub: true,
         invalidateOnRefresh: false,
         markers: true,

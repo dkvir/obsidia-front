@@ -1,12 +1,15 @@
 [
   {
+    "subtitle": "lead beyond",
     "title": {
-      "top": "every body",
-      "bottom": "a masterpiece",
-      "size": "large"
+      "top": "the ritual",
+      "bottom": "of becoming",
+      "size": "small"
     },
-    "descriptions": [],
-    "position": "center"
+    "descriptions": [
+      "True change happens in silence, beneath the surface. At Amanita, growth spreads through every cell — body, mind, and spirit."
+    ],
+    "position": "right"
   },
   {
     "subtitle": "lead beyond",

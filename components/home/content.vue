@@ -1,19 +1,23 @@
 <template>
-  <ul class="content">
-    <li
-      v-for="(item, index) in $tm('home.welcome')"
+  <div
+    :class="[
+      `content flex align-center`,
+      {
+        'justify-center': item.position == 'center',
+        'justify-end': item.position == 'right',
+      },
+    ]"
+  >
+    <div
       :class="[
-        `item flex-column justify-center`,
-        {
-          'align-center': item.position == 'center',
-          'align-end': item.position == 'right',
-        },
+        `frame flex-column is-${item.title.size}`,
+        { 'align-center': item.position == 'center' },
       ]"
     >
       <h3 v-if="item.subtitle" class="subtitle uppercase">
         {{ item.subtitle }}
       </h3>
-      <h2 :class="`title flex-column uppercase is-${item.title.size}`">
+      <h2 class="title flex-column uppercase">
         <span class="top span"> {{ item.title.top }}</span>
         <span class="bottom span">
           {{ item.title.bottom }}
@@ -24,46 +28,58 @@
           {{ description }}
         </li>
       </ul>
-    </li>
-  </ul>
+    </div>
+  </div>
 </template>
 
 <script setup>
 import gsap from "gsap";
+
+const props = defineProps({
+  item: {
+    type: Object,
+    required: true,
+  },
+});
 
 onMounted(() => {});
 </script>
 
 <style lang="scss" scoped>
 .content {
-  position: fixed;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
+  padding: var(--page-offset-padding);
+  font-size: 36px;
+  font-family: var(--font-parmigiano-light);
 
-  .item {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    padding: var(--page-offset-padding);
-    font-size: 36px;
-    font-family: var(--font-parmigiano-light);
-    &.position-center {
-      top: 50%;
-      left: 50%;
-      transform: translate3d(-50%, -50%, 0);
-    }
+  .frame {
+    &.is-small {
+      width: 35%;
 
-    &.position-left {
-      top: 50%;
-      left: 0;
-      transform: translate3d(0%, -50%, 0);
+      .top {
+        font-size: 66px;
+        font-family: var(--font-pingl-bold);
+      }
+      .bottom {
+        font-size: 63px;
+        font-family: var(--font-parmigiano-light);
+      }
     }
-    &.position-right {
-      top: 50%;
-      right: 0;
-      transform: translate3d(0%, -50%, 0);
+    &.is-large {
+      width: max-content;
+
+      .title {
+        text-align: center;
+        .top {
+          font-size: 114px;
+          font-family: var(--font-pingl-bold);
+        }
+        .bottom {
+          font-size: 108px;
+          font-family: var(--font-parmigiano-light);
+        }
+      }
     }
   }
 
@@ -71,6 +87,7 @@ onMounted(() => {});
     font-size: 14px;
     font-family: var(--font-pingl-bold);
     color: var(--color-gray);
+    width: max-content;
   }
 
   .title {
@@ -81,34 +98,10 @@ onMounted(() => {});
     .line-mask {
       overflow: hidden;
     }
-
-    &.is-large {
-      text-align: center;
-      .top {
-        font-size: 114px;
-        font-family: var(--font-pingl-bold);
-      }
-      .bottom {
-        font-size: 108px;
-        font-family: var(--font-parmigiano-light);
-      }
-    }
-    &.is-small {
-      width: 35%;
-      .top {
-        font-size: 66px;
-        font-family: var(--font-pingl-bold);
-      }
-      .bottom {
-        font-size: 63px;
-        font-family: var(--font-parmigiano-light);
-      }
-    }
   }
 
   .descriptions {
     margin-top: 30px;
-    width: 35%;
     font-size: 21px;
     font-family: var(--font-pingl-light);
     color: var(--color-silver);

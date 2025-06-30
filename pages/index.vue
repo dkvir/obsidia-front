@@ -2,10 +2,24 @@
   <div class="home-page">
     <canvas id="canvas"></canvas>
     <div v-for="(item, index) in content" :key="index" class="couple">
-      <div :class="`stop stop-${index}`"></div>
-      <div class="separator"></div>
+      <div :class="`stop stop-${index}`">
+        <home-content
+          v-if="index == 0"
+          :item="{
+            title: {
+              top: 'every body',
+              bottom: 'a masterpiece',
+              size: 'large',
+            },
+            descriptions: [],
+            position: 'center',
+          }"
+        />
+      </div>
+      <div class="separator flex-center flex-column">
+        <home-content :item="item" />
+      </div>
     </div>
-    <home-content />
   </div>
 </template>
 
@@ -26,90 +40,93 @@ onMounted(() => {
 
   setupSequentialLoading();
 
-  const contentItems = document.querySelectorAll(".home-page .content .item");
-  const couples = document.querySelectorAll(".home-page .couple");
+  setTimeout(() => {
+    const contentItems = document.querySelectorAll(".home-page .content");
 
-  contentItems.forEach((item, index) => {
-    const title = item.querySelector(".title");
-    const subtitle = item.querySelector(".subtitle");
-    const descriptions = item.querySelector(".descriptions");
-    let splitDesc = null;
+    contentItems.forEach((item, index) => {
+      const title = item.querySelector(".title");
+      const subtitle = item.querySelector(".subtitle");
+      const descriptions = item.querySelector(".descriptions");
+      let splitDesc = null;
 
-    let splitTitle = SplitText.create(title, {
-      type: "lines, chars",
-      mask: "lines",
-      linesClass: "line",
-      charsClass: "char",
-    });
-
-    if (descriptions) {
-      splitDesc = SplitText.create(item.querySelectorAll(".description"), {
+      let splitTitle = SplitText.create(title, {
         type: "lines, words",
         mask: "lines",
         linesClass: "line",
         wordClass: "word",
       });
 
-      gsap.set(splitDesc.lines, {
+      gsap.set(splitTitle.words, {
         yPercent: 200,
-        rotate: 5,
-      });
-    }
-
-    if (subtitle) {
-      gsap.set(subtitle, {
         opacity: 0,
+        rotate: -5,
       });
-    }
 
-    gsap.set(splitTitle.chars, {
-      yPercent: 100,
-    });
-
-    if (index == 0) {
-      setTimeout(() => {
-        gsap.to(splitTitle.chars, {
-          yPercent: 0,
-          duration: 0.9,
-          ease: "power3.out",
-          stagger: { amount: 0.3, from: "start" },
-          onComplete: () => {
-            ScrollTrigger.create({
-              trigger: couples[index],
-              start: "top+=35% top",
-              end: "bottom+=35% top",
-              scrub: true,
-              invalidateOnRefresh: false,
-              markers: true,
-              toggleActions: "play none none play",
-              animation: useTimelines[index](
-                splitTitle.chars,
-                splitDesc?.lines,
-                subtitle,
-                item
-              ),
-            });
-          },
+      if (descriptions) {
+        splitDesc = SplitText.create(item.querySelectorAll(".description"), {
+          type: "lines, words",
+          mask: "lines",
+          linesClass: "line",
+          wordClass: "word",
         });
-      }, 1000);
-    } else {
-      ScrollTrigger.create({
-        trigger: couples[index],
-        start: "top+=35% top",
-        end: "bottom+=35% top",
-        scrub: true,
-        invalidateOnRefresh: false,
-        markers: true,
-        toggleActions: "play none none play",
-        animation: useTimelines[index](
-          splitTitle.chars,
-          splitDesc?.lines,
-          subtitle,
-          item
-        ),
-      });
-    }
-  });
+
+        gsap.set(descriptions, {
+          opacity: 0,
+        });
+      }
+      if (subtitle) {
+        gsap.set(subtitle, {
+          opacity: 0,
+        });
+      }
+
+      if (index == 0) {
+        setTimeout(() => {
+          gsap.to(splitTitle.words, {
+            yPercent: 0,
+            rotate: 0,
+            opacity: 1,
+            duration: 0.9,
+            ease: "power3.out",
+            stagger: { amount: 0.3, from: "start" },
+            onComplete: () => {
+              ScrollTrigger.create({
+                trigger: item.parentElement,
+                start: "top top",
+                end: "bottom top",
+                scrub: true,
+                invalidateOnRefresh: false,
+                markers: true,
+                toggleActions: "play none none play",
+                animation: useTimelines[index](
+                  splitTitle,
+                  splitDesc?.lines,
+                  subtitle,
+                  item
+                ),
+              });
+            },
+          });
+        }, 1000);
+      } else {
+        ScrollTrigger.create({
+          trigger: item.parentElement,
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+          invalidateOnRefresh: false,
+          markers: true,
+          toggleActions: "play none none play",
+          animation: useTimelines[index](
+            splitTitle,
+            splitDesc?.lines,
+            subtitle,
+            item
+          ),
+        });
+      }
+    });
+  }, 500);
 });
 </script>
 
@@ -136,6 +153,7 @@ onMounted(() => {
   }
 
   .separator {
+    position: relative;
     width: 100vw;
     height: 100vh;
   }

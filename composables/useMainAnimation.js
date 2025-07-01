@@ -72,7 +72,7 @@ export function useThreeScene(canvasId) {
     bloom: {
       strength: 0.2,
       radius: 2.0,
-      threshold: 0.05,
+      threshold: 0.01,
     },
 
     // Cursor lights configuration
@@ -80,38 +80,38 @@ export function useThreeScene(canvasId) {
       enabled: true,
       color: new THREE.Color(0xfcd2d8),
       intensity: 1,
-      distance: 20,
+      distance: 10,
       decay: 1,
-      depth: 4,
+      depth: 1,
       smoothing: 0.5,
     },
     cursorLightFar: {
       enabled: true,
       color: 0xc337ff,
-      intensity: 0.5,
+      intensity: 0.8,
       distance: 20,
       decay: 0.5,
       depth: 10,
       smoothing: 0.1,
-      xOffset: 1.2,
+      xOffset: 0.2,
     },
 
     cloudShaders: {
       one: {
-        size: { width: 2, height: 1 },
-        position: { x: -0.6, y: -0.4, z: 2.0 },
+        size: { width: 20, height: 10 },
+        position: { x: 0.0, y: -5.0, z: -10.0 },
         rotation: { x: 0, y: 0, z: 0 },
         timeSpeed: 1.2,
       },
       two: {
-        size: { width: 5, height: 2 },
-        position: { x: 0.0, y: -0.7, z: 0.3 },
+        size: { width: 5, height: 3 },
+        position: { x: 0.0, y: -0.9, z: 1.0 },
         rotation: { x: 0, y: 0, z: 0 },
         timeSpeed: 0.7,
       },
       three: {
-        size: { width: 6, height: 3 },
-        position: { x: 2.0, y: -1.5, z: -2.0 },
+        size: { width: 1, height: 3 },
+        position: { x: 2.0, y: -1.5, z: -12.0 },
         rotation: { x: 0, y: 0, z: 0 },
         timeSpeed: 0.9,
       },
@@ -122,7 +122,7 @@ export function useThreeScene(canvasId) {
     opacity: 1,
     bezierCurveAmount: 0.5,
     dustParticles: {
-      count: 2000,
+      count: 500,
       size: { min: 0.008, max: 0.06 },
       area: { width: 5, height: 5, depth: 15 },
       opacity: 0.3,
@@ -161,12 +161,14 @@ export function useThreeScene(canvasId) {
         // Initialize with configuration
         cloudShaderHandler.init(scene);
         cloudShaderHandler2.init(scene);
-        cloudShaderHandler3.init(scene);
-        useGui(
-          config,
-          cursorLightsHandler?.getLights().cursorLightFar,
-          cursorLightsHandler?.getLights().cursorLightFar2
-        );
+        // cloudShaderHandler3.init(scene);
+
+
+        // useGui(
+        //   config,
+        //   cursorLightsHandler?.getLights().cursorLightFar,
+        //   cursorLightsHandler?.getLights().cursorLightFar2
+        // );
       })
       .catch((error) => {
         console.error("Loading sequence failed:", error);
@@ -186,7 +188,9 @@ export function useThreeScene(canvasId) {
           scene.environment = envMap;
 
           const normal = new THREE.TextureLoader().load("./images/normal.jpg");
+
           material = new THREE.MeshPhysicalMaterial({
+            
             color: 0x000000,
             normalMap: normal,
             metalness: 0.1,
@@ -194,7 +198,14 @@ export function useThreeScene(canvasId) {
             thickness: 0.5,
             side: THREE.DoubleSide,
             envMap: envMap,
-            envMapIntensity: 0.3,
+            envMapIntensity: 0.5,
+            // transmission: 0.1,
+            // transparent: true,
+            // opacity: 0.5,
+            // depthWrite: false,
+            // depthTest: true,
+            // alphaTest: 0.001,
+
           });
 
           resolve(texture);
@@ -227,20 +238,25 @@ export function useThreeScene(canvasId) {
           }
 
           gltf.scene.traverse((child) => {
-            if (child.name.includes("statue_")) {
-              statuemesh = child;
-              if (material) {
-                statuemesh.material = material;
+            if (child.name.includes("statue_") ) {
+          
+
+              if (material && child.isMesh) {
+                child.material = material;
               }
+
+              
             }
+         
             if (
               child.name.includes("line_") ||
               child.name.includes("inside_")
             ) {
               child.visible = false;
             }
+            
           });
-
+          
           scene.add(gltf.scene);
 
           if (gltf.animations && gltf.animations.length > 0) {
@@ -370,6 +386,7 @@ export function useThreeScene(canvasId) {
     // Update cursor lights
     if (cursorLightsHandler) {
       cursorLightsHandler.updateCursorLightPosition(event, config);
+     
     }
   }
 
@@ -456,7 +473,7 @@ export function useThreeScene(canvasId) {
     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
     renderer.shadowMap.enabled = true;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.5;
+    renderer.toneMappingExposure = 2.0;
     renderer.outputEncoding = THREE.sRGBEncoding;
 
     composer = new EffectComposer(renderer);
@@ -472,7 +489,7 @@ export function useThreeScene(canvasId) {
     const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
 
     const brightnessCompensationPass = new ShaderPass({
-      uniforms: { tDiffuse: { value: null }, brightness: { value: 1.5 } },
+      uniforms: { tDiffuse: { value: null }, brightness: { value: 2.5 } },
       vertexShader: `
         varying vec2 vUv;
         void main() {
@@ -500,14 +517,14 @@ export function useThreeScene(canvasId) {
       config.rightlightColor,
       config.rightlightIntensity
     );
-    rightlight.position.set(-10, 0, 0);
+    rightlight.position.set(-8, 0, 0);
     scene.add(rightlight);
 
     leftlight = new THREE.PointLight(
       config.lefttlightColor,
       config.leftlightIntensity
     );
-    leftlight.position.set(10, 0, 0);
+    leftlight.position.set(8, 0, 0);
     scene.add(leftlight);
 
     window.addEventListener("resize", onWindowResize);
@@ -574,7 +591,7 @@ export function useThreeScene(canvasId) {
     if (cloudShaderHandler) {
       cloudShaderHandler.update(delta);
       cloudShaderHandler2.update(delta);
-      cloudShaderHandler3.update(delta);
+      // cloudShaderHandler3.update(delta);
     }
 
     composer.render();

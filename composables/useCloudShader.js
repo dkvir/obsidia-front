@@ -168,29 +168,31 @@ export const useCloudShader = class CloudShaderHandler {
           cloudDensity = pow(max(0.0, cloudDensity - 0.15), 1.2) * 1.8;
           cloudDensity = smoothstep(0.1, 0.85, cloudDensity);
           
-          // Volumetric cloud color with depth - VERY LOW LIGHT
-          vec3 cloudColor = vec3(0.2); // Much darker base color
+          // Volumetric cloud color with purple tint
+          // Base color now has a purple tint instead of pure gray
+
+          vec3 cloudColor = vec3(0.5, 0.2, 0.4); // Subtle purple tint (more red and blue than green)
           
           // Add subtle depth shading - reduced intensity
           float depthNoise = fbm(aspectUV * 3.0 + vec2(time * 0.1, 0.0), 4);
-          float heightGradient = (distortedPos.y + 0.3) * 0.4;
+          float heightGradient = (distortedPos.y + 10.3) * 0.4;
           
-          // Very subtle color variation for realism - reduced intensity
+          // Color variation maintains purple tone
           cloudColor *= vec3(
               1.0 - depthNoise * 0.05 - heightGradient * 0.03,
               1.0 - depthNoise * 0.03 - heightGradient * 0.02,
               1.0 - depthNoise * 0.02
           );
           
-          // Very subtle rim lighting effect - much reduced
+          // Rim lighting with subtle purple highlight
           float rimLight = pow(1.0 - cloudDensity, 3.0) * cloudDensity * 0.1;
-          cloudColor += vec3(rimLight * 0.3, rimLight * 0.35, rimLight * 0.4);
+          cloudColor += vec3(rimLight * 0.4, rimLight * 0.3, rimLight * 0.5); // More purple in highlights
           
           // Gamma correction for proper color space
           cloudColor = pow(cloudColor, vec3(1.0/2.2));
           
           // VERY LOW OPACITY - reduce cloud density significantly
-          float finalAlpha = cloudDensity * 0.15; // Multiply by 0.15 for very low opacity
+          float finalAlpha = cloudDensity * 0.003; // Multiply by 0.15 for very low opacity
           
           // Output with transparency - cloud density becomes alpha
           gl_FragColor = vec4(cloudColor, finalAlpha);
@@ -211,7 +213,7 @@ export const useCloudShader = class CloudShaderHandler {
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
       transparent: true,
-      side: THREE.DoubleSide,
+      // side: THREE.DoubleSide,
       blending: THREE.NormalBlending,
       depthWrite: false,
       depthTest: true,

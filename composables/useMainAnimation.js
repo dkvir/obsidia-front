@@ -39,7 +39,7 @@ export function useThreeScene(canvasId) {
   let activeTextIndex = ref(0);
   const cameraAnimationOptions = [
     {
-      trigger: ".home-page .header",
+      trigger: ".home-page .stop-0",
       startDuration: 0,
       maxDuration: 4,
     },
@@ -54,9 +54,19 @@ export function useThreeScene(canvasId) {
       maxDuration: 12,
     },
     {
-      trigger: ".footer",
+      trigger: ".stop-3",
       startDuration: 12,
-      maxDuration: 15.833333015441895,
+      maxDuration: 16,
+    },
+    {
+      trigger: ".stop-4",
+      startDuration: 16,
+      maxDuration: 20,
+    },
+    {
+      trigger: ".stop-5",
+      startDuration: 20,
+      maxDuration: 24.16666603088379,
     },
   ];
 
@@ -163,7 +173,6 @@ export function useThreeScene(canvasId) {
         cloudShaderHandler2.init(scene);
         // cloudShaderHandler3.init(scene);
 
-
         // useGui(
         //   config,
         //   cursorLightsHandler?.getLights().cursorLightFar,
@@ -190,7 +199,6 @@ export function useThreeScene(canvasId) {
           const normal = new THREE.TextureLoader().load("./images/normal.jpg");
 
           material = new THREE.MeshPhysicalMaterial({
-            
             color: 0x000000,
             normalMap: normal,
             metalness: 0.1,
@@ -205,7 +213,6 @@ export function useThreeScene(canvasId) {
             // depthWrite: false,
             // depthTest: true,
             // alphaTest: 0.001,
-
           });
 
           resolve(texture);
@@ -238,25 +245,20 @@ export function useThreeScene(canvasId) {
           }
 
           gltf.scene.traverse((child) => {
-            if (child.name.includes("statue_") ) {
-          
-
+            if (child.name.includes("statue_")) {
               if (material && child.isMesh) {
                 child.material = material;
               }
-
-              
             }
-         
+
             if (
               child.name.includes("line_") ||
               child.name.includes("inside_")
             ) {
               child.visible = false;
             }
-            
           });
-          
+
           scene.add(gltf.scene);
 
           if (gltf.animations && gltf.animations.length > 0) {
@@ -386,7 +388,6 @@ export function useThreeScene(canvasId) {
     // Update cursor lights
     if (cursorLightsHandler) {
       cursorLightsHandler.updateCursorLightPosition(event, config);
-     
     }
   }
 

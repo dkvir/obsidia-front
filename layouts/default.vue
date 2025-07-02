@@ -9,6 +9,7 @@
     <Body>
       <div class="default-layout">
         <slot />
+        <common-window />
       </div>
     </Body>
   </Html>
@@ -39,6 +40,5 @@ onBeforeMount(() => {
 .default-layout {
   width: 100%;
   height: 100%;
-  overflow: hidden;
 }
 </style>

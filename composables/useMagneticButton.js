@@ -112,7 +112,7 @@ export const useMagneticButton = class Magnet {
       .to(this.arroElement, {
         yPercent: -100,
         xPercent: 100,
-        duration: 0.5,
+        duration: 1,
         ease: "power2.inOut",
       })
       .to(
@@ -120,7 +120,7 @@ export const useMagneticButton = class Magnet {
         {
           yPercent: 0,
           xPercent: 0,
-          duration: 0.5,
+          duration: 1,
           ease: "power2.inOut",
         },
         "<"

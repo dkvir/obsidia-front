@@ -188,23 +188,24 @@ export function useThreeScene(canvasId) {
           scene.environment = envMap;
 
           const normal = new THREE.TextureLoader().load("./images/normal.jpg");
+        
+          const rough = new THREE.TextureLoader().load("./images/rough.jpg");
+
+          const color = new THREE.TextureLoader().load("./images/color.jpg");
+
+          // color.encoding = THREE.sRGBEncoding;
 
           material = new THREE.MeshPhysicalMaterial({
-            
-            color: 0x000000,
+            map: color,
             normalMap: normal,
-            metalness: 0.1,
-            roughness: 0.5,
-            thickness: 0.5,
-            side: THREE.DoubleSide,
-            envMap: envMap,
-            envMapIntensity: 0.5,
-            // transmission: 0.1,
-            // transparent: true,
-            // opacity: 0.5,
-            // depthWrite: false,
-            // depthTest: true,
-            // alphaTest: 0.001,
+            roughnessMap: rough,
+            // color: 0x000000,
+            metalness: 0,
+            // roughness: 0.5,
+            // thickness: 0.5,
+            // side: THREE.DoubleSide,
+            // envMap: envMap,
+            // envMapIntensity: 1.0,
 
           });
 
@@ -471,9 +472,9 @@ export function useThreeScene(canvasId) {
     });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.enabled = false;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 2.0;
+    renderer.toneMappingExposure = 1.0;
     renderer.outputEncoding = THREE.sRGBEncoding;
 
     composer = new EffectComposer(renderer);
@@ -489,7 +490,7 @@ export function useThreeScene(canvasId) {
     const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
 
     const brightnessCompensationPass = new ShaderPass({
-      uniforms: { tDiffuse: { value: null }, brightness: { value: 2.5 } },
+      uniforms: { tDiffuse: { value: null }, brightness: { value: 0.6 } },
       vertexShader: `
         varying vec2 vUv;
         void main() {
@@ -517,14 +518,14 @@ export function useThreeScene(canvasId) {
       config.rightlightColor,
       config.rightlightIntensity
     );
-    rightlight.position.set(-8, 0, 0);
+    rightlight.position.set(-8, 2, 0);
     scene.add(rightlight);
 
     leftlight = new THREE.PointLight(
       config.lefttlightColor,
       config.leftlightIntensity
     );
-    leftlight.position.set(8, 0, 0);
+    leftlight.position.set(8, 2, 0);
     scene.add(leftlight);
 
     window.addEventListener("resize", onWindowResize);

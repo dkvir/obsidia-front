@@ -9,7 +9,9 @@
         v-if="title.hasArrow"
         :class="`arrow flex-center arrow-${title.arrowDirection}`"
       >
-        <nuxt-icon name="arrow-down" filled />
+        <div ref="arrowElement" class="arrow-element flex-center">
+          <nuxt-icon name="arrow-down" filled />
+        </div>
       </div>
       <h2 class="title flex-column uppercase">
         {{ title.value }}
@@ -19,6 +21,8 @@
 </template>
 
 <script setup>
+import gsap from "gsap";
+
 const props = defineProps({
   titles: {
     type: Array,
@@ -29,6 +33,47 @@ const props = defineProps({
     required: true,
   },
 });
+
+const arrowElement = ref(null);
+
+onMounted(() => {
+  setTimeout(() => {
+    createArrowAnimation();
+  }, 500);
+});
+
+function createArrowAnimation() {
+  if (!arrowElement.value) return;
+
+  const arrowClone = arrowElement.value[0].cloneNode(true);
+  arrowElement.value[0].parentNode.appendChild(arrowClone);
+
+  gsap.set(arrowClone, {
+    yPercent: -100,
+  });
+
+  const arrowTimeline = gsap.timeline({
+    repeat: -1,
+    repeatDelay: 2,
+    delay: 1,
+  });
+
+  arrowTimeline
+    .to(arrowElement.value, {
+      yPercent: 100,
+      duration: 1.5,
+      ease: "power2.inOut",
+    })
+    .to(
+      arrowClone,
+      {
+        yPercent: 0,
+        duration: 1.5,
+        ease: "power2.inOut",
+      },
+      "<"
+    );
+}
 </script>
 
 <style lang="scss" scoped>
@@ -88,10 +133,18 @@ const props = defineProps({
   }
 
   :deep(.arrow) {
+    position: relative;
     margin-right: 80px;
     border-radius: 50%;
     border: 1px solid var(--color-dark-gray);
+    overflow: hidden;
     @include size(120px);
+
+    .arrow-element {
+      position: absolute;
+      inset: 0;
+      @include size(100%);
+    }
 
     &.arrow-up {
       transform: rotate(180deg);

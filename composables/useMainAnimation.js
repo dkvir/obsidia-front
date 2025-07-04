@@ -419,7 +419,7 @@ export function useThreeScene(canvasId) {
     scene.traverse((child) => {
       if (
         child.name &&
-        (child.name.includes("statue_") || child.name.includes("_part"))
+        (child.name.includes("statue_") || child.name.includes("_part") )
       ) {
         objectsToGroup.push(child);
       }
@@ -593,10 +593,8 @@ export function useThreeScene(canvasId) {
     }
 
     if (statueGroup) {
-      statueGroup.rotation.x =
-        statueGroup.userData.originalRotation.x + rotationOffset.x;
-      statueGroup.rotation.y =
-        statueGroup.userData.originalRotation.y + rotationOffset.y;
+      // statueGroup.rotation.x = statueGroup.userData.originalRotation.x + rotationOffset.x;
+      // statueGroup.rotation.y = statueGroup.userData.originalRotation.y + rotationOffset.y;
     }
 
     if (mixer) {

@@ -6,7 +6,7 @@ import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js";
 export const useEnvLineHandler = class EnvLineHandler {
   constructor(config = {}) {
     this.config = {
-      lineWidth: config.lineWidth || 2,
+      lineWidth: config.lineWidth || 5,
       opacity: config.opacity || 0.2,
       startColor: config.startColor || new THREE.Color(0xc337ff), // purple
       endColor: config.endColor || new THREE.Color(0x722fdf), // dark purple

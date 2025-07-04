@@ -22,6 +22,7 @@ export function useThreeScene(canvasId) {
   let rightlight, leftlight;
   let statueGroup;
   let cursorLightsHandler;
+  let envlineHandler;
 
   // Mouse rotation variables (separate from cursor lights)
   let mouse = new THREE.Vector2();
@@ -252,6 +253,7 @@ export function useThreeScene(canvasId) {
             if (
               child.name.includes("line_") ||
               child.name.includes("inside_")
+
             ) {
               child.visible = false;
             }
@@ -287,12 +289,27 @@ export function useThreeScene(canvasId) {
             window.scrollTo(0, 0);
 
             lineHandler = new useLineHandler(config);
+            envlineHandler = new useEnvLineHandler();
+
             lineHandler
               .createCurvesFromEdgeModel(gltf.scene)
               .forEach((curve) => {
                 curve.renderOrder = -1;
                 scene.add(curve);
+
               });
+            
+           
+              envlineHandler
+              .createLinesFromGLBScene(gltf.scene)
+              .forEach((line) => {
+                line.renderOrder = -1;
+                scene.add(line);
+              });
+             
+              // scene.add(envlineHandler.line)
+
+               
           }
 
           resolve(gltf);
@@ -558,6 +575,8 @@ export function useThreeScene(canvasId) {
         area: { width: 15 * aspectRatio, height: 15, depth: 15 * aspectRatio },
       });
     }
+
+
   }
 
   // Animation loop
@@ -583,6 +602,10 @@ export function useThreeScene(canvasId) {
 
     if (lineHandler && lineHandler.animate) {
       lineHandler.animate(delta);
+    }
+
+     if (envlineHandler && envlineHandler.animate) {
+      envlineHandler.animate(delta);
     }
 
     if (dustParticles && dustParticles.animate) {

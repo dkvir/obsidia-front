@@ -1,78 +1,56 @@
 <template>
-  <ul class="content">
-    <li
-      v-for="(item, index) in $tm('home.welcome')"
-      :class="[
-        `item flex-column justify-center`,
-        {
-          'is-active': activeTextIndex == index,
-          'align-center': item.position == 'center',
-          'align-end': item.position == 'right',
-        },
-      ]"
-    >
-      <h3 v-if="item.subtitle" class="subtitle uppercase">
-        {{ item.subtitle }}
-      </h3>
-      <h2 :class="`title flex-column uppercase is-${item.title.size}`">
-        <span class="top span"> {{ item.title.top }}</span>
-        <span class="bottom span">
-          {{ item.title.bottom }}
-        </span>
-      </h2>
-      <ul v-if="item.descriptions.length" class="descriptions flex-column">
+  <div
+    :class="[
+      `content flex-column`,
+      {
+        'is-relative': relative,
+        'is-center': item.position === 'center',
+      },
+    ]"
+  >
+    <h3 v-if="item.position !== 'center'" class="subtitle uppercase">
+      0{{ index }} /
+    </h3>
+    <home-tiny-titles :titles="item.title.list" :size="item.title.size" />
+    <div class="descriptions flex-center justify-end">
+      <ul v-if="item.descriptions.length" class="list flex-column">
         <li v-for="(description, key) in item.descriptions" class="description">
           {{ description }}
         </li>
+        <nuxt-icon v-if="relative" name="fitness-club" filled />
       </ul>
-    </li>
-  </ul>
+    </div>
+  </div>
 </template>
 
 <script setup>
 const props = defineProps({
-  activeTextIndex: {
+  item: {
+    type: Object,
+    required: true,
+  },
+  index: {
     type: Number,
+    required: true,
+  },
+  relative: {
+    type: Boolean,
+    default: false,
   },
 });
 </script>
 
 <style lang="scss" scoped>
 .content {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-
-  .item {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    padding: var(--page-offset-padding);
-    font-size: 36px;
-    font-family: var(--font-parmigiano-light);
-    opacity: var(--item-opacity, 0);
-    @include default-transitions(opacity);
-    &.is-active {
-      --item-opacity: 1;
-    }
-    &.position-center {
-      top: 50%;
-      left: 50%;
-      transform: translate3d(-50%, -50%, 0);
-    }
-
-    &.position-left {
-      top: 50%;
-      left: 0;
-      transform: translate3d(0%, -50%, 0);
-    }
-    &.position-right {
-      top: 50%;
-      right: 0;
-      transform: translate3d(0%, -50%, 0);
-    }
+  position: sticky;
+  top: 30%;
+  height: min-content;
+  &.is-relative {
+    position: relative;
+    top: 0;
+  }
+  &.is-center {
+    align-items: center;
   }
 
   .subtitle {
@@ -81,43 +59,35 @@ const props = defineProps({
     color: var(--color-gray);
   }
 
-  .title {
-    margin-top: 10px;
-    color: var(--color-white);
-    line-height: 1;
-
-    &.is-large {
-      text-align: center;
-      .top {
-        font-size: 114px;
-        font-family: var(--font-pingl-bold);
-      }
-      .bottom {
-        font-size: 108px;
-        font-family: var(--font-parmigiano-light);
+  .descriptions {
+    width: 100%;
+    @include parent-state(".is-center") {
+      .list {
+        width: 30%;
       }
     }
-    &.is-small {
-      width: 35%;
-      .top {
-        font-size: 66px;
-        font-family: var(--font-pingl-bold);
-      }
-      .bottom {
-        font-size: 63px;
-        font-family: var(--font-parmigiano-light);
+    @include parent-state(":not(.is-center)") {
+      .list {
+        width: 100%;
+        padding-left: var(--page-offset-padding);
       }
     }
   }
-
-  .descriptions {
+  .list {
     margin-top: 30px;
-    width: 35%;
     font-size: 21px;
     font-family: var(--font-pingl-light);
-    color: var(--color-silver);
+
     .description {
       @include list-distance(top, 20px);
+      color: var(--color-silver);
+    }
+    :deep(.nuxt-icon) {
+      margin-top: 30px;
+      svg {
+        height: 12px;
+        width: auto;
+      }
     }
   }
 }

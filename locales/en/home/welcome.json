@@ -1,46 +1,13 @@
-[
-  {
-    "title": {
-      "top": "every body",
-      "bottom": "a masterpiece",
-      "size": "large"
-    },
-    "descriptions": [],
-    "position": "center"
+{
+  "title": {
+    "size": "large",
+    "list": [
+      { "value": "every body" },
+      { "value": "a masterpiece", "hasArrow": true, "arrowDirection": "down" }
+    ]
   },
-  {
-    "subtitle": "lead beyond",
-    "title": {
-      "top": "grow into",
-      "bottom": "a power",
-      "size": "small"
-    },
-    "descriptions": [
-      "Amanita is where strength, focus, and self-belief take root. Guided by experts. Fueled by evolution.",
-      "This is your sanctuary for absolute transformation."
-    ],
-    "position": "left"
-  },
-  {
-    "title": {
-      "top": "not a gym",
-      "bottom": "a journey",
-      "size": "small"
-    },
-    "descriptions": [
-      "Amanita helps people evolve into their strongest, sharpest, most awakened selves.",
-      "With expert trainers and state-of-the-art facilities, we don’t just build bodies — we ignite souls."
-    ],
-    "position": "left"
-  },
-  {
-    "subtitle": "cultivate stregth",
-    "title": {
-      "top": "each rep",
-      "bottom": "revelation",
-      "size": "large"
-    },
-    "descriptions": [],
-    "position": "center"
-  }
-]
+  "descriptions": [
+    "Amanita is where strength, focus, and self-belief take root. Guided by experts. Fueled by evolution. "
+  ],
+  "position": "center"
+}

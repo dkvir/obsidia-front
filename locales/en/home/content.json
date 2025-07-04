@@ -1,0 +1,63 @@
+[
+  {
+    "title": {
+      "size": "small",
+      "list": [
+        { "value": "Become What" },
+        { "value": "you were" },
+        { "value": "meant to be" }
+      ]
+    },
+    "descriptions": [
+      "Amanita is where your higher self takes shape — through sweat, breath, and will. ",
+      "Join our exclusive waitlist for updates to begin your journey of evolution."
+    ],
+    "position": "right"
+  },
+  {
+    "title": {
+      "size": "medium",
+      "list": [{ "value": "grow into" }, { "value": "a power" }]
+    },
+    "descriptions": [
+      "Amanita is where strength, focus, and self-belief take root. Guided by experts. Fueled by evolution.",
+      "This is your sanctuary for absolute transformation."
+    ],
+    "position": "left"
+  },
+  {
+    "title": {
+      "size": "medium",
+      "list": [{ "value": "not a gym" }, { "value": "a journey" }]
+    },
+    "descriptions": [
+      "Amanita helps people evolve into their strongest, sharpest, most awakened selves.",
+      "With expert trainers and state-of-the-art facilities, we don’t just build bodies — we ignite souls."
+    ],
+    "position": "left"
+  },
+  {
+    "title": {
+      "size": "medium",
+      "list": [{ "value": "bigger is" }, { "value": "bolder truly" }]
+    },
+    "descriptions": [
+      "Size is earned, not given. We build power with precision — sculpting muscle, confidence, and command."
+    ],
+    "position": "left"
+  },
+  {
+    "title": {
+      "size": "large",
+      "list": [
+        { "value": "the ritual" },
+        { "value": "of becoming", "hasArrow": true, "arrowDirection": "up" }
+      ]
+    },
+    "descriptions": [
+      "True change happens in silence, beneath the surface.",
+      "At Amanita, growth spreads through every cell — body, mind, and spirit."
+    ],
+    "position": "center"
+  }
+]

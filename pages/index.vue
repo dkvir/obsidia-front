@@ -203,7 +203,7 @@ onMounted(() => {
   }
 
   .stop {
-    width: 100vw;
+    width: 100%;
     height: 150vh;
   }
 
@@ -213,7 +213,7 @@ onMounted(() => {
     height: 100vh;
   }
   .header {
-    width: 100vw;
+    width: 100%;
     height: 100vh;
   }
 

@@ -15,7 +15,12 @@
   height: 100%;
   pointer-events: all;
   .social {
+    opacity: var(--social-opacity, 1);
     @include list-distance("left", 15px);
+    @include default-transitions(opacity);
+    &:hover {
+      --social-opacity: 0.7;
+    }
   }
   :deep(.social-icon) {
     display: block;

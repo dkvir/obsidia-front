@@ -169,8 +169,8 @@ export function useThreeScene(canvasId) {
         cloudShaderHandler3 = new useCloudShader(config.cloudShaders.three);
 
         // Initialize with configuration
-        cloudShaderHandler.init(scene);
-        cloudShaderHandler2.init(scene);
+        // cloudShaderHandler.init(scene);
+        // cloudShaderHandler2.init(scene);
         // cloudShaderHandler3.init(scene);
 
         // useGui(

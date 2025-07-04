@@ -198,7 +198,7 @@ export function useThreeScene(canvasId) {
           scene.environment = envMap;
 
           const normal = new THREE.TextureLoader().load("./images/normal.jpg");
-        
+
           const rough = new THREE.TextureLoader().load("./images/rough.jpg");
 
           const color = new THREE.TextureLoader().load("./images/color.jpg");
@@ -216,7 +216,6 @@ export function useThreeScene(canvasId) {
             // side: THREE.DoubleSide,
             // envMap: envMap,
             // envMapIntensity: 1.0,
-
           });
 
           resolve(texture);
@@ -258,7 +257,6 @@ export function useThreeScene(canvasId) {
             if (
               child.name.includes("line_") ||
               child.name.includes("inside_")
-
             ) {
               child.visible = false;
             }
@@ -300,20 +298,16 @@ export function useThreeScene(canvasId) {
               .forEach((curve) => {
                 curve.renderOrder = -1;
                 scene.add(curve);
-
               });
-            
-           
-              envlineHandler
+
+            envlineHandler
               .createLinesFromGLBScene(gltf.scene)
               .forEach((line) => {
                 line.renderOrder = -1;
                 scene.add(line);
               });
-             
-              // scene.add(envlineHandler.line)
 
-               
+            // scene.add(envlineHandler.line)
           }
 
           resolve(gltf);
@@ -353,7 +347,7 @@ export function useThreeScene(canvasId) {
         end: "bottom top",
         scrub: true,
         invalidateOnRefresh: false,
-        markers: true,
+        // markers: true,
         onEnter: () => {
           activeTextIndex.value = null;
         },
@@ -578,8 +572,6 @@ export function useThreeScene(canvasId) {
         area: { width: 15 * aspectRatio, height: 15, depth: 15 * aspectRatio },
       });
     }
-
-
   }
 
   // Animation loop
@@ -607,7 +599,7 @@ export function useThreeScene(canvasId) {
       lineHandler.animate(delta);
     }
 
-     if (envlineHandler && envlineHandler.animate) {
+    if (envlineHandler && envlineHandler.animate) {
       envlineHandler.animate(delta);
     }
 

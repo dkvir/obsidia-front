@@ -55,9 +55,9 @@ const props = defineProps({
   }
 
   .subtitle {
-    font-size: 14px;
-    font-family: var(--font-pingl-bold);
-    color: var(--color-gray);
+    font-size: 17px;
+    font-family: var(--font-parmigiano-light);
+    color: var(--color-silver);
   }
 
   .descriptions {

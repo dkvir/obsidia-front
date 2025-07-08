@@ -13,7 +13,7 @@
           <nuxt-icon name="arrow-down" filled />
         </div>
       </div>
-      <h2 class="title flex-column uppercase">
+      <h2 class="title uppercase">
         {{ title.value }}
       </h2>
     </li>

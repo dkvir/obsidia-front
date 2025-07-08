@@ -30,10 +30,8 @@ useSeoMeta({
 
 onBeforeMount(() => {
   useLenisScroll();
-}),
-  onMounted(() => {
-    homeStore.changeWebsiteLoaded(true);
-  });
+  homeStore.changeWebsiteLoaded(true);
+});
 </script>
 
 <style lang="scss" scoped>

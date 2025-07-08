@@ -1,13 +1,13 @@
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
 
-gsap.registerPlugin(SplitText);
-
 export const useMagneticButton = class Magnet {
   constructor({ target, textElement, targetArrow }) {
     this.element = target.value || target;
     this.textElement = textElement.value || textElement;
     this.arroElement = targetArrow.value || targetArrow;
+
+    gsap.registerPlugin(SplitText);
 
     this.init();
     this.setupTextAnimation();

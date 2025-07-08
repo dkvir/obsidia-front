@@ -19,9 +19,9 @@ export const useEnvLineHandler = class EnvLineHandler {
       pulseIntensity: config.pulseIntensity || 0.1, // how much the energy pulses (0-1)
       glowIntensity: config.glowIntensity || 2.0, // brightness multiplier for energy
       energyColor: config.energyColor || new THREE.Color(0x00ffff), // cyan energy
-      waveCount: config.waveCount || 1, // number of energy waves
+      waveCount: config.waveCount || 2, // number of energy waves
       enableEnergyFlow: config.enableEnergyFlow !== false, // default true
-      pulseWidth: config.pulseWidth || 0.01, // width of each energy pulse (0-1)
+      pulseWidth: config.pulseWidth || 0.03, // width of each energy pulse (0-1)
       trailLength: config.trailLength || 0.3, // length of trailing glow (0-1)
       energyOnly: config.energyOnly || true, // if true, only show energy pulses, hide base line
     };
@@ -92,9 +92,27 @@ export const useEnvLineHandler = class EnvLineHandler {
     
     if (vertexCount < 2) return spiralLines;
     
+    // Check if the curve is closed
+    const firstX = posAttr.getX(0);
+    const firstY = posAttr.getY(0);
+    const firstZ = posAttr.getZ(0);
+    
+    const lastX = posAttr.getX(vertexCount - 1);
+    const lastY = posAttr.getY(vertexCount - 1);
+    const lastZ = posAttr.getZ(vertexCount - 1);
+    
+    const distance = Math.sqrt(
+      Math.pow(lastX - firstX, 2) + 
+      Math.pow(lastY - firstY, 2) + 
+      Math.pow(lastZ - firstZ, 2)
+    );
+    
+    const isClosed = distance < 0.0001;
+    const actualVertexCount = isClosed ? vertexCount - 1 : vertexCount;
+    
     // Extract original positions
     const originalPositions = [];
-    for (let i = 0; i < vertexCount; i++) {
+    for (let i = 0; i < actualVertexCount; i++) {
       const vertex = new THREE.Vector3(
         posAttr.getX(i),
         posAttr.getY(i),
@@ -115,9 +133,9 @@ export const useEnvLineHandler = class EnvLineHandler {
       const colors = [];
       const phaseOffset = spiralIndex * Math.PI; // 180 degrees apart
       
-      for (let i = 0; i < vertexCount; i++) {
+      for (let i = 0; i < actualVertexCount; i++) {
         // Calculate spiral angle based on position along the line
-        const t = vertexCount > 1 ? i / (vertexCount - 1) : 0;
+        const t = actualVertexCount > 1 ? i / (actualVertexCount - 1) : 0;
         const angle = t * this.config.spiralTurns * Math.PI * 2 + phaseOffset;
         
         // Calculate offset using Frenet frame
@@ -162,7 +180,7 @@ export const useEnvLineHandler = class EnvLineHandler {
         line: line,
         baseColors: [...colors],
         phaseOffset: spiralIndex + 1,
-        vertexCount: vertexCount
+        vertexCount: actualVertexCount
       });
       
       spiralLines.push(line);
@@ -253,12 +271,34 @@ export const useEnvLineHandler = class EnvLineHandler {
     
     const geometry = object.geometry;
     const posAttr = geometry.attributes.position;
-    const vertexCount = posAttr.count;
+    let vertexCount = posAttr.count;
     
     if (vertexCount < 2) return null;
     
+    // Check if the imported curve is closed by comparing first and last points
+    const firstX = posAttr.getX(0);
+    const firstY = posAttr.getY(0);
+    const firstZ = posAttr.getZ(0);
+    
+    const lastX = posAttr.getX(vertexCount - 1);
+    const lastY = posAttr.getY(vertexCount - 1);
+    const lastZ = posAttr.getZ(vertexCount - 1);
+    
+    // Calculate distance in local space before transformation
+    const distance = Math.sqrt(
+      Math.pow(lastX - firstX, 2) + 
+      Math.pow(lastY - firstY, 2) + 
+      Math.pow(lastZ - firstZ, 2)
+    );
+    
+    // If the curve is closed (first and last points are the same), exclude the last point
+    const isClosed = distance < 0.0001;
+    const actualVertexCount = isClosed ? vertexCount - 1 : vertexCount;
+    
+    // console.log(`Processing ${object.name}: distance=${distance}, isClosed=${isClosed}, vertices=${vertexCount}, using=${actualVertexCount}`);
+    
     // Extract positions and create gradient colors
-    for (let i = 0; i < vertexCount; i++) {
+    for (let i = 0; i < actualVertexCount; i++) {
       // Get position
       const x = posAttr.getX(i);
       const y = posAttr.getY(i);
@@ -271,7 +311,7 @@ export const useEnvLineHandler = class EnvLineHandler {
       positions.push(vertex.x, vertex.y, vertex.z);
       
       // Calculate color gradient
-      const t = vertexCount > 1 ? i / (vertexCount - 1) : 0;
+      const t = actualVertexCount > 1 ? i / (actualVertexCount - 1) : 0;
       const color = new THREE.Color().lerpColors(
         this.config.startColor,
         this.config.endColor,
@@ -300,7 +340,7 @@ export const useEnvLineHandler = class EnvLineHandler {
       line: line,
       baseColors: [...colors],
       phaseOffset: phaseOffset,
-      vertexCount: vertexCount
+      vertexCount: actualVertexCount
     });
     
     return line;

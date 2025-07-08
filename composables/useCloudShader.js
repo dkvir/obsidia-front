@@ -192,7 +192,7 @@ export const useCloudShader = class CloudShaderHandler {
           cloudColor = pow(cloudColor, vec3(1.0/2.2));
           
           // VERY LOW OPACITY - reduce cloud density significantly
-          float finalAlpha = cloudDensity * 0.006; // Multiply by 0.15 for very low opacity
+          float finalAlpha = cloudDensity * 0.01; // Multiply by 0.15 for very low opacity
           
           // Output with transparency - cloud density becomes alpha
           gl_FragColor = vec4(cloudColor, finalAlpha);

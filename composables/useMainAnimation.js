@@ -5,7 +5,9 @@ import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
+import { BokehPass } from "three/examples/jsm/postprocessing/BokehPass.js";
 import { GammaCorrectionShader } from "three/examples/jsm/shaders/GammaCorrectionShader.js";
+import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ref } from "vue";
@@ -13,7 +15,7 @@ import { ref } from "vue";
 export function useThreeScene(canvasId) {
   // Three.js variables
   let canvas, scene, renderer, camera, statuemesh, envMap, material;
-  let composer, bloomPass;
+  let composer, bloomPass, bokehPass;
   let mixer,
     animations,
     animationActions = [];
@@ -23,6 +25,7 @@ export function useThreeScene(canvasId) {
   let statueGroup;
   let cursorLightsHandler;
   let envlineHandler;
+  let gui, dofControllers = {};
 
   // Mouse rotation variables (separate from cursor lights)
   let mouse = new THREE.Vector2();
@@ -43,31 +46,37 @@ export function useThreeScene(canvasId) {
       trigger: ".home-page .stop-0",
       startDuration: 0,
       maxDuration: 4,
+      dof: { focus: 5.8, aperture: 0.001 }
     },
     {
       trigger: ".home-page .stop-1",
       startDuration: 4,
       maxDuration: 8,
+      dof: { focus: 1.4, aperture: 0.046 }
     },
     {
       trigger: ".home-page .stop-2",
       startDuration: 8,
       maxDuration: 12,
+      dof: { focus: 0.2, aperture: 0.0054 }
     },
     {
       trigger: ".stop-3",
       startDuration: 12,
       maxDuration: 16,
+      dof: { focus: 0.8, aperture: 0.0165 }
     },
     {
       trigger: ".stop-4",
       startDuration: 16,
       maxDuration: 20,
+      dof: { focus: 0.3, aperture: 0.0054 }
     },
     {
       trigger: ".stop-5",
       startDuration: 20,
       maxDuration: 24.16666603088379,
+      dof: { focus: 1.5, aperture: 0.1 }
     },
   ];
 
@@ -86,6 +95,14 @@ export function useThreeScene(canvasId) {
       threshold: 0.01,
     },
 
+    // Depth of Field settings
+    dof: {
+      enabled: true,
+      focus: 5.8,        // Starting with stop-0 value
+      aperture: 0.046,   // Starting with stop-0 value
+      maxblur: 0.01,     // Maximum blur amount
+    },
+
     // Cursor lights configuration
     cursorLight: {
       enabled: true,
@@ -102,15 +119,15 @@ export function useThreeScene(canvasId) {
       intensity: 0.8,
       distance: 20,
       decay: 0.5,
-      depth: 10,
+      depth: 1,
       smoothing: 0.1,
-      xOffset: 0.2,
+      xOffset: 1,
     },
 
     cloudShaders: {
       one: {
         size: { width: 20, height: 10 },
-        position: { x: 0.0, y: -5.0, z: -10.0 },
+        position: { x: 0.0, y: -3.0, z: -10.0 },
         rotation: { x: 0, y: 0, z: 0 },
         timeSpeed: 1.2,
       },
@@ -133,7 +150,7 @@ export function useThreeScene(canvasId) {
     opacity: 1,
     bezierCurveAmount: 0.5,
     dustParticles: {
-      count: 500,
+      count: 1000,
       size: { min: 0.008, max: 0.06 },
       area: { width: 5, height: 5, depth: 15 },
       opacity: 0.3,
@@ -162,27 +179,30 @@ export function useThreeScene(canvasId) {
         init();
         initStatueGroup();
         animate();
+        setupGUI();
         // Create cloud shader handler
-        cloudShaderHandler = new useCloudShader(config.cloudShaders.one);
-        // Create cloud shader handler
-        cloudShaderHandler2 = new useCloudShader(config.cloudShaders.two);
-        // Create cloud shader handler
-        cloudShaderHandler3 = new useCloudShader(config.cloudShaders.three);
+        // cloudShaderHandler = new useCloudShader(config.cloudShaders.one);
+        // // Create cloud shader handler
+        // cloudShaderHandler2 = new useCloudShader(config.cloudShaders.two);
+        // // Create cloud shader handler
+        // cloudShaderHandler3 = new useCloudShader(config.cloudShaders.three);
 
         // Initialize with configuration
         // cloudShaderHandler.init(scene);
         // cloudShaderHandler2.init(scene);
         // cloudShaderHandler3.init(scene);
 
-        // useGui(
-        //   config,
-        //   cursorLightsHandler?.getLights().cursorLightFar,
-        //   cursorLightsHandler?.getLights().cursorLightFar2
-        // );
       })
       .catch((error) => {
         console.error("Loading sequence failed:", error);
       });
+  }
+
+  // Update GUI controllers to reflect current values
+  function updateGUIControllers() {
+    if (dofControllers.focus) dofControllers.focus.updateDisplay();
+    if (dofControllers.aperture) dofControllers.aperture.updateDisplay();
+    if (dofControllers.maxblur) dofControllers.maxblur.updateDisplay();
   }
 
   // Load environment with Promise
@@ -258,7 +278,6 @@ export function useThreeScene(canvasId) {
             if (
               child.name.includes("line_") ||
               child.name.includes("inside_")
-
             ) {
               child.visible = false;
             }
@@ -290,6 +309,9 @@ export function useThreeScene(canvasId) {
               createAnimationController(mixer, animationActions, item, index);
             });
 
+            // Create DOF animation timeline
+            createDOFAnimation();
+
             window.scrollTo(0, 0);
 
             lineHandler = new useLineHandler(config);
@@ -298,22 +320,16 @@ export function useThreeScene(canvasId) {
             lineHandler
               .createCurvesFromEdgeModel(gltf.scene)
               .forEach((curve) => {
-                curve.renderOrder = -1;
+                // curve.renderOrder = 1;
                 scene.add(curve);
-
               });
             
-           
-              envlineHandler
+            envlineHandler
               .createLinesFromGLBScene(gltf.scene)
               .forEach((line) => {
-                line.renderOrder = -1;
+                // line.renderOrder = -1;
                 scene.add(line);
               });
-             
-              // scene.add(envlineHandler.line)
-
-               
           }
 
           resolve(gltf);
@@ -500,6 +516,17 @@ export function useThreeScene(canvasId) {
     composer = new EffectComposer(renderer);
     const renderPass = new RenderPass(scene, camera);
 
+    // Bokeh depth of field pass
+    if (config.dof.enabled) {
+      bokehPass = new BokehPass(scene, camera, {
+        focus: config.dof.focus,
+        aperture: config.dof.aperture,
+        maxblur: config.dof.maxblur,
+        width: canvas.clientWidth,
+        height: canvas.clientHeight
+      });
+    }
+
     bloomPass = new UnrealBloomPass(
       new THREE.Vector2(canvas.clientWidth, canvas.clientHeight),
       config.bloom.strength,
@@ -510,7 +537,7 @@ export function useThreeScene(canvasId) {
     const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
 
     const brightnessCompensationPass = new ShaderPass({
-      uniforms: { tDiffuse: { value: null }, brightness: { value: 0.6 } },
+      uniforms: { tDiffuse: { value: null }, brightness: { value: 0.55 } },
       vertexShader: `
         varying vec2 vUv;
         void main() {
@@ -529,23 +556,31 @@ export function useThreeScene(canvasId) {
       `,
     });
 
+    // Add passes in the correct order
     composer.addPass(renderPass);
-    composer.addPass(bloomPass);
+    
+    // Add DOF before bloom for better results
+    if (bokehPass && config.dof.enabled) {
+      composer.addPass(bokehPass);
+    }
+    
     composer.addPass(brightnessCompensationPass);
+    composer.addPass(bloomPass);
     composer.addPass(gammaCorrectionPass);
 
     rightlight = new THREE.PointLight(
       config.rightlightColor,
       config.rightlightIntensity
     );
-    rightlight.position.set(-8, 2, 0);
+
+    rightlight.position.set(-5, 2, 0);
     scene.add(rightlight);
 
     leftlight = new THREE.PointLight(
       config.lefttlightColor,
       config.leftlightIntensity
     );
-    leftlight.position.set(8, 2, 0);
+    leftlight.position.set(5, 2, 0);
     scene.add(leftlight);
 
     window.addEventListener("resize", onWindowResize);
@@ -562,6 +597,132 @@ export function useThreeScene(canvasId) {
     }
   }
 
+  // Setup GUI controls
+  function setupGUI() {
+    gui = new GUI();
+    
+    // DOF folder
+    const dofFolder = gui.addFolder('Depth of Field');
+    
+    // Enable/Disable DOF
+    dofFolder.add(config.dof, 'enabled').onChange((value) => {
+      if (value && !bokehPass) {
+        // Create bokeh pass if it doesn't exist
+        bokehPass = new BokehPass(scene, camera, {
+          focus: config.dof.focus,
+          aperture: config.dof.aperture,
+          maxblur: config.dof.maxblur,
+          width: canvas.clientWidth,
+          height: canvas.clientHeight
+        });
+        
+        // Find the render pass index and insert bokeh pass after it
+        const renderPassIndex = composer.passes.findIndex(pass => pass instanceof RenderPass);
+        if (renderPassIndex !== -1) {
+          composer.insertPass(bokehPass, renderPassIndex + 1);
+        }
+      } else if (!value && bokehPass) {
+        // Remove bokeh pass
+        composer.removePass(bokehPass);
+        bokehPass = null;
+      }
+    });
+    
+    // Focus distance
+    dofControllers.focus = dofFolder.add(config.dof, 'focus', 0.1, 50, 0.1)
+      .name('Focus Distance')
+      .onChange((value) => {
+        if (bokehPass) {
+          bokehPass.uniforms["focus"].value = value;
+        }
+      });
+    
+    // Aperture (blur amount)
+    dofControllers.aperture = dofFolder.add(config.dof, 'aperture', 0.0001, 0.1, 0.0001)
+      .name('Aperture')
+      .onChange((value) => {
+        if (bokehPass) {
+          bokehPass.uniforms["aperture"].value = value;
+        }
+      });
+    
+    // Maximum blur
+    dofControllers.maxblur = dofFolder.add(config.dof, 'maxblur', 0.0, 0.1, 0.001)
+      .name('Max Blur')
+      .onChange((value) => {
+        if (bokehPass) {
+          bokehPass.uniforms["maxblur"].value = value;
+        }
+      });
+    
+    // Add presets
+    const presets = {
+      'Portrait (Shallow)': () => {
+        config.dof.focus = 2.0;
+        config.dof.aperture = 0.05;
+        config.dof.maxblur = 0.02;
+        updateDOFSettings(config.dof);
+        updateGUIControllers();
+      },
+      'Standard': () => {
+        config.dof.focus = 5.0;
+        config.dof.aperture = 0.01;
+        config.dof.maxblur = 0.01;
+        updateDOFSettings(config.dof);
+        updateGUIControllers();
+      },
+      'Deep Focus': () => {
+        config.dof.focus = 10.0;
+        config.dof.aperture = 0.001;
+        config.dof.maxblur = 0.005;
+        updateDOFSettings(config.dof);
+        updateGUIControllers();
+      },
+      'Cinematic': () => {
+        config.dof.focus = 3.0;
+        config.dof.aperture = 0.08;
+        config.dof.maxblur = 0.03;
+        updateDOFSettings(config.dof);
+        updateGUIControllers();
+      }
+    };
+    
+    const presetsFolder = dofFolder.addFolder('Presets');
+    Object.keys(presets).forEach(key => {
+      presetsFolder.add(presets, key);
+    });
+    
+    dofFolder.open();
+    
+    // Optional: Add bloom controls
+    const bloomFolder = gui.addFolder('Bloom');
+    bloomFolder.add(config.bloom, 'strength', 0, 3, 0.01).onChange((value) => {
+      bloomPass.strength = value;
+    });
+    bloomFolder.add(config.bloom, 'radius', 0, 4, 0.01).onChange((value) => {
+      bloomPass.radius = value;
+    });
+    bloomFolder.add(config.bloom, 'threshold', 0, 1, 0.01).onChange((value) => {
+      bloomPass.threshold = value;
+    });
+    
+    // Optional: Add lighting controls
+    const lightingFolder = gui.addFolder('Lighting');
+    lightingFolder.add(config, 'rightlightIntensity', 0, 50, 0.1).onChange((value) => {
+      rightlight.intensity = value;
+    });
+    lightingFolder.add(config, 'leftlightIntensity', 0, 50, 0.1).onChange((value) => {
+      leftlight.intensity = value;
+    });
+  }
+
+  // Update GUI controllers to reflect current values
+  function updateGUIControllers() {
+    if (dofControllers.focus) dofControllers.focus.updateDisplay();
+    if (dofControllers.aperture) dofControllers.aperture.updateDisplay();
+    if (dofControllers.maxblur) dofControllers.maxblur.updateDisplay();
+  }
+
   // Window resize handler
   function onWindowResize() {
     if (!camera || !renderer || !composer || useDevice().isMobileOrTablet)
@@ -572,15 +733,119 @@ export function useThreeScene(canvasId) {
     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
     composer.setSize(canvas.clientWidth, canvas.clientHeight);
 
+    // Update bokeh pass resolution
+    if (bokehPass && config.dof.enabled) {
+      bokehPass.uniforms["aspect"].value = camera.aspect;
+    }
+
     if (dustParticles && dustParticles.updateSettings) {
       const aspectRatio = canvas.clientWidth / canvas.clientHeight;
       dustParticles.updateSettings({
         area: { width: 15 * aspectRatio, height: 15, depth: 15 * aspectRatio },
       });
     }
-
-
   }
+
+// Create DOF animation timeline
+function createDOFAnimation() {
+  const dofTimeline = gsap.timeline({
+    scrollTrigger: {
+      trigger: ".home-page",
+      start: "top top",
+      end: "bottom bottom",
+      scrub: true,
+      onUpdate: function(self) {
+        if (!bokehPass || !config.dof.enabled) return;
+        
+        // Calculate which stop we're at based on scroll progress
+        const totalDuration = 24.16666603088379;
+        const currentTime = self.progress * totalDuration;
+        
+        // Find which animation segment we're in
+        let activeAnimation = null;
+        
+        for (let i = 0; i < cameraAnimationOptions.length; i++) {
+          const stop = cameraAnimationOptions[i];
+          
+          // Check if we're within this animation's duration
+          if (currentTime >= stop.startDuration && currentTime <= stop.maxDuration) {
+            activeAnimation = {
+              index: i,
+              stop: stop,
+              // Calculate local progress within this specific animation
+              localProgress: (currentTime - stop.startDuration) / (stop.maxDuration - stop.startDuration)
+            };
+            break;
+          }
+        }
+        
+        // If we're between animations, use the DOF values from the last completed animation
+        if (!activeAnimation) {
+          // Find the last completed animation
+          for (let i = cameraAnimationOptions.length - 1; i >= 0; i--) {
+            if (currentTime >= cameraAnimationOptions[i].maxDuration) {
+              // Use the end values of this animation
+              bokehPass.uniforms["focus"].value = cameraAnimationOptions[i].dof.focus;
+              bokehPass.uniforms["aperture"].value = cameraAnimationOptions[i].dof.aperture;
+              
+              // Update config for GUI
+              config.dof.focus = cameraAnimationOptions[i].dof.focus;
+              config.dof.aperture = cameraAnimationOptions[i].dof.aperture;
+              break;
+            }
+          }
+          
+          // If we're before the first animation
+          if (currentTime < cameraAnimationOptions[0].startDuration) {
+            bokehPass.uniforms["focus"].value = cameraAnimationOptions[0].dof.focus;
+            bokehPass.uniforms["aperture"].value = cameraAnimationOptions[0].dof.aperture;
+            config.dof.focus = cameraAnimationOptions[0].dof.focus;
+            config.dof.aperture = cameraAnimationOptions[0].dof.aperture;
+          }
+        } else {
+          // We're within an animation, interpolate DOF values
+          const currentStop = activeAnimation.stop;
+          const localProgress = activeAnimation.localProgress;
+          
+          // Determine the starting DOF values
+          let startDOF;
+          if (activeAnimation.index === 0) {
+            // First animation starts from its own values
+            startDOF = currentStop.dof;
+          } else {
+            // Other animations start from the previous animation's end values
+            startDOF = cameraAnimationOptions[activeAnimation.index - 1].dof;
+          }
+          
+          // Interpolate between start and end DOF values
+          const targetFocus = gsap.utils.interpolate(
+            startDOF.focus,
+            currentStop.dof.focus,
+            localProgress
+          );
+          const targetAperture = gsap.utils.interpolate(
+            startDOF.aperture,
+            currentStop.dof.aperture,
+            localProgress
+          );
+          
+          // Update DOF values
+          bokehPass.uniforms["focus"].value = targetFocus;
+          bokehPass.uniforms["aperture"].value = targetAperture;
+          
+          // Update config for GUI
+          config.dof.focus = targetFocus;
+          config.dof.aperture = targetAperture;
+        }
+        
+        // Update GUI display
+        if (gui) {
+          updateGUIControllers();
+        }
+      }
+    }
+  });
+}
 
   // Animation loop
   function animate() {
@@ -605,7 +870,7 @@ export function useThreeScene(canvasId) {
       lineHandler.animate(delta);
     }
 
-     if (envlineHandler && envlineHandler.animate) {
+    if (envlineHandler && envlineHandler.animate) {
       envlineHandler.animate(delta);
     }
 
@@ -622,8 +887,44 @@ export function useThreeScene(canvasId) {
     composer.render();
   }
 
+  // Function to update DOF settings at runtime
+  function updateDOFSettings(newSettings) {
+    if (!bokehPass || !config.dof.enabled) return;
+    
+    if (newSettings.focus !== undefined) {
+      config.dof.focus = newSettings.focus;
+      bokehPass.uniforms["focus"].value = newSettings.focus;
+    }
+    
+    if (newSettings.aperture !== undefined) {
+      config.dof.aperture = newSettings.aperture;
+      bokehPass.uniforms["aperture"].value = newSettings.aperture;
+    }
+    
+    if (newSettings.maxblur !== undefined) {
+      config.dof.maxblur = newSettings.maxblur;
+      bokehPass.uniforms["maxblur"].value = newSettings.maxblur;
+    }
+  }
+
+  // Cleanup function
+  function cleanup() {
+    if (gui) {
+      gui.destroy();
+    }
+    
+    window.removeEventListener("resize", onWindowResize);
+    window.removeEventListener("mousemove", onMouseMove);
+    
+    if (renderer) {
+      renderer.dispose();
+    }
+  }
+
   return {
     setupSequentialLoading,
     activeTextIndex,
+    updateDOFSettings,
+    cleanup,
   };
 }

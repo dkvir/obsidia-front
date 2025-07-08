@@ -238,8 +238,9 @@ export const useDustParticles = class DustParticles {
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
       blending: this.options.blending,
-      depthWrite: false,
-      transparent: true,
+      // depthTest: true,
+      depthWrite: true,
+      // transparent: true,
       vertexColors: true,
     });
 

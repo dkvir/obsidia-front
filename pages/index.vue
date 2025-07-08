@@ -2,7 +2,7 @@
   <div class="home-page">
     <canvas id="canvas"></canvas>
     <div class="header stop stop-0 flex-center">
-      <home-content :item="$tm('home.welcome')" :index="0" relative />
+      <!-- <home-content :item="$tm('home.welcome')" :index="0" relative /> -->
     </div>
     <ul class="couples">
       <li
@@ -21,7 +21,7 @@
               },
             ]"
           >
-            <home-content :item="couple" :index="index + 1" />
+            <!-- <home-content :item="couple" :index="index + 1" /> -->
           </div>
         </div>
         <div :class="`stop-${index + 1} stop flex-center`"></div>
@@ -73,34 +73,34 @@ onMounted(() => {
     height: 100vh;
   }
 
-  :deep(.content-frame) {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 150vh;
-    background-color: antiquewhite;
-    opacity: 0.3;
+  // :deep(.content-frame) {
+  //   position: absolute;
+  //   top: 0;
+  //   left: 0;
+  //   width: 100%;
+  //   height: 150vh;
+  //   background-color: antiquewhite;
+  //   opacity: 0.3;
 
-    &.is-center {
-      justify-content: center;
-      .content {
-        width: max-content;
-      }
-    }
-    &.is-right {
-      justify-content: flex-end;
-      .content {
-        width: min-content;
-      }
-    }
-    &.is-left {
-      justify-content: flex-start;
-      .content {
-        width: min-content;
-      }
-    }
-  }
+  //   &.is-center {
+  //     justify-content: center;
+  //     .content {
+  //       width: max-content;
+  //     }
+  //   }
+  //   &.is-right {
+  //     justify-content: flex-end;
+  //     .content {
+  //       width: min-content;
+  //     }
+  //   }
+  //   &.is-left {
+  //     justify-content: flex-start;
+  //     .content {
+  //       width: min-content;
+  //     }
+  //   }
+  // }
 
   #canvas {
     position: fixed;

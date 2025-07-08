@@ -78,9 +78,13 @@ function createArrowAnimation() {
 
 <style lang="scss" scoped>
 .titles-list {
-  width: max-content;
+  width: 100%;
+  perspective: 1500;
+  -webkit-perspective: 1500;
 
   .title-item {
+    transform-style: preserve-3d;
+    transform-origin: 0 100%;
     &.is-large {
       &:nth-child(2n -1) {
         .title {

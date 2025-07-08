@@ -45,135 +45,94 @@ onMounted(() => {
     gsap.registerPlugin(SplitText);
 
     content.value.forEach((element, index) => {
+      const title = element.querySelectorAll(".title-item");
       const subtitle = element.querySelector(".subtitle");
       const joinButton = element.querySelector(".join");
-
-      let split = SplitText.create(element.querySelectorAll(".title"), {
-        type: "lines,chars",
-        mask: "lines",
-        lineClass: "line",
-      });
+      const arrow = element.querySelector(".arrow");
 
       let splitDescriptions = SplitText.create(
         element.querySelectorAll(".description"),
         {
-          type: "chars",
+          type: "lines",
+          lineClass: "line",
         }
       );
 
-      gsap.set(splitDescriptions.chars, {
+      gsap.set(splitDescriptions.lines, {
+        x: 1.467,
+        y: 10,
+        z: -9.8894,
+        rotate: 8.5307,
+        rotateY: 8.5307,
+        rotateX: -90,
         opacity: 0,
       });
 
-      gsap.set(split.chars, {
-        yPercent: 100,
+      gsap.set(title, {
+        x: 1.467,
+        y: 10,
+        z: -9.8894,
+        rotate: 8.5307,
+        rotateY: 8.5307,
+        rotateX: -90,
         opacity: 0,
       });
+
+      if (subtitle) {
+        gsap.set(subtitle, {
+          opacity: 0,
+        });
+      }
+      if (joinButton) {
+        gsap.set(joinButton, {
+          opacity: 0,
+        });
+      }
+      if (arrow) {
+        gsap.set(arrow, {
+          opacity: 0,
+        });
+      }
 
       const tl = gsap.timeline();
 
-      if (subtitle) {
-        tl.addLabel("subtitle").from(subtitle, {
-          opacity: 0,
-          ease: "power4.inOut",
-          duration: 0.1,
-        });
-      }
+      tl.to(title, {
+        x: 0,
+        y: 0,
+        z: 0,
+        rotate: 0,
+        rotateY: 0,
+        rotateX: 0,
+        opacity: 1,
+        duration: 1,
+        ease: "power1.out",
+      })
 
-      tl.addLabel("enter")
         .to(
-          split.chars,
+          title,
           {
-            yPercent: 0,
+            x: 0,
+            y: 0,
+            z: 0,
+            rotate: 0,
+            rotateY: 0,
+            rotateX: 0,
             opacity: 1,
-            duration: 0.13,
-            ease: "power1.inOut",
-            stagger: {
-              from: "start",
-              ease: "power1.inOut",
-              each: 0.003,
-            },
+            duration: 0.5,
           },
-          "<"
+          ">"
         )
-        .addLabel("enterDescriptions")
-        .to(
-          splitDescriptions.chars,
-          {
-            opacity: 1,
-            ease: "power1.inOut",
-            stagger: 0.001,
-            duration: 0.1,
-          },
-          "<+=0.1"
-        );
-
-      if (joinButton) {
-        tl.addLabel("join").from(
-          joinButton,
-          {
-            opacity: 0,
-            ease: "power1.inOut",
-            duration: 0.2,
-          },
-          ">-=0.2"
-        );
-      }
-
-      tl.addLabel("hold").to(split.chars, {
-        duration: 0.1,
-        ease: "none",
-      });
-      if (subtitle) {
-        tl.addLabel("subtitleExit").to(subtitle, {
+        .to(title, {
+          x: 0,
+          y: -20,
           opacity: 0,
-          ease: "power4.inOut",
-          duration: 0.1,
+          duration: 0.5,
+          stagger: 0.1,
         });
-      }
-      tl.addLabel("exit")
-        .to(
-          split.chars,
-          {
-            yPercent: 100,
-            opacity: 0,
-            duration: 0.1,
-            ease: "power1.inOut",
-            stagger: {
-              from: "start",
-              ease: "power1.inOut",
-              each: 0.003,
-            },
-          },
-          "<"
-        )
-        .addLabel("descriptionsExit")
-        .to(
-          splitDescriptions.chars,
-          {
-            opacity: 0,
-            ease: "power1.inOut",
-            stagger: 0.0002,
-            duration: 0.1,
-          },
-          "exit-=0.1"
-        );
-
-      if (joinButton) {
-        tl.addLabel("joinExit").to(
-          joinButton,
-          {
-            opacity: 0,
-            ease: "power1.inOut",
-            duration: 0.1,
-          },
-          "descriptionsExit-=0.3"
-        );
-      }
 
       ScrollTrigger.create({
         trigger: element,
-        start: `top-=50% top`,
+        start: `top top`,
         end: `bottom top`,
         scrub: true,
         markers: true,

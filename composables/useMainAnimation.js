@@ -50,9 +50,10 @@ export function useThreeScene(canvasId) {
       dof: {
         focus: {
           start: 5.8,
+          middle: 5.8,
           end: 1.8,
         },
-        aperture: { start: 0.0067, end: 0.006 },
+        aperture: { start: 0.0067, middle: 0.0067, end: 0.006 },
       },
     },
     {
@@ -60,8 +61,8 @@ export function useThreeScene(canvasId) {
       startDuration: 4,
       maxDuration: 8,
       dof: {
-        focus: { start: 1.8, end: 0.3 },
-        aperture: { start: 0.016, end: 0.0054 },
+        focus: { start: 1.8, middle: 1.8, end: 0.3 },
+        aperture: { start: 0.006, middle: 0.016, end: 0.0054 },
       },
     },
     {
@@ -69,8 +70,8 @@ export function useThreeScene(canvasId) {
       startDuration: 8,
       maxDuration: 12,
       dof: {
-        focus: { start: 0.5, end: 0.8 },
-        aperture: { start: 0.0116, end: 0.0153 },
+        focus: { start: 0.3, middle: 0.5, end: 0.8 },
+        aperture: { start: 0.0054, middle: 0.0116, end: 0.0153 },
       },
     },
     {
@@ -78,8 +79,8 @@ export function useThreeScene(canvasId) {
       startDuration: 12,
       maxDuration: 16,
       dof: {
-        focus: { start: 1.6, end: 0.4 },
-        aperture: { start: 0.0058, end: 0.0036 },
+        focus: { start: 0.8, middle: 1.6, end: 0.4 },
+        aperture: { start: 0.0153, middle: 0.0058, end: 0.0036 },
       },
     },
     {
@@ -87,8 +88,8 @@ export function useThreeScene(canvasId) {
       startDuration: 16,
       maxDuration: 20,
       dof: {
-        focus: { start: 0.8, end: 0.2 },
-        aperture: { start: 0.0064, end: 0.0012 },
+        focus: { start: 0.4, middle: 0.8, end: 0.2 },
+        aperture: { start: 0.0036, middle: 0.0064, end: 0.0012 },
       },
     },
     {
@@ -96,8 +97,8 @@ export function useThreeScene(canvasId) {
       startDuration: 20,
       maxDuration: 24.16666603088379,
       dof: {
-        focus: { start: 0.3, end: 5.8 },
-        aperture: { start: 0.0012, end: 0.01 },
+        focus: { start: 0.2, middle: 0.3, end: 5.8 },
+        aperture: { start: 0.0012, middle: 0.0012, end: 0.01 },
       },
     },
   ];
@@ -397,18 +398,37 @@ export function useThreeScene(canvasId) {
               item.startDuration +
               self.progress * (item.maxDuration - item.startDuration);
 
-            // Animate DOF values
+            // Animate DOF values with start -> middle -> end progression
             if (bokehPass && config.dof.enabled) {
-              const targetFocus = gsap.utils.interpolate(
-                item.dof.focus.start,
-                item.dof.focus.end,
-                self.progress
-              );
-              const targetAperture = gsap.utils.interpolate(
-                item.dof.aperture.start,
-                item.dof.aperture.end,
-                self.progress
-              );
+              let targetFocus, targetAperture;
+
+              if (self.progress <= 0.5) {
+                // First half: interpolate from start to middle
+                const localProgress = self.progress * 2; // 0-1 for first half
+                targetFocus = gsap.utils.interpolate(
+                  item.dof.focus.start,
+                  item.dof.focus.middle,
+                  localProgress
+                );
+                targetAperture = gsap.utils.interpolate(
+                  item.dof.aperture.start,
+                  item.dof.aperture.middle,
+                  localProgress
+                );
+              } else {
+                // Second half: interpolate from middle to end
+                const localProgress = (self.progress - 0.5) * 2; // 0-1 for second half
+                targetFocus = gsap.utils.interpolate(
+                  item.dof.focus.middle,
+                  item.dof.focus.end,
+                  localProgress
+                );
+                targetAperture = gsap.utils.interpolate(
+                  item.dof.aperture.middle,
+                  item.dof.aperture.end,
+                  localProgress
+                );
+              }
 
               bokehPass.uniforms["focus"].value = targetFocus;
               bokehPass.uniforms["aperture"].value = targetAperture;
@@ -458,18 +478,37 @@ export function useThreeScene(canvasId) {
               item.startDuration +
               self.progress * (item.maxDuration - item.startDuration);
 
-            // Animate DOF values
+            // Animate DOF values with start -> middle -> end progression
             if (bokehPass && config.dof.enabled) {
-              const targetFocus = gsap.utils.interpolate(
-                item.dof.focus.start,
-                item.dof.focus.end,
-                self.progress
-              );
-              const targetAperture = gsap.utils.interpolate(
-                item.dof.aperture.start,
-                item.dof.aperture.end,
-                self.progress
-              );
+              let targetFocus, targetAperture;
+
+              if (self.progress <= 0.5) {
+                // First half: interpolate from start to middle
+                const localProgress = self.progress * 2; // 0-1 for first half
+                targetFocus = gsap.utils.interpolate(
+                  item.dof.focus.start,
+                  item.dof.focus.middle,
+                  localProgress
+                );
+                targetAperture = gsap.utils.interpolate(
+                  item.dof.aperture.start,
+                  item.dof.aperture.middle,
+                  localProgress
+                );
+              } else {
+                // Second half: interpolate from middle to end
+                const localProgress = (self.progress - 0.5) * 2; // 0-1 for second half
+                targetFocus = gsap.utils.interpolate(
+                  item.dof.focus.middle,
+                  item.dof.focus.end,
+                  localProgress
+                );
+                targetAperture = gsap.utils.interpolate(
+                  item.dof.aperture.middle,
+                  item.dof.aperture.end,
+                  localProgress
+                );
+              }
 
               bokehPass.uniforms["focus"].value = targetFocus;
               bokehPass.uniforms["aperture"].value = targetAperture;

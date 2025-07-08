@@ -44,11 +44,13 @@ const props = defineProps({
 <style lang="scss" scoped>
 .content {
   position: sticky;
-  top: 30%;
+  top: 5vh;
   height: min-content;
+  padding-top: 25vh;
   &.is-relative {
     position: relative;
     top: 0;
+    padding-top: 0;
   }
   &.is-center {
     align-items: center;

@@ -1,31 +1,29 @@
 <template>
   <div class="home-page">
     <canvas id="canvas"></canvas>
-    <div class="stop stop-0 flex-center">
-      <div class="header">
+    <div class="stop stop-0">
+      <div class="header flex-center">
         <home-content :item="$tm('home.welcome')" :index="0" relative />
       </div>
     </div>
-    <ul class="couples">
+    <ul class="stops">
       <li
         v-for="(couple, index) in $tm('home.content')"
         :key="index"
-        class="couple"
+        :class="`stop-${index + 1} stop flex-center couple`"
       >
-        <div class="separator">
-          <div
-            ref="content"
-            :class="[
-              'content-frame flex justify-start',
-              {
-                'is-center': couple.position === 'center',
-                'is-right': couple.position === 'right',
-                'is-left': couple.position === 'left',
-              },
-            ]"
-          >
-            <home-content :item="couple" :index="index + 1" />
-          </div>
+        <div
+          ref="content"
+          :class="[
+            'content-frame flex justify-start',
+            {
+              'is-center': couple.position === 'center',
+              'is-right': couple.position === 'right',
+              'is-left': couple.position === 'left',
+            },
+          ]"
+        >
+          <home-content :item="couple" :index="index + 1" />
         </div>
         <div :class="`stop-${index + 1} stop flex-center`"></div>
       </li>
@@ -78,7 +76,7 @@ onMounted(() => {
         tl.addLabel("subtitle").from(subtitle, {
           opacity: 0,
           ease: "power4.inOut",
-          duration: 0.4,
+          duration: 0.1,
         });
       }
 
@@ -88,12 +86,12 @@ onMounted(() => {
           {
             yPercent: 0,
             opacity: 1,
-            duration: 0.2,
+            duration: 0.13,
             ease: "power1.inOut",
             stagger: {
               from: "start",
               ease: "power1.inOut",
-              each: 0.005,
+              each: 0.003,
             },
           },
           "<"
@@ -105,7 +103,7 @@ onMounted(() => {
             opacity: 1,
             ease: "power1.inOut",
             stagger: 0.001,
-            duration: 0.2,
+            duration: 0.1,
           },
           "<+=0.1"
         );
@@ -123,14 +121,14 @@ onMounted(() => {
       }
 
       tl.addLabel("hold").to(split.chars, {
-        duration: 0.35,
+        duration: 0.1,
         ease: "none",
       });
       if (subtitle) {
         tl.addLabel("subtitleExit").to(subtitle, {
           opacity: 0,
           ease: "power4.inOut",
-          duration: 0.2,
+          duration: 0.1,
         });
       }
       tl.addLabel("exit")
@@ -139,15 +137,15 @@ onMounted(() => {
           {
             yPercent: 100,
             opacity: 0,
-            duration: 0.15,
+            duration: 0.1,
             ease: "power1.inOut",
             stagger: {
               from: "start",
               ease: "power1.inOut",
-              each: 0.005,
+              each: 0.003,
             },
           },
-          "subtitleExit+=0.1"
+          "<"
         )
         .addLabel("descriptionsExit")
         .to(
@@ -155,8 +153,8 @@ onMounted(() => {
           {
             opacity: 0,
             ease: "power1.inOut",
-            stagger: 0.001,
-            duration: 0.2,
+            stagger: 0.0002,
+            duration: 0.1,
           },
           "exit-=0.1"
         );
@@ -169,7 +167,7 @@ onMounted(() => {
             ease: "power1.inOut",
             duration: 0.1,
           },
-          "descriptionsExit-=0.1"
+          "descriptionsExit-=0.3"
         );
       }
 
@@ -193,18 +191,10 @@ onMounted(() => {
   min-height: 100vh;
   padding: 40px var(--page-offset-padding);
 
-  .couples {
-    width: 100%;
-    height: max-content;
-  }
-  .couple {
-    width: 100%;
-    height: 250vh;
-  }
-
   .stop {
+    position: relative;
     width: 100%;
-    height: 150vh;
+    height: 200vh;
   }
 
   .separator {
@@ -222,7 +212,7 @@ onMounted(() => {
     top: 0;
     left: 0;
     width: 100%;
-    height: 170vh;
+    height: 100%;
     &::before {
       content: "";
       position: absolute;

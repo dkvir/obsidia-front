@@ -393,7 +393,7 @@ export function useThreeScene(canvasId) {
           end: "bottom top",
           invalidateOnRefresh: false,
           toggleActions: "play none none reverse",
-          markers: true,
+
           onUpdate: function (self) {
             proxy.time =
               item.startDuration +
@@ -474,7 +474,6 @@ export function useThreeScene(canvasId) {
           end: "bottom top",
           scrub: true,
           invalidateOnRefresh: false,
-          markers: true,
           onUpdate: function (self) {
             proxy.time =
               item.startDuration +

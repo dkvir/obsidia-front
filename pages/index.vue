@@ -46,91 +46,109 @@ onMounted(() => {
     const timelines = [];
 
     content.value.forEach((element, index) => {
-      const title = element.querySelectorAll(".title-item");
+      const title = element.querySelectorAll(".title");
       const subtitle = element.querySelector(".subtitle");
       const joinButton = element.querySelector(".join");
       const arrow = element.querySelector(".arrow");
 
-      let splitDescriptions = SplitText.create(
-        element.querySelectorAll(".description"),
-        {
-          type: "lines",
-          lineClass: "line",
-        }
-      );
-
-      gsap.set(splitDescriptions.lines, {
-        x: 1.467,
-        y: 10,
-        z: -9.8894,
-        rotate: 8.5307,
-        rotateY: 8.5307,
-        rotateX: -90,
-        opacity: 0,
+      let splitTitles = SplitText.create(title, {
+        type: "lines, chars",
+        linesClass: "line",
       });
-
-      if (index !== 0) {
-        gsap.set(title, {
-          x: 1.467,
-          y: 10,
-          z: -9.8894,
-          rotate: 8.5307,
-          rotateY: 8.5307,
-          rotateX: -90,
-          opacity: 0,
-        });
-      }
-      if (subtitle) {
-        gsap.set(subtitle, {
-          opacity: 0,
-        });
-      }
-      if (joinButton) {
-        gsap.set(joinButton, {
-          opacity: 0,
-        });
-      }
-      if (arrow) {
-        gsap.set(arrow, {
-          opacity: 0,
-        });
-      }
 
       const tl = gsap.timeline();
 
-      tl.to(title, {
-        x: 0,
-        y: 0,
-        z: 0,
-        rotate: 0,
-        rotateY: 0,
-        rotateX: 0,
-        opacity: 1,
-        duration: 1,
-        ease: "power1.out",
-      })
-
-        .to(
-          title,
+      if (index == 0) {
+        tl.to(
+          arrow,
           {
-            x: 0,
-            y: 0,
-            z: 0,
-            rotate: 0,
-            rotateY: 0,
-            rotateX: 0,
-            opacity: 1,
-            duration: 0.5,
+            opacity: 0,
+            duration: 0.2,
+            ease: "power1.inOut",
           },
-          ">"
+          "<"
         )
-        .to(title, {
-          x: 0,
-          yPercent: -20,
+          .addLabel("enter")
+          .to(
+            splitTitles.chars,
+            {
+              yPercent: 100,
+              opacity: 0,
+              duration: 0.13,
+              ease: "power1.inOut",
+              stagger: {
+                from: "start",
+                ease: "power1.inOut",
+                each: 0.003,
+              },
+            },
+            "<"
+          );
+      } else {
+        gsap.set(splitTitles.chars, {
+          yPercent: 100,
           opacity: 0,
-          duration: 0.5,
-          stagger: 0.1,
         });
+
+        if (arrow) {
+          gsap.set(arrow, {
+            opacity: 0,
+          });
+        }
+        if (subtitle) {
+          gsap.set(subtitle, {
+            opacity: 0,
+          });
+        }
+
+        if (subtitle) {
+          tl.addLabel("subtitle").from(subtitle, {
+            opacity: 0,
+            ease: "power4.inOut",
+            duration: 0.1,
+          });
+        }
+
+        tl.addLabel("enter").to(
+          splitTitles.chars,
+          {
+            yPercent: 0,
+            opacity: 1,
+            duration: 0.3,
+            ease: "power1.inOut",
+            stagger: {
+              from: "start",
+              ease: "power1.inOut",
+              each: 0.006,
+            },
+          },
+          "<"
+        );
+
+        tl.addLabel("hold").to(splitTitles.chars, {
+          duration: 0.1,
+          ease: "none",
+        });
+
+        if (subtitle) {
+          tl.addLabel("subtitleExit").to(subtitle, {
+            opacity: 0,
+            ease: "power1.inOut",
+            duration: 0.1,
+          });
+        }
+        tl.addLabel("exitLanes").to(splitTitles.chars, {
+          yPercent: 100,
+          opacity: 0,
+          duration: 0.3,
+          ease: "power1.inOut",
+          stagger: {
+            from: "start",
+            ease: "power1.inOut",
+            each: 0.003,
+          },
+        });
+      }
 
       timelines.push(tl);
     });
@@ -138,16 +156,150 @@ onMounted(() => {
     stops.value.forEach((element, index) => {
       ScrollTrigger.create({
         trigger: element,
-        start: `top-=50% top`,
+        start: index == 0 ? `top top` : `top-=50% top`,
         end: `bottom-=50% top`,
         scrub: true,
-        markers: true,
         animation: timelines[index],
         markers: true,
       });
     });
   }, 500);
 });
+
+// onMounted(() => {
+//   setTimeout(() => {
+//     setupSequentialLoading();
+//     gsap.registerPlugin(SplitText);
+
+//     content.value.forEach((element, index) => {
+//       const subtitle = element.querySelector(".subtitle");
+//       const joinButton = element.querySelector(".join");
+
+//       let split = SplitText.create(element.querySelectorAll(".title"), {
+//         type: "lines,chars",
+//         mask: "lines",
+//         lineClass: "line",
+//       });
+
+//       let splitDescriptions = SplitText.create(
+//         element.querySelectorAll(".description"),
+//         {
+//           type: "chars",
+//         }
+//       );
+
+//       gsap.set(splitDescriptions.chars, {
+//         opacity: 0,
+//       });
+
+//       gsap.set(split.chars, {
+//         yPercent: 100,
+//         opacity: 0,
+//       });
+
+//       const tl = gsap.timeline();
+
+//       if (subtitle) {
+//         tl.addLabel("subtitle").from(subtitle, {
+//           opacity: 0,
+//           ease: "power4.inOut",
+//           duration: 0.1,
+//         });
+//       }
+
+//       tl.addLabel("enter")
+//         .to(
+//           split.chars,
+//           {
+//             yPercent: 0,
+//             opacity: 1,
+//             duration: 0.13,
+//             ease: "power1.inOut",
+//             stagger: {
+//               from: "start",
+//               ease: "power1.inOut",
+//               each: 0.003,
+//             },
+//           },
+//           "<"
+//         )
+//         .addLabel("enterDescriptions")
+//         .to(
+//           splitDescriptions.chars,
+//           {
+//             opacity: 1,
+//             ease: "power1.inOut",
+//             stagger: 0.001,
+//             duration: 0.1,
+//           },
+//           "<+=0.1"
+//         );
+
+//       if (joinButton) {
+//         tl.addLabel("join").from(
+//           joinButton,
+//           {
+//             opacity: 0,
+//             ease: "power1.inOut",
+//             duration: 0.2,
+//           },
+//           ">-=0.2"
+//         );
+//       }
+
+//       tl.addLabel("hold").to(split.chars, {
+//         duration: 0.1,
+//         ease: "none",
+//       });
+//       if (subtitle) {
+//         tl.addLabel("subtitleExit").to(subtitle, {
+//           opacity: 0,
+//           ease: "power4.inOut",
+//           duration: 0.1,
+//         });
+//       }
+//       tl.addLabel("exit")
+//         .to(
+//           split.chars,
+//           {
+//             yPercent: 100,
+//             opacity: 0,
+//             duration: 0.1,
+//             ease: "power1.inOut",
+//             stagger: {
+//               from: "start",
+//               ease: "power1.inOut",
+//               each: 0.003,
+//             },
+//           },
+//           "<"
+//         )
+//         .addLabel("descriptionsExit")
+//         .to(
+//           splitDescriptions.chars,
+//           {
+//             opacity: 0,
+//             ease: "power1.inOut",
+//             stagger: 0.0002,
+//             duration: 0.1,
+//           },
+//           "exit-=0.1"
+//         );
+
+//       if (joinButton) {
+//         tl.addLabel("joinExit").to(
+//           joinButton,
+//           {
+//             opacity: 0,
+//             ease: "power1.inOut",
+//             duration: 0.1,
+//           },
+//           "descriptionsExit-=0.3"
+//         );
+//       }
+//     });
+//   }, 500);
+// });
 </script>
 
 <style lang="scss" scoped>

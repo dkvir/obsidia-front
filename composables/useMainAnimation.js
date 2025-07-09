@@ -120,7 +120,7 @@ export function useThreeScene(canvasId) {
 
     // Depth of Field settings
     dof: {
-      enabled: true,
+      enabled: false,
       focus: 5.8, // Starting with stop-0 value
       aperture: 0.006, // Starting with stop-0 value
       maxblur: 0.01, // Maximum blur amount

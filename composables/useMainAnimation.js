@@ -49,11 +49,11 @@ export function useThreeScene(canvasId) {
       maxDuration: 4,
       dof: {
         focus: {
-          start: 5.8,
-          middle: 5.8,
+          start: 5,
+          middle: 3.5,
           end: 1.8,
         },
-        aperture: { start: 0.0067, middle: 0.0067, end: 0.006 },
+        aperture: { start: 0.0, middle: 0.0067, end: 0.006 },
       },
     },
     {
@@ -61,7 +61,7 @@ export function useThreeScene(canvasId) {
       startDuration: 4,
       maxDuration: 8,
       dof: {
-        focus: { start: 1.8, middle: 1.8, end: 0.3 },
+        focus: { start: 1.8, middle: 1.4, end: 1 },
         aperture: { start: 0.006, middle: 0.016, end: 0.0054 },
       },
     },
@@ -70,7 +70,7 @@ export function useThreeScene(canvasId) {
       startDuration: 8,
       maxDuration: 12,
       dof: {
-        focus: { start: 0.3, middle: 0.5, end: 0.8 },
+        focus: { start: 1, middle: 1.05, end: 1.1 },
         aperture: { start: 0.0054, middle: 0.0116, end: 0.0153 },
       },
     },
@@ -79,8 +79,8 @@ export function useThreeScene(canvasId) {
       startDuration: 12,
       maxDuration: 16,
       dof: {
-        focus: { start: 0.8, middle: 1.6, end: 0.4 },
-        aperture: { start: 0.0153, middle: 0.0058, end: 0.0036 },
+        focus: { start: 1.1, middle: 0.7, end: 0.1 },
+        aperture: { start: 0, middle: 0, end: 0 },
       },
     },
     {
@@ -88,8 +88,8 @@ export function useThreeScene(canvasId) {
       startDuration: 16,
       maxDuration: 20,
       dof: {
-        focus: { start: 0.4, middle: 0.8, end: 0.2 },
-        aperture: { start: 0.0036, middle: 0.0064, end: 0.0012 },
+        focus: { start: 0.1, middle: 0.2, end: 0.2 },
+        aperture: { start: 0, middle: 0, end: 0 },
       },
     },
     {
@@ -97,8 +97,8 @@ export function useThreeScene(canvasId) {
       startDuration: 20,
       maxDuration: 24.16666603088379,
       dof: {
-        focus: { start: 0.2, middle: 0.3, end: 5.8 },
-        aperture: { start: 0.0012, middle: 0.0012, end: 0.01 },
+        focus: { start: 0.2, middle: 2.5, end: 5.5 },
+        aperture: { start: 0, middle: 0.0012, end: 0 },
       },
     },
   ];
@@ -113,15 +113,15 @@ export function useThreeScene(canvasId) {
 
     // Bloom settings
     bloom: {
-      strength: 0.2,
-      radius: 2.0,
-      threshold: 0.01,
+      strength: 0.3,
+      radius: 0.45,
+      threshold: 0.02,
     },
 
     // Depth of Field settings
     dof: {
-      enabled: true,
-      focus: 5.8, // Starting with stop-0 value
+      enabled: false,
+      focus: 5, // Starting with stop-0 value
       aperture: 0.006, // Starting with stop-0 value
       maxblur: 0.01, // Maximum blur amount
     },
@@ -170,17 +170,17 @@ export function useThreeScene(canvasId) {
 
     // Other settings
     lineWidth: 6,
-    opacity: 1,
+    opacity: 0.8,
     bezierCurveAmount: 0.5,
     dustParticles: {
-      count: 1000,
-      size: { min: 0.008, max: 0.06 },
-      area: { width: 5, height: 5, depth: 15 },
-      opacity: 0.3,
+      count: 50,
+      size: { min: 0.01, max: 0.06 },
+      area: { width: 5, height: 2, depth: 15 },
+      opacity: 0.1,
       speed: { min: 0.0001, max: 0.0004 },
       color: {
         hue: { min: 200, max: 300 },
-        saturation: { min: 70, max: 90 },
+        saturation: { min: 90, max: 100 },
         lightness: { min: 70, max: 100 },
       },
     },
@@ -189,7 +189,41 @@ export function useThreeScene(canvasId) {
   };
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x000000);
+  scene.background = new THREE.Color(0x070211);
+
+  // Function to setup scroll-based trim offset
+  function setupScrollTrimOffset(envlineHandler) {
+    const segmentSize = 0.2; // 20% of the line visible at a time
+    
+    console.log("Setting up scroll trim offset");
+    
+    ScrollTrigger.create({
+      trigger: ".home-page",
+      start: "top top",
+      end: "bottom bottom",
+      scrub: true,
+      markers: false, // Set to true to debug scroll positions
+      onUpdate: (self) => {
+        const progress = self.progress;
+        
+        // Calculate offset position
+        // At progress 0: show 0-20%
+        // At progress 0.5: show 40-60%
+        // At progress 1: show 80-100%
+
+        const maxOffset = 1 - segmentSize; // 0.8
+        const offset = progress * maxOffset;
+        
+        const trimStart = offset;
+        const trimEnd = offset + segmentSize;
+        
+        // Debug log
+        // console.log(`Scroll progress: ${progress.toFixed(2)}, Trim: ${trimStart.toFixed(2)} - ${trimEnd.toFixed(2)}`);
+        
+        envlineHandler.setTrim(trimStart, trimEnd);
+      }
+    });
+  }
 
   // Sequential loading: HDRI first, then model
   function setupSequentialLoading() {
@@ -202,7 +236,8 @@ export function useThreeScene(canvasId) {
         init();
         initStatueGroup();
         animate();
-        setupGUI();
+        // setupGUI();
+
         // Create cloud shader handler
         // cloudShaderHandler = new useCloudShader(config.cloudShaders.one);
         // // Create cloud shader handler
@@ -293,6 +328,7 @@ export function useThreeScene(canvasId) {
             if (child.name.includes("statue_")) {
               if (material && child.isMesh) {
                 child.material = material;
+                child.visible = true;
               }
             }
 
@@ -330,13 +366,28 @@ export function useThreeScene(canvasId) {
               createAnimationController(mixer, animationActions, item, index);
             });
 
-            // Create DOF animation timeline
-            // createDOFAnimation();
-
             window.scrollTo(0, 0);
 
             lineHandler = new useLineHandler(config);
-            envlineHandler = new useEnvLineHandler();
+            
+            // Create envlineHandler with trim configuration for scroll
+            envlineHandler = new useEnvLineHandler({
+              // lineWidth: 5,
+              // opacity: 1,
+              // startColor: new THREE.Color(0xc337ff),
+              // endColor: new THREE.Color(0x722fdf),
+              enableEnergyFlow: true,
+              energyOnly: true, // Set to false to see the line color too
+              
+              // Trim configuration for scroll effect
+              trimEnabled: true,
+              trimStart: 0.0,    // Start with nothing visible
+              trimEnd: 0.0,      // Start with nothing visible
+              trimSpeed: 0,      // No auto animation (we control via scroll)
+              trimLoop: false,   // No auto looping
+              trimAnimating: false, // We'll update manually
+              trimFadeWidth: 0.01, // Sharp edges for clean segments
+            });
 
             lineHandler
               .createCurvesFromEdgeModel(gltf.scene)
@@ -351,6 +402,9 @@ export function useThreeScene(canvasId) {
                 // line.renderOrder = -1;
                 scene.add(line);
               });
+
+            // Add scroll-based trim control after creating lines
+            setupScrollTrimOffset(envlineHandler);
           }
 
           resolve(gltf);
@@ -651,6 +705,8 @@ export function useThreeScene(canvasId) {
     renderer.outputEncoding = THREE.sRGBEncoding;
 
     composer = new EffectComposer(renderer);
+    composer.setSize(canvas.clientWidth * 0.5, canvas.clientHeight * 0.5);
+    
     const renderPass = new RenderPass(scene, camera);
 
     // Bokeh depth of field pass
@@ -699,7 +755,10 @@ export function useThreeScene(canvasId) {
     // Add DOF before bloom for better results
     if (bokehPass && config.dof.enabled) {
       composer.addPass(bokehPass);
+      
     }
+
+  
 
     composer.addPass(brightnessCompensationPass);
     composer.addPass(bloomPass);
@@ -803,28 +862,28 @@ export function useThreeScene(canvasId) {
         config.dof.focus = 2.0;
         config.dof.aperture = 0.05;
         config.dof.maxblur = 0.02;
-        updateDOFSettings(config.dof);
+        // updateDOFSettings(config.dof);
         updateGUIControllers();
       },
       Standard: () => {
         config.dof.focus = 5.0;
         config.dof.aperture = 0.01;
         config.dof.maxblur = 0.01;
-        updateDOFSettings(config.dof);
+        // updateDOFSettings(config.dof);
         updateGUIControllers();
       },
       "Deep Focus": () => {
         config.dof.focus = 10.0;
         config.dof.aperture = 0.001;
         config.dof.maxblur = 0.005;
-        updateDOFSettings(config.dof);
+        // updateDOFSettings(config.dof);
         updateGUIControllers();
       },
       Cinematic: () => {
         config.dof.focus = 3.0;
         config.dof.aperture = 0.08;
         config.dof.maxblur = 0.03;
-        updateDOFSettings(config.dof);
+        // updateDOFSettings(config.dof);
         updateGUIControllers();
       },
     };
@@ -862,13 +921,6 @@ export function useThreeScene(canvasId) {
       });
   }
 
-  // Update GUI controllers to reflect current values
-  function updateGUIControllers() {
-    if (dofControllers.focus) dofControllers.focus.updateDisplay();
-    if (dofControllers.aperture) dofControllers.aperture.updateDisplay();
-    if (dofControllers.maxblur) dofControllers.maxblur.updateDisplay();
-  }
-
   // Window resize handler
   function onWindowResize() {
     if (!camera || !renderer || !composer || useDevice().isMobileOrTablet)
@@ -890,108 +942,6 @@ export function useThreeScene(canvasId) {
         area: { width: 15 * aspectRatio, height: 15, depth: 15 * aspectRatio },
       });
     }
-  }
-
-  // Create DOF animation timeline
-  function createDOFAnimation() {
-    const dofTimeline = gsap.timeline({
-      scrollTrigger: {
-        trigger: ".home-page",
-        start: "top top",
-        end: "bottom bottom",
-        scrub: true,
-        onUpdate: function (self) {
-          if (!bokehPass || !config.dof.enabled) return;
-
-          // Calculate which stop we're at based on scroll progress
-          const totalDuration = 24.16666603088379;
-          const currentTime = self.progress * totalDuration;
-
-          // Find which animation segment we're in
-          let activeAnimation = null;
-
-          for (let i = 0; i < cameraAnimationOptions.length; i++) {
-            const stop = cameraAnimationOptions[i];
-
-            // Check if we're within this animation's duration
-            if (
-              currentTime >= stop.startDuration &&
-              currentTime <= stop.maxDuration
-            ) {
-              activeAnimation = {
-                index: i,
-                stop: stop,
-                // Calculate local progress within this specific animation
-                localProgress:
-                  (currentTime - stop.startDuration) /
-                  (stop.maxDuration - stop.startDuration),
-              };
-              break;
-            }
-          }
-
-          // If we're between animations, use the DOF values from the last completed animation
-          if (!activeAnimation) {
-            // Find the last completed animation
-            for (let i = cameraAnimationOptions.length - 1; i >= 0; i--) {
-              if (currentTime >= cameraAnimationOptions[i].maxDuration) {
-                // Use the end values of this animation
-                bokehPass.uniforms["focus"].value =
-                  cameraAnimationOptions[i].dof.focus.end;
-                bokehPass.uniforms["aperture"].value =
-                  cameraAnimationOptions[i].dof.aperture.end;
-
-                // Update config for GUI
-                config.dof.focus = cameraAnimationOptions[i].dof.focus.end;
-                config.dof.aperture =
-                  cameraAnimationOptions[i].dof.aperture.end;
-                break;
-              }
-            }
-
-            // If we're before the first animation
-            if (currentTime < cameraAnimationOptions[0].startDuration) {
-              bokehPass.uniforms["focus"].value =
-                cameraAnimationOptions[0].dof.focus.start;
-              bokehPass.uniforms["aperture"].value =
-                cameraAnimationOptions[0].dof.aperture.start;
-              config.dof.focus = cameraAnimationOptions[0].dof.focus.start;
-              config.dof.aperture =
-                cameraAnimationOptions[0].dof.aperture.start;
-            }
-          } else {
-            // We're within an animation, interpolate DOF values
-            const currentStop = activeAnimation.stop;
-            const localProgress = activeAnimation.localProgress;
-
-            // Interpolate between start and end DOF values within the current animation
-            const targetFocus = gsap.utils.interpolate(
-              currentStop.dof.focus.start,
-              currentStop.dof.focus.end,
-              localProgress
-            );
-            const targetAperture = gsap.utils.interpolate(
-              currentStop.dof.aperture.start,
-              currentStop.dof.aperture.end,
-              localProgress
-            );
-
-            // Update DOF values
-            bokehPass.uniforms["focus"].value = targetFocus;
-            bokehPass.uniforms["aperture"].value = targetAperture;
-
-            // Update config for GUI
-            config.dof.focus = targetFocus;
-            config.dof.aperture = targetAperture;
-          }
-
-          // Update GUI display
-          if (gui) {
-            updateGUIControllers();
-          }
-        },
-      },
-    });
   }
 
   // Animation loop
@@ -1026,14 +976,15 @@ export function useThreeScene(canvasId) {
     }
 
     if (cloudShaderHandler) {
-      cloudShaderHandler.update(delta);
-      cloudShaderHandler2.update(delta);
+      // cloudShaderHandler.update(delta);
+      // cloudShaderHandler2.update(delta);
       // cloudShaderHandler3.update(delta);
     }
 
     composer.render();
   }
 
+  
   // Function to update DOF settings at runtime
   function updateDOFSettings(newSettings) {
     if (!bokehPass || !config.dof.enabled) return;
@@ -1071,7 +1022,7 @@ export function useThreeScene(canvasId) {
   return {
     setupSequentialLoading,
     activeTextIndex,
-    updateDOFSettings,
+    // updateDOFSettings,
     cleanup,
   };
 }

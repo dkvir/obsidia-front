@@ -5,45 +5,106 @@ import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js";
 
 export const useEnvLineHandler = class EnvLineHandler {
   constructor(config = {}) {
-    this.config = {
-      lineWidth: config.lineWidth || 5,
-      opacity: config.opacity || 0.2,
-      startColor: config.startColor || new THREE.Color(0xc337ff), // purple
-      endColor: config.endColor || new THREE.Color(0x722fdf), // dark purple
-      spiralRadius: config.spiralRadius || 0.01, // radius of spiral offset
-      spiralTurns: config.spiralTurns || 3, // number of complete rotations
-      createSpirals: config.createSpirals !== false, // default true
-      // Energy flow settings
-      flowSpeed: config.flowSpeed || 0.2, // speed of energy flow
-      flowDirection: config.flowDirection || -1, // 1 for forward, -1 for reverse
-      pulseIntensity: config.pulseIntensity || 0.1, // how much the energy pulses (0-1)
-      glowIntensity: config.glowIntensity || 2.0, // brightness multiplier for energy
-      energyColor: config.energyColor || new THREE.Color(0x00ffff), // cyan energy
-      waveCount: config.waveCount || 2, // number of energy waves
-      enableEnergyFlow: config.enableEnergyFlow !== false, // default true
-      pulseWidth: config.pulseWidth || 0.03, // width of each energy pulse (0-1)
-      trailLength: config.trailLength || 0.3, // length of trailing glow (0-1)
-      energyOnly: config.energyOnly || true, // if true, only show energy pulses, hide base line
+    // Default settings for env_line objects
+    this.envLineConfig = {
+      lineWidth: config.envLineConfig?.lineWidth || config.lineWidth || 10,
+      opacity: config.envLineConfig?.opacity || config.opacity || 1,
+      startColor: config.envLineConfig?.startColor || config.startColor || new THREE.Color(0xc337ff),
+      endColor: config.envLineConfig?.endColor || config.endColor || new THREE.Color(0x722fdf),
+      spiralRadius: config.envLineConfig?.spiralRadius || config.spiralRadius || 0.01,
+      spiralTurns: config.envLineConfig?.spiralTurns || config.spiralTurns || 3,
+      createSpirals: config.envLineConfig?.createSpirals !== undefined ? config.envLineConfig.createSpirals : (config.createSpirals !== false),
+      
+      // Energy flow settings for env_line
+      flowSpeed: config.envLineConfig?.flowSpeed || config.flowSpeed || 0.1,
+      flowDirection: config.envLineConfig?.flowDirection || config.flowDirection || 1,
+      pulseIntensity: config.envLineConfig?.pulseIntensity || config.pulseIntensity || 0.1,
+      glowIntensity: config.envLineConfig?.glowIntensity || config.glowIntensity || 4,
+      energyColor: config.envLineConfig?.energyColor || config.energyColor || new THREE.Color(0xff00e0),
+      waveCount: config.envLineConfig?.waveCount || config.waveCount || 4,
+      enableEnergyFlow: config.envLineConfig?.enableEnergyFlow !== undefined ? config.envLineConfig.enableEnergyFlow : (config.enableEnergyFlow !== false),
+      pulseWidth: config.envLineConfig?.pulseWidth || config.pulseWidth || 0.05,
+      trailLength: config.envLineConfig?.trailLength || config.trailLength || 0.6,
+      energyOnly: config.envLineConfig?.energyOnly !== undefined ? config.envLineConfig.energyOnly : (config.energyOnly !== undefined ? config.energyOnly : true),
     };
 
+    // Default settings for env_main objects
+    this.envMainConfig = {
+      lineWidth: config.envMainConfig?.lineWidth || config.lineWidth || 4,
+      opacity: config.envMainConfig?.opacity || config.opacity || 1,
+      startColor: config.envMainConfig?.startColor || config.startColor || new THREE.Color(0x6b2fbf),
+      endColor: config.envMainConfig?.endColor || config.endColor || new THREE.Color(0x6b2fbf),
+      spiralRadius: config.envMainConfig?.spiralRadius || config.spiralRadius || 0.015,
+      spiralTurns: config.envMainConfig?.spiralTurns || config.spiralTurns || 2,
+      createSpirals: config.envMainConfig?.createSpirals !== undefined ? config.envMainConfig.createSpirals : (config.createSpirals !== false),
+      
+      // Spiral offset colors for env_main
+      spiralColors: config.envMainConfig?.spiralColors || [
+        { start: new THREE.Color(0x9b59ff), end: new THREE.Color(0x6b2fbf) }, // Purple
+        { start: new THREE.Color(0x59b3ff), end: new THREE.Color(0x2f6bbf) }  // Blue
+      ],
+      spiralEnergyColors: config.envMainConfig?.spiralEnergyColors || [
+        new THREE.Color(0xff59ff), // Pink energy for purple spiral
+        new THREE.Color(0x2f6bbf)  // Cyan energy for blue spiral
+      ],
+      
+      // Energy flow settings for env_main
+      flowSpeed: config.envMainConfig?.flowSpeed || config.flowSpeed || 0.15,
+      flowDirection: config.envMainConfig?.flowDirection || config.flowDirection || 1,
+      pulseIntensity: config.envMainConfig?.pulseIntensity || config.pulseIntensity || 0.2,
+      glowIntensity: config.envMainConfig?.glowIntensity || config.glowIntensity || 0.7,
+      energyColor: config.envMainConfig?.energyColor || config.energyColor || new THREE.Color(0x6b2fbf),
+      waveCount: config.envMainConfig?.waveCount || config.waveCount || 2,
+      enableEnergyFlow: config.envMainConfig?.enableEnergyFlow !== undefined ? config.envMainConfig.enableEnergyFlow : (config.enableEnergyFlow !== false),
+      pulseWidth: config.envMainConfig?.pulseWidth || config.pulseWidth || 0.05,
+      trailLength: config.envMainConfig?.trailLength || config.trailLength || 0.4,
+      energyOnly: config.envMainConfig?.energyOnly !== undefined ? config.envMainConfig.energyOnly : (config.energyOnly !== undefined ? config.energyOnly : false),
+      
+      // Trim settings (only for env_main)
+      trimEnabled: config.envMainConfig?.trimEnabled !== undefined ? config.envMainConfig.trimEnabled : (config.trimEnabled !== undefined ? config.trimEnabled : true),
+      trimStart: config.envMainConfig?.trimStart !== undefined ? config.envMainConfig.trimStart : (config.trimStart !== undefined ? config.trimStart : 0.0),
+      trimEnd: config.envMainConfig?.trimEnd !== undefined ? config.envMainConfig.trimEnd : (config.trimEnd !== undefined ? config.trimEnd : 0.0),
+      trimSpeed: config.envMainConfig?.trimSpeed !== undefined ? config.envMainConfig.trimSpeed : (config.trimSpeed !== undefined ? config.trimSpeed : 0.3),
+      trimLoop: config.envMainConfig?.trimLoop !== undefined ? config.envMainConfig.trimLoop : (config.trimLoop !== undefined ? config.trimLoop : true),
+      trimDirection: config.envMainConfig?.trimDirection || config.trimDirection || 1,
+      trimEasing: config.envMainConfig?.trimEasing || config.trimEasing || 'linear',
+      trimFadeWidth: config.envMainConfig?.trimFadeWidth || config.trimFadeWidth || 0.05,
+      trimPingPong: config.envMainConfig?.trimPingPong || config.trimPingPong || false,
+      trimSync: config.envMainConfig?.trimSync !== undefined ? config.envMainConfig.trimSync : (config.trimSync !== undefined ? config.trimSync : true),
+    };
+
+    // Store original config for backwards compatibility
+    this.config = config;
+
     this.lines = [];
-    this.lineData = []; // Store additional data for each line
+    this.lineData = [];
     this.time = 0;
+    this.trimTime = 0;
     this.animating = false;
+    this.trimAnimating = false;
+    this.trimPingPongDirection = 1;
   }
 
   /**
-   * Process a GLB scene and create lines from objects with "env_line" in their name
+   * Get config based on line type
+   */
+  getConfigForLineType(lineType) {
+    return lineType === 'env_main' ? this.envMainConfig : this.envLineConfig;
+  }
+
+  /**
+   * Process a GLB scene and create lines from objects with "env_line" or "env_main" in their name
    */
   createLinesFromGLBScene(gltfScene) {
     const createdLines = [];
     
     gltfScene.traverse((child) => {
-      if (child.name && child.name.includes("env_line")) {
+      if (child.name && (child.name.includes("env_line") || child.name.includes("env_main"))) {
         child.visible = false;
         
         if (child.geometry && child.geometry.attributes.position) {
-          const lines = this.createLinesFromObject(child);
+          const lineType = child.name.includes("env_main") ? 'env_main' : 'env_line';
+          const lines = this.createLinesFromObject(child, lineType);
           if (lines && lines.length > 0) {
             createdLines.push(...lines);
             this.lines.push(...lines);
@@ -52,9 +113,15 @@ export const useEnvLineHandler = class EnvLineHandler {
       }
     });
     
-    // Start animation if energy flow is enabled
-    if (this.config.enableEnergyFlow && !this.animating) {
+    // Start animations if any lines have energy flow enabled
+    const hasEnergyFlow = this.envLineConfig.enableEnergyFlow || this.envMainConfig.enableEnergyFlow;
+    if (hasEnergyFlow && !this.animating) {
       this.startAnimation();
+    }
+    
+    // Start trim animation if enabled for env_main
+    if (this.envMainConfig.trimEnabled && this.envMainConfig.trimSpeed > 0 && !this.trimAnimating) {
+      this.startTrimAnimation();
     }
     
     return createdLines;
@@ -63,18 +130,19 @@ export const useEnvLineHandler = class EnvLineHandler {
   /**
    * Create a line from an object with optional spiral companions
    */
-  createLinesFromObject(object) {
+  createLinesFromObject(object, lineType = 'env_line') {
     const lines = [];
+    const config = this.getConfigForLineType(lineType);
     
     // Create the main line
-    const mainLine = this.createLineFromObject(object, 0);
+    const mainLine = this.createLineFromObject(object, 0, lineType);
     if (!mainLine) return lines;
     
     lines.push(mainLine);
     
     // Create spiral offset lines if enabled
-    if (this.config.createSpirals) {
-      const spiralLines = this.createSpiralOffsetLines(object);
+    if (config.createSpirals) {
+      const spiralLines = this.createSpiralOffsetLines(object, lineType);
       lines.push(...spiralLines);
     }
     
@@ -84,8 +152,9 @@ export const useEnvLineHandler = class EnvLineHandler {
   /**
    * Create spiral offset lines around the original path
    */
-  createSpiralOffsetLines(object) {
+  createSpiralOffsetLines(object, lineType = 'env_line') {
     const spiralLines = [];
+    const config = this.getConfigForLineType(lineType);
     const geometry = object.geometry;
     const posAttr = geometry.attributes.position;
     const vertexCount = posAttr.count;
@@ -131,62 +200,171 @@ export const useEnvLineHandler = class EnvLineHandler {
     for (let spiralIndex = 0; spiralIndex < 2; spiralIndex++) {
       const positions = [];
       const colors = [];
-      const phaseOffset = spiralIndex * Math.PI; // 180 degrees apart
+      const phaseOffset = spiralIndex * Math.PI;
+      
+      // Get spiral colors based on line type
+      let spiralStartColor, spiralEndColor;
+      if (lineType === 'env_main' && config.spiralColors && config.spiralColors[spiralIndex]) {
+        spiralStartColor = config.spiralColors[spiralIndex].start;
+        spiralEndColor = config.spiralColors[spiralIndex].end;
+      } else {
+        // For env_line or if spiral colors not defined, use the regular colors
+        spiralStartColor = config.startColor;
+        spiralEndColor = config.endColor;
+      }
       
       for (let i = 0; i < actualVertexCount; i++) {
-        // Calculate spiral angle based on position along the line
         const t = actualVertexCount > 1 ? i / (actualVertexCount - 1) : 0;
-        const angle = t * this.config.spiralTurns * Math.PI * 2 + phaseOffset;
+        const angle = t * config.spiralTurns * Math.PI * 2 + phaseOffset;
         
-        // Calculate offset using Frenet frame
-        const offsetX = Math.cos(angle) * this.config.spiralRadius;
-        const offsetY = Math.sin(angle) * this.config.spiralRadius;
+        const offsetX = Math.cos(angle) * config.spiralRadius;
+        const offsetY = Math.sin(angle) * config.spiralRadius;
         
-        // Apply offset in the normal/binormal plane
         const offset = new THREE.Vector3()
           .addScaledVector(normals[i], offsetX)
           .addScaledVector(binormals[i], offsetY);
         
-        // Final position
         const finalPos = originalPositions[i].clone().add(offset);
         positions.push(finalPos.x, finalPos.y, finalPos.z);
         
-        // Calculate color gradient
         const color = new THREE.Color().lerpColors(
-          this.config.startColor,
-          this.config.endColor,
+          spiralStartColor,
+          spiralEndColor,
           t
         );
         colors.push(color.r, color.g, color.b);
       }
       
-      // Create Line2 geometry
       const lineGeometry = new LineGeometry();
       lineGeometry.setPositions(positions);
       lineGeometry.setColors(colors);
       
-      // Create material with custom shader for energy effect
       const material = this.createEnergyMaterial(
-        this.config.lineWidth * 0.8,
-        this.config.opacity * 0.7,
-        spiralIndex + 1 // Phase offset for variety
+        config.lineWidth * 0.8,
+        config.opacity * 0.7,
+        spiralIndex + 1
       );
       
       const line = new Line2(lineGeometry, material);
       line.computeLineDistances();
       
-      // Store line data for animation
+      // Store the spiral colors in line data
       this.lineData.push({
         line: line,
+        lineType: lineType,
         baseColors: [...colors],
         phaseOffset: spiralIndex + 1,
-        vertexCount: actualVertexCount
+        vertexCount: actualVertexCount,
+        trimOffset: Math.random() * 0.3,
+        applyTrim: lineType === 'env_main',
+        isSpiral: true,
+        spiralIndex: spiralIndex,
+        spiralStartColor: spiralStartColor,
+        spiralEndColor: spiralEndColor
       });
       
       spiralLines.push(line);
     }
     
     return spiralLines;
+  }
+
+  /**
+   * Create a line from an object
+   */
+  createLineFromObject(object, phaseOffset = 0, lineType = 'env_line') {
+    const positions = [];
+    const colors = [];
+    const config = this.getConfigForLineType(lineType);
+    
+    const geometry = object.geometry;
+    const posAttr = geometry.attributes.position;
+    let vertexCount = posAttr.count;
+    
+    if (vertexCount < 2) return null;
+    
+    const firstX = posAttr.getX(0);
+    const firstY = posAttr.getY(0);
+    const firstZ = posAttr.getZ(0);
+    
+    const lastX = posAttr.getX(vertexCount - 1);
+    const lastY = posAttr.getY(vertexCount - 1);
+    const lastZ = posAttr.getZ(vertexCount - 1);
+    
+    const distance = Math.sqrt(
+      Math.pow(lastX - firstX, 2) + 
+      Math.pow(lastY - firstY, 2) + 
+      Math.pow(lastZ - firstZ, 2)
+    );
+    
+    const isClosed = distance < 0.0001;
+    const actualVertexCount = isClosed ? vertexCount - 1 : vertexCount;
+    
+    for (let i = 0; i < actualVertexCount; i++) {
+      const x = posAttr.getX(i);
+      const y = posAttr.getY(i);
+      const z = posAttr.getZ(i);
+      
+      const vertex = new THREE.Vector3(x, y, z);
+      vertex.applyMatrix4(object.matrixWorld);
+      
+      positions.push(vertex.x, vertex.y, vertex.z);
+      
+      const t = actualVertexCount > 1 ? i / (actualVertexCount - 1) : 0;
+      const color = new THREE.Color().lerpColors(
+        config.startColor,
+        config.endColor,
+        t
+      );
+      colors.push(color.r, color.g, color.b);
+    }
+    
+    const lineGeometry = new LineGeometry();
+    lineGeometry.setPositions(positions);
+    lineGeometry.setColors(colors);
+    
+    const material = this.createEnergyMaterial(
+      config.lineWidth,
+      config.opacity,
+      phaseOffset
+    );
+    
+    const line = new Line2(lineGeometry, material);
+    line.computeLineDistances();
+    
+    this.lineData.push({
+      line: line,
+      lineType: lineType,
+      baseColors: [...colors],
+      phaseOffset: phaseOffset,
+      vertexCount: actualVertexCount,
+      trimOffset: 0,
+      applyTrim: lineType === 'env_main',
+      isSpiral: false,
+      spiralIndex: -1
+    });
+    
+    return line;
+  }
+
+  /**
+   * Create material with energy flow shader
+   */
+  createEnergyMaterial(linewidth, opacity, phaseOffset) {
+    const material = new LineMaterial({
+      color: 0xffffff,
+      linewidth: linewidth,
+      vertexColors: true,
+      worldUnits: false,
+      resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
+      opacity: opacity,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+    });
+    
+    material.userData.phaseOffset = phaseOffset;
+    
+    return material;
   }
 
   /**
@@ -200,13 +378,10 @@ export const useEnvLineHandler = class EnvLineHandler {
       let tangent;
       
       if (i === 0) {
-        // First point: use forward difference
         tangent = positions[1].clone().sub(positions[0]).normalize();
       } else if (i === count - 1) {
-        // Last point: use backward difference
         tangent = positions[i].clone().sub(positions[i - 1]).normalize();
       } else {
-        // Middle points: use central difference
         tangent = positions[i + 1].clone().sub(positions[i - 1]).normalize();
       }
       
@@ -225,19 +400,15 @@ export const useEnvLineHandler = class EnvLineHandler {
     
     for (let i = 0; i < tangents.length; i++) {
       let normal;
-      
-      // Try to use up vector as reference
       const tangent = tangents[i];
       const dot = Math.abs(tangent.dot(up));
       
       if (dot > 0.999) {
-        // Tangent is parallel to up, use a different reference
         normal = new THREE.Vector3(1, 0, 0).cross(tangent).normalize();
       } else {
         normal = up.clone().cross(tangent).normalize();
       }
       
-      // Ensure continuity by checking against previous normal
       if (i > 0 && normal.dot(normals[i - 1]) < 0) {
         normal.multiplyScalar(-1);
       }
@@ -263,111 +434,6 @@ export const useEnvLineHandler = class EnvLineHandler {
   }
 
   /**
-   * Create a line from an object (original method)
-   */
-  createLineFromObject(object, phaseOffset = 0) {
-    const positions = [];
-    const colors = [];
-    
-    const geometry = object.geometry;
-    const posAttr = geometry.attributes.position;
-    let vertexCount = posAttr.count;
-    
-    if (vertexCount < 2) return null;
-    
-    // Check if the imported curve is closed by comparing first and last points
-    const firstX = posAttr.getX(0);
-    const firstY = posAttr.getY(0);
-    const firstZ = posAttr.getZ(0);
-    
-    const lastX = posAttr.getX(vertexCount - 1);
-    const lastY = posAttr.getY(vertexCount - 1);
-    const lastZ = posAttr.getZ(vertexCount - 1);
-    
-    // Calculate distance in local space before transformation
-    const distance = Math.sqrt(
-      Math.pow(lastX - firstX, 2) + 
-      Math.pow(lastY - firstY, 2) + 
-      Math.pow(lastZ - firstZ, 2)
-    );
-    
-    // If the curve is closed (first and last points are the same), exclude the last point
-    const isClosed = distance < 0.0001;
-    const actualVertexCount = isClosed ? vertexCount - 1 : vertexCount;
-    
-    // console.log(`Processing ${object.name}: distance=${distance}, isClosed=${isClosed}, vertices=${vertexCount}, using=${actualVertexCount}`);
-    
-    // Extract positions and create gradient colors
-    for (let i = 0; i < actualVertexCount; i++) {
-      // Get position
-      const x = posAttr.getX(i);
-      const y = posAttr.getY(i);
-      const z = posAttr.getZ(i);
-      
-      // Transform to world space
-      const vertex = new THREE.Vector3(x, y, z);
-      vertex.applyMatrix4(object.matrixWorld);
-      
-      positions.push(vertex.x, vertex.y, vertex.z);
-      
-      // Calculate color gradient
-      const t = actualVertexCount > 1 ? i / (actualVertexCount - 1) : 0;
-      const color = new THREE.Color().lerpColors(
-        this.config.startColor,
-        this.config.endColor,
-        t
-      );
-      colors.push(color.r, color.g, color.b);
-    }
-    
-    // Create Line2 geometry
-    const lineGeometry = new LineGeometry();
-    lineGeometry.setPositions(positions);
-    lineGeometry.setColors(colors);
-    
-    // Create material with energy effect
-    const material = this.createEnergyMaterial(
-      this.config.lineWidth,
-      this.config.opacity,
-      phaseOffset
-    );
-    
-    const line = new Line2(lineGeometry, material);
-    line.computeLineDistances();
-    
-    // Store line data for animation
-    this.lineData.push({
-      line: line,
-      baseColors: [...colors],
-      phaseOffset: phaseOffset,
-      vertexCount: actualVertexCount
-    });
-    
-    return line;
-  }
-
-  /**
-   * Create material with energy flow shader
-   */
-  createEnergyMaterial(linewidth, opacity, phaseOffset) {
-    const material = new LineMaterial({
-      color: 0xffffff,
-      linewidth: linewidth,
-      vertexColors: true,
-      worldUnits: false,
-      resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
-      opacity: opacity,
-      transparent: true,
-      blending: THREE.AdditiveBlending, // For glowing effect
-    });
-    
-    // Store phase offset for animation
-    material.userData.phaseOffset = phaseOffset;
-    
-    return material;
-  }
-
-  /**
    * Start the energy flow animation
    */
   startAnimation() {
@@ -382,144 +448,303 @@ export const useEnvLineHandler = class EnvLineHandler {
   }
 
   /**
+   * Start the trim animation
+   */
+  startTrimAnimation() {
+    this.trimAnimating = true;
+  }
+
+  /**
+   * Stop the trim animation
+   */
+  stopTrimAnimation() {
+    this.trimAnimating = false;
+  }
+
+  /**
+   * Apply easing function to value
+   */
+  applyEasing(t, easing) {
+    switch (easing) {
+      case 'easeIn':
+        return t * t;
+      case 'easeOut':
+        return t * (2 - t);
+      case 'easeInOut':
+        return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+      case 'linear':
+      default:
+        return t;
+    }
+  }
+
+  /**
    * Animation update - call this from your main animation loop
-   * @param {number} delta - Time since last frame in seconds
    */
   animate(delta = 0.016) {
-    if (!this.animating || !this.config.enableEnergyFlow) return;
+    if (!this.animating && !this.envMainConfig.trimEnabled) return;
     
     this.time += delta;
+    
+    if (this.trimAnimating && this.envMainConfig.trimEnabled) {
+      this.trimTime += delta * this.envMainConfig.trimSpeed * this.trimPingPongDirection * this.envMainConfig.trimDirection;
+      
+      if (this.envMainConfig.trimPingPong) {
+        if (this.trimTime >= 1 || this.trimTime <= 0) {
+          this.trimPingPongDirection *= -1;
+          this.trimTime = Math.max(0, Math.min(1, this.trimTime));
+        }
+      } else if (this.envMainConfig.trimLoop) {
+        this.trimTime = this.trimTime % 1;
+        if (this.trimTime < 0) this.trimTime += 1;
+      } else {
+        this.trimTime = Math.max(0, Math.min(1, this.trimTime));
+      }
+    }
+    
     this.updateEnergyFlow();
   }
 
   /**
-   * Update energy flow effect
+   * Update energy flow effect with trim
    */
   updateEnergyFlow() {
     this.lineData.forEach((data) => {
-      const { line, baseColors, phaseOffset, vertexCount } = data;
+      const { line, lineType, baseColors, phaseOffset, vertexCount, trimOffset, applyTrim, isSpiral, spiralIndex } = data;
+      const config = this.getConfigForLineType(lineType);
       const colors = [];
       
+      // Determine which energy color to use
+      let effectiveEnergyColor = config.energyColor;
+      if (isSpiral && lineType === 'env_main' && config.spiralEnergyColors && config.spiralEnergyColors[spiralIndex]) {
+        effectiveEnergyColor = config.spiralEnergyColors[spiralIndex];
+      }
+      
+      // Calculate trim values for this line
+      let trimStart = config.trimStart !== undefined ? config.trimStart : 0;
+      let trimEnd = config.trimEnd !== undefined ? config.trimEnd : 1;
+      
+      // Only apply auto-animation if trimSpeed > 0 and it's an env_main line
+      if (applyTrim && config.trimEnabled && this.trimAnimating && config.trimSpeed > 0) {
+        const trimProgress = this.applyEasing(this.trimTime, config.trimEasing);
+        const effectiveProgress = config.trimSync ? 
+          trimProgress : 
+          (trimProgress + trimOffset) % 1;
+        
+        if (config.trimLoop) {
+          const trimRange = 0.2;
+          trimStart = Math.max(0, effectiveProgress - trimRange / 2);
+          trimEnd = Math.min(1, effectiveProgress + trimRange / 2);
+        } else {
+          trimStart = 0;
+          trimEnd = effectiveProgress;
+        }
+      } else if (!applyTrim) {
+        trimStart = 0;
+        trimEnd = 1;
+      }
+      
+      // Calculate total line length for segment interpolation
+      const segmentLengths = [];
+      let totalLength = 0;
+      
+      if (applyTrim && config.trimEnabled && vertexCount > 1) {
+        const positions = line.geometry.attributes.instanceStart.array;
+        
+        for (let i = 0; i < vertexCount - 1; i++) {
+          const x1 = positions[i * 3];
+          const y1 = positions[i * 3 + 1];
+          const z1 = positions[i * 3 + 2];
+          
+          const x2 = positions[(i + 1) * 3];
+          const y2 = positions[(i + 1) * 3 + 1];
+          const z2 = positions[(i + 1) * 3 + 2];
+          
+          const segmentLength = Math.sqrt(
+            (x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2
+          );
+          
+          totalLength += segmentLength;
+          segmentLengths.push(totalLength);
+        }
+      }
+      
       for (let i = 0; i < vertexCount; i++) {
-        const t = vertexCount > 1 ? i / (vertexCount - 1) : 0;
-        
-        // Calculate energy wave positions - directional flow
-        let energyIntensity = 0;
-        
-        // Create multiple energy pulses that travel along the line
-        for (let w = 0; w < this.config.waveCount; w++) {
-          // Each wave is offset in time
-          const waveOffset = w / this.config.waveCount;
-          
-          // Calculate the current position of this energy pulse (0 to 1)
-          let pulsePosition;
-          if (this.config.flowDirection > 0) {
-            // Forward flow: 0 to 1
-            pulsePosition = ((this.time * this.config.flowSpeed + waveOffset + phaseOffset * 0.1) % 1);
-          } else {
-            // Reverse flow: 1 to 0
-            pulsePosition = 1 - ((this.time * this.config.flowSpeed + waveOffset + phaseOffset * 0.1) % 1);
-          }
-          
-          // Calculate distance from current vertex to the pulse
-          const distance = Math.abs(t - pulsePosition);
-          
-          // Create a sharp energy pulse with configurable width
-          const pulseWidth = this.config.pulseWidth; // Width of each energy pulse
-          const falloff = 2.0; // How quickly the energy falls off
-          
-          // Calculate intensity based on distance from pulse center
-          if (distance < pulseWidth) {
-            const normalizedDistance = distance / pulseWidth;
-            const intensity = Math.exp(-falloff * normalizedDistance * normalizedDistance);
-            energyIntensity = Math.max(energyIntensity, intensity);
-          }
+        let t;
+        if (totalLength > 0 && i > 0) {
+          t = segmentLengths[i - 1] / totalLength;
+        } else {
+          t = vertexCount > 1 ? i / (vertexCount - 1) : 0;
         }
         
-        // Add a subtle trailing glow effect
-        for (let w = 0; w < this.config.waveCount; w++) {
-          const waveOffset = w / this.config.waveCount;
-          let pulsePosition;
-          if (this.config.flowDirection > 0) {
-            // Forward flow: 0 to 1
-            pulsePosition = ((this.time * this.config.flowSpeed + waveOffset + phaseOffset * 0.1) % 1);
+        // Calculate trim visibility
+        let trimVisibility = 1.0;
+        
+        if (applyTrim && config.trimEnabled) {
+          if (i === 0) {
+            if (trimStart > 0 || trimEnd <= 0) {
+              trimVisibility = 0.0;
+            } else if (vertexCount > 1) {
+              const nextT = segmentLengths.length > 0 ? segmentLengths[0] / totalLength : 1 / (vertexCount - 1);
+              if (trimEnd < nextT) {
+                trimVisibility = trimEnd / nextT;
+              } else {
+                trimVisibility = 1.0;
+              }
+            }
+          } else if (i === vertexCount - 1) {
+            if (trimStart >= 1 || trimEnd < t) {
+              trimVisibility = 0.0;
+            } else if (vertexCount > 1) {
+              const prevT = segmentLengths.length > 1 ? 
+                segmentLengths[segmentLengths.length - 2] / totalLength : 
+                (vertexCount - 2) / (vertexCount - 1);
+              if (trimStart > prevT) {
+                trimVisibility = (1 - trimStart) / (1 - prevT);
+              } else {
+                trimVisibility = t <= trimEnd ? 1.0 : 0.0;
+              }
+            }
           } else {
-            // Reverse flow: 1 to 0
-            pulsePosition = 1 - ((this.time * this.config.flowSpeed + waveOffset + phaseOffset * 0.1) % 1);
-          }
-          
-          // Trail appears behind the pulse based on flow direction
-          const shouldShowTrail = this.config.flowDirection > 0 ? 
-            (t < pulsePosition) : 
-            (t > pulsePosition);
-          
-          if (shouldShowTrail) {
-            const trailDistance = Math.abs(pulsePosition - t);
-            const trailLength = this.config.trailLength; // Length of the trailing glow
+            const prevT = i > 0 && segmentLengths.length > 0 ? 
+              (i === 1 ? 0 : segmentLengths[i - 2] / totalLength) : 
+              (i - 1) / (vertexCount - 1);
+            const currentT = segmentLengths.length > 0 ? 
+              segmentLengths[i - 1] / totalLength : 
+              i / (vertexCount - 1);
+            const nextT = i < vertexCount - 1 && segmentLengths.length > i ? 
+              segmentLengths[i] / totalLength : 
+              (i + 1) / (vertexCount - 1);
             
-            if (trailDistance < trailLength) {
-              const trailIntensity = (1 - trailDistance / trailLength) * 0.3;
-              energyIntensity = Math.max(energyIntensity, trailIntensity);
+            if (currentT < trimStart) {
+              if (nextT > trimStart) {
+                const segmentT = (trimStart - currentT) / (nextT - currentT);
+                trimVisibility = 1.0 - segmentT;
+              } else {
+                trimVisibility = 0.0;
+              }
+            } else if (currentT > trimEnd) {
+              if (prevT < trimEnd) {
+                const segmentT = (trimEnd - prevT) / (currentT - prevT);
+                trimVisibility = segmentT;
+              } else {
+                trimVisibility = 0.0;
+              }
+            } else {
+              trimVisibility = 1.0;
+              
+              const fadeWidth = config.trimFadeWidth || 0.05;
+              
+              if (currentT < trimStart + fadeWidth && trimStart > 0) {
+                const fadeT = (currentT - trimStart) / fadeWidth;
+                trimVisibility = this.applyEasing(fadeT, 'easeOut');
+              }
+              
+              if (currentT > trimEnd - fadeWidth && trimEnd < 1) {
+                const fadeT = (trimEnd - currentT) / fadeWidth;
+                trimVisibility = Math.min(trimVisibility, this.applyEasing(fadeT, 'easeIn'));
+              }
             }
           }
         }
         
-        // Apply pulse effect for overall brightness variation
-        const globalPulse = Math.sin(this.time * 2 + phaseOffset) * 0.2 + 0.8;
-        energyIntensity *= globalPulse;
+        // Calculate energy wave positions
+        let energyIntensity = 0;
         
-        // Mix base color with energy color based on intensity
+        if (trimVisibility > 0 && config.enableEnergyFlow) {
+          for (let w = 0; w < config.waveCount; w++) {
+            const waveOffset = w / config.waveCount;
+            
+            let pulsePosition;
+            if (config.flowDirection > 0) {
+              pulsePosition = ((this.time * config.flowSpeed + waveOffset + phaseOffset * 0.1) % 1);
+            } else {
+              pulsePosition = 1 - ((this.time * config.flowSpeed + waveOffset + phaseOffset * 0.1) % 1);
+            }
+            
+            const distance = Math.abs(t - pulsePosition);
+            
+            const pulseWidth = config.pulseWidth;
+            const falloff = 2.0;
+            
+            if (distance < pulseWidth) {
+              const normalizedDistance = distance / pulseWidth;
+              const intensity = Math.exp(-falloff * normalizedDistance * normalizedDistance);
+              energyIntensity = Math.max(energyIntensity, intensity);
+            }
+          }
+          
+          // Add trailing glow effect
+          for (let w = 0; w < config.waveCount; w++) {
+            const waveOffset = w / config.waveCount;
+            let pulsePosition;
+            if (config.flowDirection > 0) {
+              pulsePosition = ((this.time * config.flowSpeed + waveOffset + phaseOffset * 0.1) % 1);
+            } else {
+              pulsePosition = 1 - ((this.time * config.flowSpeed + waveOffset + phaseOffset * 0.1) % 1);
+            }
+            
+            const shouldShowTrail = config.flowDirection > 0 ? 
+              (t < pulsePosition) : 
+              (t > pulsePosition);
+            
+            if (shouldShowTrail) {
+              const trailDistance = Math.abs(pulsePosition - t);
+              const trailLength = config.trailLength;
+              
+              if (trailDistance < trailLength) {
+                const trailIntensity = (1 - trailDistance / trailLength) * 0.3;
+                energyIntensity = Math.max(energyIntensity, trailIntensity);
+              }
+            }
+          }
+          
+          const globalPulse = Math.sin(this.time * 2 + phaseOffset) * 0.2 + 0.8;
+          energyIntensity *= globalPulse;
+        }
+        
+        energyIntensity *= trimVisibility;
+        
         const baseColor = new THREE.Color(
           baseColors[i * 3],
           baseColors[i * 3 + 1],
           baseColors[i * 3 + 2]
         );
         
-        // Create the final color
         let finalColor;
         
-        if (this.config.energyOnly) {
-          // Energy-only mode: only show where there's energy
+        if (config.energyOnly) {
           if (energyIntensity > 0.01) {
-            // Use pure energy color with intensity-based opacity
-            finalColor = this.config.energyColor.clone();
-            const glowMultiplier = energyIntensity * this.config.glowIntensity;
+            finalColor = effectiveEnergyColor.clone();
+            const glowMultiplier = energyIntensity * config.glowIntensity;
             finalColor.multiplyScalar(glowMultiplier);
           } else {
-            // Make completely transparent/black where there's no energy
             finalColor = new THREE.Color(0, 0, 0);
           }
         } else {
-          // Normal mode: blend base color with energy
           if (energyIntensity > 0.01) {
-            // Blend between base color and energy color
             finalColor = baseColor.clone().lerp(
-              this.config.energyColor,
+              effectiveEnergyColor,
               Math.min(energyIntensity, 0.9)
             );
             
-            // Apply glow intensity for bright spots
-            const glowMultiplier = 1 + energyIntensity * this.config.glowIntensity;
+            const glowMultiplier = 1 + energyIntensity * config.glowIntensity;
             finalColor.multiplyScalar(glowMultiplier);
           } else {
-            // Use base color when no energy present
             finalColor = baseColor.clone();
+            finalColor.multiplyScalar(trimVisibility);
           }
         }
         
         colors.push(finalColor.r, finalColor.g, finalColor.b);
       }
       
-      // Update line colors
       line.geometry.setColors(colors);
       
-      // Handle opacity for energy-only mode
-      if (this.config.energyOnly) {
-        // In energy-only mode, we'll use full opacity to let the color intensity control visibility
+      if (config.energyOnly) {
         line.material.opacity = 1.0;
-        line.material.depthWrite = false; // Better transparency handling
+        line.material.depthWrite = false;
       } else {
-        // Normal opacity pulsing
         const opacityPulse = Math.sin(this.time * 1.5) * 0.05 + 1;
         line.material.opacity = line.material.userData.baseOpacity || line.material.opacity;
         if (!line.material.userData.baseOpacity) {
@@ -531,50 +756,62 @@ export const useEnvLineHandler = class EnvLineHandler {
   }
 
   /**
-   * Update settings for all lines
+   * Update settings for specific line type
    */
-  updateSettings(params = {}) {
+  updateSettings(lineType, params = {}) {
     if (!params) return;
 
-    // Update config
+    // Update the appropriate config
+    const config = lineType === 'env_main' ? this.envMainConfig : this.envLineConfig;
+    
     Object.keys(params).forEach(key => {
-      if (this.config.hasOwnProperty(key)) {
-        this.config[key] = params[key];
+      if (config.hasOwnProperty(key)) {
+        config[key] = params[key];
       }
     });
 
-    // Update all lines
-    this.lines.forEach((line, index) => {
-      // Determine if this is a main line or spiral line
-      const isMainLine = index % 3 === 0;
-      
-      // Update material properties
-      if (params.lineWidth !== undefined) {
-        line.material.linewidth = isMainLine ? 
-          params.lineWidth : 
-          params.lineWidth * 0.8;
-      }
-      if (params.opacity !== undefined) {
-        line.material.opacity = isMainLine ? 
-          params.opacity : 
-          params.opacity * 0.7;
-        line.material.userData.baseOpacity = line.material.opacity;
-      }
+    // Update affected lines
+    this.lineData.forEach((data, index) => {
+      if (data.lineType === lineType) {
+        const line = data.line;
+        const isMainLine = index % 3 === 0;
+        
+        if (params.lineWidth !== undefined) {
+          line.material.linewidth = isMainLine ? 
+            params.lineWidth : 
+            params.lineWidth * 0.8;
+        }
+        
+        if (params.opacity !== undefined) {
+          line.material.opacity = isMainLine ? 
+            params.opacity : 
+            params.opacity * 0.7;
+          line.material.userData.baseOpacity = line.material.opacity;
+        }
 
-      // Update base colors if color params changed
-      if (params.startColor || params.endColor) {
-        const lineDataIndex = this.lineData.findIndex(d => d.line === line);
-        if (lineDataIndex !== -1) {
-          const data = this.lineData[lineDataIndex];
+        if (params.startColor || params.endColor || params.spiralColors) {
           const baseColors = [];
+          
+          // Determine colors based on whether this is a spiral line
+          let startColor, endColor;
+          if (!data.isSpiral) {
+            // Main line uses regular colors
+            startColor = config.startColor;
+            endColor = config.endColor;
+          } else {
+            // Spiral lines might use special colors for env_main
+            if (data.lineType === 'env_main' && config.spiralColors && config.spiralColors[data.spiralIndex]) {
+              startColor = config.spiralColors[data.spiralIndex].start;
+              endColor = config.spiralColors[data.spiralIndex].end;
+            } else {
+              startColor = config.startColor;
+              endColor = config.endColor;
+            }
+          }
           
           for (let i = 0; i < data.vertexCount; i++) {
             const t = data.vertexCount > 1 ? i / (data.vertexCount - 1) : 0;
-            const color = new THREE.Color().lerpColors(
-              this.config.startColor,
-              this.config.endColor,
-              t
-            );
+            const color = new THREE.Color().lerpColors(startColor, endColor, t);
             baseColors.push(color.r, color.g, color.b);
           }
           
@@ -585,35 +822,82 @@ export const useEnvLineHandler = class EnvLineHandler {
 
     // Handle animation state changes
     if (params.enableEnergyFlow !== undefined) {
-      if (params.enableEnergyFlow && !this.animating) {
+      const hasEnergyFlow = this.envLineConfig.enableEnergyFlow || this.envMainConfig.enableEnergyFlow;
+      if (hasEnergyFlow && !this.animating) {
         this.startAnimation();
-      } else if (!params.enableEnergyFlow) {
+      } else if (!hasEnergyFlow) {
         this.stopAnimation();
+      }
+    }
+
+    if (lineType === 'env_main' && params.trimEnabled !== undefined) {
+      if (params.trimEnabled && !this.trimAnimating) {
+        this.startTrimAnimation();
+      } else if (!params.trimEnabled) {
+        this.stopTrimAnimation();
       }
     }
   }
 
   /**
-   * Set flow direction
-   * @param {number} direction - 1 for forward, -1 for reverse
+   * Update all settings (backwards compatibility)
    */
-  setFlowDirection(direction) {
-    this.config.flowDirection = direction;
+  updateAllSettings(params = {}) {
+    // Update both configs
+    if (params.envLineConfig) {
+      this.updateSettings('env_line', params.envLineConfig);
+    }
+    if (params.envMainConfig) {
+      this.updateSettings('env_main', params.envMainConfig);
+    }
+    
+    // Handle global settings for backwards compatibility
+    const globalKeys = Object.keys(params).filter(key => 
+      key !== 'envLineConfig' && key !== 'envMainConfig'
+    );
+    
+    if (globalKeys.length > 0) {
+      const globalParams = {};
+      globalKeys.forEach(key => {
+        globalParams[key] = params[key];
+      });
+      
+      // Apply to both types
+      this.updateSettings('env_line', globalParams);
+      this.updateSettings('env_main', globalParams);
+    }
   }
 
   /**
-   * Set energy-only mode
-   * @param {boolean} energyOnly - true to show only energy, false for normal mode
+   * Set flow direction for specific line type
    */
-  setEnergyOnly(energyOnly) {
-    this.config.energyOnly = energyOnly;
+  setFlowDirection(lineType, direction) {
+    const config = this.getConfigForLineType(lineType);
+    config.flowDirection = direction;
   }
 
   /**
-   * Toggle energy-only mode
+   * Set energy-only mode for specific line type
    */
-  toggleEnergyOnly() {
-    this.config.energyOnly = !this.config.energyOnly;
+  setEnergyOnly(lineType, energyOnly) {
+    const config = this.getConfigForLineType(lineType);
+    config.energyOnly = energyOnly;
+  }
+
+  /**
+   * Toggle energy-only mode for specific line type
+   */
+  toggleEnergyOnly(lineType) {
+    const config = this.getConfigForLineType(lineType);
+    config.energyOnly = !config.energyOnly;
+  }
+
+  /**
+   * Set trim values (only affects env_main)
+   */
+  setTrim(start, end) {
+    this.envMainConfig.trimStart = Math.max(0, Math.min(1, start));
+    this.envMainConfig.trimEnd = Math.max(0, Math.min(1, end));
   }
 
   /**
@@ -635,10 +919,20 @@ export const useEnvLineHandler = class EnvLineHandler {
   }
 
   /**
+   * Get lines by type
+   */
+  getLinesByType(lineType) {
+    return this.lineData
+      .filter(data => data.lineType === lineType)
+      .map(data => data.line);
+  }
+
+  /**
    * Dispose of resources
    */
   dispose() {
     this.stopAnimation();
+    this.stopTrimAnimation();
     this.lines.forEach((line) => {
       line.geometry.dispose();
       line.material.dispose();

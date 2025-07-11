@@ -18,13 +18,13 @@ export const useDustParticles = class DustParticles {
       },
       opacity: options.opacity || 0.5,
       speed: options.speed || { min: 0.02, max: 0.05 },
-      blending: options.blending || THREE.AdditiveBlending,
+      blending: options.blending || THREE.NormalBlending,
       // Light-based visibility settings
       lightInfluence: {
         enabled: true,
         lightDistance: 8.0, // Maximum distance for light influence
         fadeDistance: 2.0, // Distance over which fade occurs
-        minOpacity: 0.0, // Minimum opacity in darkness
+        minOpacity: 0.1, // Minimum opacity in darkness
         maxOpacity: 1.0, // Maximum opacity in light
       },
     };
@@ -240,6 +240,7 @@ export const useDustParticles = class DustParticles {
       blending: this.options.blending,
       // depthTest: true,
       depthWrite: true,
+     
       // transparent: true,
       vertexColors: true,
     });
@@ -249,7 +250,7 @@ export const useDustParticles = class DustParticles {
       this.particlesGeometry,
       this.particlesMaterial
     );
-    this.particles.renderOrder = 2; // Render after statue and lines
+    this.particles.renderOrder = 10; // Render after statue and lines
 
     // Add to scene
     this.scene.add(this.particles);

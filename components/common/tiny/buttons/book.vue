@@ -7,7 +7,7 @@
     </div>
     <div class="labels">
       <h1 ref="label" class="label uppercase">
-        {{ $t("global.buttons.book.label") }}
+        {{ $t("global.buttons.join.label") }}
       </h1>
     </div>
   </button>

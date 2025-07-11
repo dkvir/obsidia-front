@@ -20,7 +20,7 @@
         <nuxt-icon v-if="relative" name="fitness-club" filled />
       </ul>
     </div>
-    <common-tiny-buttons-join v-if="index == 1" />
+    <!-- <common-tiny-buttons-join v-if="index == 1" /> -->
   </div>
 </template>
 

@@ -176,9 +176,7 @@ onMounted(() => {
         start: `top-=50% top`,
         end: `bottom top`,
         scrub: true,
-        markers: true,
         animation: tl,
-        markers: true,
       });
     });
   }, 500);

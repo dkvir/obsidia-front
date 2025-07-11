@@ -194,9 +194,9 @@ export function useThreeScene(canvasId) {
   // Function to setup scroll-based trim offset
   function setupScrollTrimOffset(envlineHandler) {
     const segmentSize = 0.2; // 20% of the line visible at a time
-    
+
     console.log("Setting up scroll trim offset");
-    
+
     ScrollTrigger.create({
       trigger: ".home-page",
       start: "top top",
@@ -205,7 +205,7 @@ export function useThreeScene(canvasId) {
       markers: false, // Set to true to debug scroll positions
       onUpdate: (self) => {
         const progress = self.progress;
-        
+
         // Calculate offset position
         // At progress 0: show 0-20%
         // At progress 0.5: show 40-60%
@@ -213,15 +213,15 @@ export function useThreeScene(canvasId) {
 
         const maxOffset = 1 - segmentSize; // 0.8
         const offset = progress * maxOffset;
-        
+
         const trimStart = offset;
         const trimEnd = offset + segmentSize;
-        
+
         // Debug log
         // console.log(`Scroll progress: ${progress.toFixed(2)}, Trim: ${trimStart.toFixed(2)} - ${trimEnd.toFixed(2)}`);
-        
+
         envlineHandler.setTrim(trimStart, trimEnd);
-      }
+      },
     });
   }
 
@@ -368,7 +368,7 @@ export function useThreeScene(canvasId) {
             window.scrollTo(0, 0);
 
             lineHandler = new useLineHandler(config);
-            
+
             // Create envlineHandler with trim configuration for scroll
             envlineHandler = new useEnvLineHandler({
               // lineWidth: 5,
@@ -377,13 +377,13 @@ export function useThreeScene(canvasId) {
               // endColor: new THREE.Color(0x722fdf),
               enableEnergyFlow: true,
               energyOnly: true, // Set to false to see the line color too
-              
+
               // Trim configuration for scroll effect
               trimEnabled: true,
-              trimStart: 0.0,    // Start with nothing visible
-              trimEnd: 0.0,      // Start with nothing visible
-              trimSpeed: 0,      // No auto animation (we control via scroll)
-              trimLoop: false,   // No auto looping
+              trimStart: 0.0, // Start with nothing visible
+              trimEnd: 0.0, // Start with nothing visible
+              trimSpeed: 0, // No auto animation (we control via scroll)
+              trimLoop: false, // No auto looping
               trimAnimating: false, // We'll update manually
               trimFadeWidth: 0.01, // Sharp edges for clean segments
             });
@@ -446,6 +446,7 @@ export function useThreeScene(canvasId) {
           end: "bottom top",
           invalidateOnRefresh: false,
           toggleActions: "play none none reverse",
+
           onUpdate: function (self) {
             proxy.time =
               item.startDuration +
@@ -705,7 +706,7 @@ export function useThreeScene(canvasId) {
 
     composer = new EffectComposer(renderer);
     composer.setSize(canvas.clientWidth * 0.5, canvas.clientHeight * 0.5);
-    
+
     const renderPass = new RenderPass(scene, camera);
 
     // Bokeh depth of field pass
@@ -754,10 +755,7 @@ export function useThreeScene(canvasId) {
     // Add DOF before bloom for better results
     if (bokehPass && config.dof.enabled) {
       composer.addPass(bokehPass);
-      
     }
-
-  
 
     composer.addPass(brightnessCompensationPass);
     composer.addPass(bloomPass);
@@ -983,7 +981,6 @@ export function useThreeScene(canvasId) {
     composer.render();
   }
 
-  
   // Function to update DOF settings at runtime
   function updateDOFSettings(newSettings) {
     if (!bokehPass || !config.dof.enabled) return;

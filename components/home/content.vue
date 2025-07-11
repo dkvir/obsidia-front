@@ -12,7 +12,7 @@
       0{{ index }} /
     </h3>
     <home-tiny-titles :titles="item.title.list" :size="item.title.size" />
-    <div class="descriptions flex-center justify-end">
+    <!-- <div class="descriptions flex-center justify-end">
       <ul v-if="item.descriptions.length" class="list flex-column">
         <li v-for="(description, key) in item.descriptions" class="description">
           {{ description }}
@@ -20,7 +20,7 @@
         <nuxt-icon v-if="relative" name="fitness-club" filled />
       </ul>
     </div>
-    <!-- <common-tiny-buttons-join v-if="index == 1" /> -->
+    <common-tiny-buttons-join v-if="index == 1" /> -->
   </div>
 </template>
 
@@ -43,8 +43,8 @@ const props = defineProps({
 
 <style lang="scss" scoped>
 .content {
-  position: sticky;
-  top: 5vh;
+  // position: sticky;
+  // top: 5vh;
   height: min-content;
   padding-top: 25vh;
   &.is-relative {

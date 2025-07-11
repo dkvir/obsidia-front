@@ -78,7 +78,7 @@ function createArrowAnimation() {
 
 <style lang="scss" scoped>
 .titles-list {
-  width: max-content;
+  width: 100%;
 
   .title-item {
     &.is-large {
@@ -130,6 +130,7 @@ function createArrowAnimation() {
     color: var(--color-white);
     line-height: 1;
     width: max-content;
+    overflow: hidden;
   }
 
   :deep(.arrow) {

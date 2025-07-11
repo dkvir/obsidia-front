@@ -4,7 +4,7 @@
       "size": "small",
       "list": [
         { "value": "Become What" },
-        { "value": "you were" },
+        { "value": "you are" },
         { "value": "meant to be" }
       ]
     },
@@ -39,7 +39,7 @@
   {
     "title": {
       "size": "medium",
-      "list": [{ "value": "bigger is" }, { "value": "bolder truly" }]
+      "list": [{ "value": "bigger is" }, { "value": "always better" }]
     },
     "descriptions": [
       "Size is earned, not given. We build power with precision — sculpting muscle, confidence, and command."

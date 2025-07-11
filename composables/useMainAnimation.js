@@ -237,7 +237,6 @@ export function useThreeScene(canvasId) {
         initStatueGroup();
         animate();
         // setupGUI();
-
         // Create cloud shader handler
         // cloudShaderHandler = new useCloudShader(config.cloudShaders.one);
         // // Create cloud shader handler

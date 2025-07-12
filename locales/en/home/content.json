@@ -41,6 +41,16 @@
   {
     "title": {
       "size": "medium",
+      "list": [{ "value": "bigger is" }, { "value": "always better" }]
+    },
+    "descriptions": [
+      "Size is earned, not given. We build power with precision — sculpting muscle, confidence, and command."
+    ],
+    "position": "left"
+  },
+  {
+    "title": {
+      "size": "medium",
       "list": [{ "value": "not a gym" }, { "value": "a journey" }]
     },
     "descriptions": [
@@ -49,16 +59,7 @@
     ],
     "position": "left"
   },
-  {
-    "title": {
-      "size": "medium",
-      "list": [{ "value": "bigger is" }, { "value": "always better" }]
-    },
-    "descriptions": [
-      "Size is earned, not given. We build power with precision — sculpting muscle, confidence, and command."
-    ],
-    "position": "left"
-  },
+
   {
     "title": {
       "size": "large",

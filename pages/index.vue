@@ -160,7 +160,6 @@ onMounted(() => {
         end: `bottom-=50% top`,
         scrub: true,
         animation: timelines[index],
-        markers: true,
       });
     });
   }, 500);

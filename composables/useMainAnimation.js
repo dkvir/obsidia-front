@@ -202,7 +202,6 @@ export function useThreeScene(canvasId) {
       start: "top top",
       end: "bottom bottom",
       scrub: true,
-      markers: false, // Set to true to debug scroll positions
       onUpdate: (self) => {
         const progress = self.progress;
 

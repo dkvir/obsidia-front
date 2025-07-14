@@ -4,17 +4,17 @@
       <div class="logo">
         <nuxt-icon name="logo" class="logo-icon" filled />
       </div>
-      <common-tiny-buttons-book />
+      <!-- <common-tiny-buttons-book /> -->
     </div>
     <div class="app-footer flex-center justify-between">
-      <div class="copyright uppercase">
+      <!-- <div class="copyright uppercase">
         <span class="span">{{ $t("global.footer.copyright") }}</span>
         <span class="amanita" v-html="$t('global.footer.amanita')"></span>
-      </div>
+      </div> -->
       <div class="scroll-down uppercase">
         {{ $t("global.footer.discover") }}
       </div>
-      <common-tiny-socials />
+      <!-- <common-tiny-socials /> -->
     </div>
   </div>
 </template>

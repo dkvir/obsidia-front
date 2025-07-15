@@ -7,10 +7,12 @@ import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import { BokehPass } from "three/examples/jsm/postprocessing/BokehPass.js";
 import { GammaCorrectionShader } from "three/examples/jsm/shaders/GammaCorrectionShader.js";
+import { FilmPass } from "three/examples/jsm/postprocessing/FilmPass.js";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ref } from "vue";
+
 
 export function useThreeScene(canvasId) {
   // Three.js variables
@@ -25,7 +27,10 @@ export function useThreeScene(canvasId) {
   let statueGroup;
   let cursorLightsHandler;
   let envlineHandler;
+  let vertexDustSystems;
+  let gradientBackground;
   let gui,
+
     dofControllers = {};
 
   // Mouse rotation variables (separate from cursor lights)
@@ -105,6 +110,7 @@ export function useThreeScene(canvasId) {
 
   // Configuration
   const config = {
+
     // Lighting
     rightlightIntensity: 10,
     rightlightColor: 0xff0000,
@@ -173,10 +179,10 @@ export function useThreeScene(canvasId) {
     opacity: 0.8,
     bezierCurveAmount: 0.5,
     dustParticles: {
-      count: 50,
-      size: { min: 0.01, max: 0.06 },
+      count: 100,
+      size: { min: 0.03, max: 0.5 },
       area: { width: 5, height: 2, depth: 15 },
-      opacity: 0.1,
+      // opacity: 0.05,
       speed: { min: 0.0001, max: 0.0004 },
       color: {
         hue: { min: 200, max: 300 },
@@ -195,7 +201,7 @@ export function useThreeScene(canvasId) {
   function setupScrollTrimOffset(envlineHandler) {
     const segmentSize = 0.2; // 20% of the line visible at a time
 
-    console.log("Setting up scroll trim offset");
+    // console.log("Setting up scroll trim offset");
 
     ScrollTrigger.create({
       trigger: ".home-page",
@@ -237,7 +243,7 @@ export function useThreeScene(canvasId) {
         animate();
         // setupGUI();
         // Create cloud shader handler
-        // cloudShaderHandler = new useCloudShader(config.cloudShaders.one);
+        cloudShaderHandler = new useCloudShader(config.cloudShaders.one);
         // // Create cloud shader handler
         // cloudShaderHandler2 = new useCloudShader(config.cloudShaders.two);
         // // Create cloud shader handler
@@ -339,6 +345,8 @@ export function useThreeScene(canvasId) {
           });
 
           scene.add(gltf.scene);
+
+          vertexDustSystems = createVertexDustFromScene(scene);
 
           if (gltf.animations && gltf.animations.length > 0) {
             animations = gltf.animations;
@@ -617,76 +625,100 @@ export function useThreeScene(canvasId) {
     }
   }
 
-  // Initialize statue group
-  function initStatueGroup() {
-    statueGroup = new THREE.Group();
-    const objectsToGroup = [];
+ // Initialize statue group
+function initStatueGroup() {
+  statueGroup = new THREE.Group();
+  const objectsToGroup = [];
 
-    scene.traverse((child) => {
-      if (
-        child.name &&
-        (child.name.includes("statue_") || child.name.includes("_part"))
-      ) {
-        objectsToGroup.push(child);
-      }
-    });
+  scene.traverse((child) => {
+    if (
+      child.name &&
+      (child.name.includes("statue_") || child.name.includes("_part"))
+    ) {
+      objectsToGroup.push(child);
+    }
+  });
 
-    objectsToGroup.forEach((child) => {
+  objectsToGroup.forEach((child) => {
+    const worldPosition = new THREE.Vector3();
+    const worldQuaternion = new THREE.Quaternion();
+    const worldScale = new THREE.Vector3();
+
+    child.getWorldPosition(worldPosition);
+    child.getWorldQuaternion(worldQuaternion);
+    child.getWorldScale(worldScale);
+
+    if (child.parent) child.parent.remove(child);
+    else scene.remove(child);
+
+    statueGroup.add(child);
+
+    child.position.copy(worldPosition);
+    child.quaternion.copy(worldQuaternion);
+    child.scale.copy(worldScale);
+  });
+
+  // Add line curves from lineHandler
+  if (lineHandler && lineHandler.getLineCurves) {
+    const lineCurves = lineHandler.getLineCurves();
+    lineCurves.forEach((curve) => {
       const worldPosition = new THREE.Vector3();
       const worldQuaternion = new THREE.Quaternion();
       const worldScale = new THREE.Vector3();
 
-      child.getWorldPosition(worldPosition);
-      child.getWorldQuaternion(worldQuaternion);
-      child.getWorldScale(worldScale);
+      curve.getWorldPosition(worldPosition);
+      curve.getWorldQuaternion(worldQuaternion);
+      curve.getWorldScale(worldScale);
 
-      if (child.parent) child.parent.remove(child);
-      else scene.remove(child);
+      if (curve.parent) curve.parent.remove(curve);
+      else scene.remove(curve);
 
-      statueGroup.add(child);
+      statueGroup.add(curve);
 
-      child.position.copy(worldPosition);
-      child.quaternion.copy(worldQuaternion);
-      child.scale.copy(worldScale);
+      curve.position.copy(worldPosition);
+      curve.quaternion.copy(worldQuaternion);
+      curve.scale.copy(worldScale);
     });
-
-    if (lineHandler && lineHandler.getLineCurves) {
-      const lineCurves = lineHandler.getLineCurves();
-      lineCurves.forEach((curve) => {
-        const worldPosition = new THREE.Vector3();
-        const worldQuaternion = new THREE.Quaternion();
-        const worldScale = new THREE.Vector3();
-
-        curve.getWorldPosition(worldPosition);
-        curve.getWorldQuaternion(worldQuaternion);
-        curve.getWorldScale(worldScale);
-
-        if (curve.parent) curve.parent.remove(curve);
-        else scene.remove(curve);
-
-        statueGroup.add(curve);
-
-        curve.position.copy(worldPosition);
-        curve.quaternion.copy(worldQuaternion);
-        curve.scale.copy(worldScale);
-      });
-    }
-
-    scene.add(statueGroup);
-
-    statueGroup.userData.originalPosition = statueGroup.position.clone();
-    statueGroup.userData.originalRotation = new THREE.Vector3(
-      statueGroup.rotation.x,
-      statueGroup.rotation.y,
-      statueGroup.rotation.z
-    );
-
-    mouse.set(0, 0);
-    lastMouse.set(0, 0);
-    rotationOffset.set(0, 0);
-
-    window.addEventListener("mousemove", onMouseMove, false);
   }
+
+  // Add environment lines from envlineHandler
+  if (envlineHandler && envlineHandler.getLines) {
+    const envLines = envlineHandler.getLines();
+    envLines.forEach((line) => {
+      const worldPosition = new THREE.Vector3();
+      const worldQuaternion = new THREE.Quaternion();
+      const worldScale = new THREE.Vector3();
+
+      line.getWorldPosition(worldPosition);
+      line.getWorldQuaternion(worldQuaternion);
+      line.getWorldScale(worldScale);
+
+      if (line.parent) line.parent.remove(line);
+      else scene.remove(line);
+
+      statueGroup.add(line);
+
+      line.position.copy(worldPosition);
+      line.quaternion.copy(worldQuaternion);
+      line.scale.copy(worldScale);
+    });
+  }
+
+  scene.add(statueGroup);
+
+  statueGroup.userData.originalPosition = statueGroup.position.clone();
+  statueGroup.userData.originalRotation = new THREE.Vector3(
+    statueGroup.rotation.x,
+    statueGroup.rotation.y,
+    statueGroup.rotation.z
+  );
+
+  mouse.set(0, 0);
+  lastMouse.set(0, 0);
+  rotationOffset.set(0, 0);
+
+  window.addEventListener("mousemove", onMouseMove, false);
+}
 
   // Initialize renderer and effects
   function init() {
@@ -698,13 +730,28 @@ export function useThreeScene(canvasId) {
     });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-    renderer.shadowMap.enabled = false;
+    renderer.shadowMap.enabled = true;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.0;
     renderer.outputEncoding = THREE.sRGBEncoding;
 
+    gradientBackground = useGradientBackground();
+
+    gradientBackground.create(scene, camera, {
+    bottomColor: 0x070211,  // Your dark color
+    topColor: 0x070211      // Same color initially
+  });
+  
+    gradientBackground.setupScrollAnimation({
+    trigger: '.home-page',
+    start: 'top top',
+    end: '20% top',        // Adjust for speed
+    startColor: 0x070211,  // Dark (same as bottom)
+    endColor: 0x290a1f    // Purple (change this!)
+  });
+
     composer = new EffectComposer(renderer);
-    composer.setSize(canvas.clientWidth * 0.5, canvas.clientHeight * 0.5);
+    composer.setSize(canvas.clientWidth , canvas.clientHeight );
 
     const renderPass = new RenderPass(scene, camera);
 
@@ -729,7 +776,7 @@ export function useThreeScene(canvasId) {
     const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
 
     const brightnessCompensationPass = new ShaderPass({
-      uniforms: { tDiffuse: { value: null }, brightness: { value: 0.55 } },
+      uniforms: { tDiffuse: { value: null }, brightness: { value: 0.8 } },
       vertexShader: `
         varying vec2 vUv;
         void main() {
@@ -748,6 +795,9 @@ export function useThreeScene(canvasId) {
       `,
     });
 
+  
+    
+
     // Add passes in the correct order
     composer.addPass(renderPass);
 
@@ -756,9 +806,11 @@ export function useThreeScene(canvasId) {
       composer.addPass(bokehPass);
     }
 
-    composer.addPass(brightnessCompensationPass);
     composer.addPass(bloomPass);
+    composer.addPass(brightnessCompensationPass);
     composer.addPass(gammaCorrectionPass);
+
+    
 
     rightlight = new THREE.PointLight(
       config.rightlightColor,
@@ -927,6 +979,10 @@ export function useThreeScene(canvasId) {
     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
     composer.setSize(canvas.clientWidth, canvas.clientHeight);
 
+     if (gradientBackground) {
+    gradientBackground.updateAspect(camera.aspect);
+  }
+
     // Update bokeh pass resolution
     if (bokehPass && config.dof.enabled) {
       bokehPass.uniforms["aspect"].value = camera.aspect;
@@ -951,8 +1007,12 @@ export function useThreeScene(canvasId) {
     }
 
     if (statueGroup) {
-      // statueGroup.rotation.x = statueGroup.userData.originalRotation.x + rotationOffset.x;
-      // statueGroup.rotation.y = statueGroup.userData.originalRotation.y + rotationOffset.y;
+      // statueGroup.rotation.x = statueGroup.userData.originalRotation.x + rotationOffset.x/4;
+      statueGroup.rotation.y = statueGroup.userData.originalRotation.y - rotationOffset.y;
+    }
+
+     if (gradientBackground) {
+    gradientBackground.animate(delta);
     }
 
     if (mixer) {
@@ -969,12 +1029,23 @@ export function useThreeScene(canvasId) {
 
     if (dustParticles && dustParticles.animate) {
       dustParticles.animate(delta);
+     
     }
 
-    if (cloudShaderHandler) {
-      // cloudShaderHandler.update(delta);
-      // cloudShaderHandler2.update(delta);
-      // cloudShaderHandler3.update(delta);
+     if (vertexDustSystems && vertexDustSystems.length > 0) {
+
+      
+    vertexDustSystems.forEach(dustSystem => {
+      
+      if (dustSystem.animate) {
+       
+        dustSystem.animate(delta);
+      }
+    });
+  }
+   
+    if (cloudShaderHandler){
+      cloudShaderHandler.update(delta);
     }
 
     composer.render();
@@ -1008,6 +1079,10 @@ export function useThreeScene(canvasId) {
 
     window.removeEventListener("resize", onWindowResize);
     window.removeEventListener("mousemove", onMouseMove);
+
+     if (gradientBackground) {
+    gradientBackground.dispose();
+  }
 
     if (renderer) {
       renderer.dispose();

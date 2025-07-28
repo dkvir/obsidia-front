@@ -21,16 +21,14 @@ export function useThreeScene(canvasId) {
   let mixer,
     animations,
     animationActions = [];
-  let lineHandler, dustParticles;
+  let dustParticles;
   let clock = new THREE.Clock();
   let rightlight, leftlight;
   let statueGroup;
   let cursorLightsHandler;
-  let envlineHandler;
   let vertexDustSystems;
   let gradientBackground;
   let gui,
-
     dofControllers = {};
 
   // Mouse rotation variables (separate from cursor lights)
@@ -119,16 +117,16 @@ export function useThreeScene(canvasId) {
 
     // Bloom settings
     bloom: {
-      strength: 0.3,
-      radius: 0.45,
+      strength: 0.1,
+      radius: 1,
       threshold: 0.02,
     },
 
     // Depth of Field settings
     dof: {
-      enabled: false,
+      enabled: true,
       focus: 5, // Starting with stop-0 value
-      aperture: 0.006, // Starting with stop-0 value
+      aperture: 0.001, // Starting with stop-0 value
       maxblur: 0.01, // Maximum blur amount
     },
 
@@ -175,9 +173,6 @@ export function useThreeScene(canvasId) {
     },
 
     // Other settings
-    lineWidth: 6,
-    opacity: 0.8,
-    bezierCurveAmount: 0.5,
     dustParticles: {
       count: 100,
       size: { min: 0.03, max: 0.5 },
@@ -190,45 +185,10 @@ export function useThreeScene(canvasId) {
         lightness: { min: 70, max: 100 },
       },
     },
-    insideLineWidth: 0.7,
-    insideLineOpacity: 1,
   };
 
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x070211);
-
-  // Function to setup scroll-based trim offset
-  function setupScrollTrimOffset(envlineHandler) {
-    const segmentSize = 0.2; // 20% of the line visible at a time
-
-    // console.log("Setting up scroll trim offset");
-
-    ScrollTrigger.create({
-      trigger: ".home-page",
-      start: "top top",
-      end: "bottom bottom",
-      scrub: true,
-      onUpdate: (self) => {
-        const progress = self.progress;
-
-        // Calculate offset position
-        // At progress 0: show 0-20%
-        // At progress 0.5: show 40-60%
-        // At progress 1: show 80-100%
-
-        const maxOffset = 1 - segmentSize; // 0.8
-        const offset = progress * maxOffset;
-
-        const trimStart = offset;
-        const trimEnd = offset + segmentSize;
-
-        // Debug log
-        // console.log(`Scroll progress: ${progress.toFixed(2)}, Trim: ${trimStart.toFixed(2)} - ${trimEnd.toFixed(2)}`);
-
-        envlineHandler.setTrim(trimStart, trimEnd);
-      },
-    });
-  }
 
   // Sequential loading: HDRI first, then model
   function setupSequentialLoading() {
@@ -284,20 +244,39 @@ export function useThreeScene(canvasId) {
 
           const color = new THREE.TextureLoader().load("./images/color.jpg");
 
+          const metallic= new THREE.TextureLoader().load("./images/metallic.jpg");
+
+          const matcap = new THREE.TextureLoader().load("./images/matcap.png");
+
           // color.encoding = THREE.sRGBEncoding;
 
+          // material = new THREE.MeshMatcapMaterial({
+         
+          //   matcap: matcap,
+          //   // normalMap: normal,
+          //   flatShading: true
+           
+          // });
+
           material = new THREE.MeshPhysicalMaterial({
-            map: color,
+            // map: color,
             normalMap: normal,
-            roughnessMap: rough,
+            // roughnessMap: rough,
+            // metalnessMap: metallic,
+            // opacity: 0.5,
+            transmission: 1.0,
+            thickness: 0.8,
+            transparent: true,
             // color: 0x000000,
-            metalness: 0,
-            // roughness: 0.5,
-            // thickness: 0.5,
-            // side: THREE.DoubleSide,
-            // envMap: envMap,
+            // metalness: 0,
+            ior: 1.7,
+            roughness: 0.0,
+            side: THREE.DoubleSide,
+            envMap: envMap,
             // envMapIntensity: 1.0,
           });
+
+
 
           resolve(texture);
         },
@@ -318,7 +297,7 @@ export function useThreeScene(canvasId) {
       const loader = new GLTFLoader();
 
       loader.load(
-        "mesh/man3.glb",
+        "mesh/obsidian.glb",
         (gltf) => {
           // Use camera from model if available
           if (gltf.cameras && gltf.cameras.length > 0) {
@@ -329,19 +308,14 @@ export function useThreeScene(canvasId) {
           }
 
           gltf.scene.traverse((child) => {
-            if (child.name.includes("statue_")) {
+            if (child.name.includes("crystal_")) {
               if (material && child.isMesh) {
                 child.material = material;
                 child.visible = true;
               }
             }
 
-            if (
-              child.name.includes("line_") ||
-              child.name.includes("inside_")
-            ) {
-              child.visible = false;
-            }
+           
           });
 
           scene.add(gltf.scene);
@@ -373,44 +347,6 @@ export function useThreeScene(canvasId) {
             });
 
             window.scrollTo(0, 0);
-
-            lineHandler = new useLineHandler(config);
-
-            // Create envlineHandler with trim configuration for scroll
-            envlineHandler = new useEnvLineHandler({
-              // lineWidth: 5,
-              // opacity: 1,
-              // startColor: new THREE.Color(0xc337ff),
-              // endColor: new THREE.Color(0x722fdf),
-              enableEnergyFlow: true,
-              energyOnly: true, // Set to false to see the line color too
-
-              // Trim configuration for scroll effect
-              trimEnabled: true,
-              trimStart: 0.0, // Start with nothing visible
-              trimEnd: 0.0, // Start with nothing visible
-              trimSpeed: 0, // No auto animation (we control via scroll)
-              trimLoop: false, // No auto looping
-              trimAnimating: false, // We'll update manually
-              trimFadeWidth: 0.01, // Sharp edges for clean segments
-            });
-
-            lineHandler
-              .createCurvesFromEdgeModel(gltf.scene)
-              .forEach((curve) => {
-                // curve.renderOrder = 1;
-                scene.add(curve);
-              });
-
-            envlineHandler
-              .createLinesFromGLBScene(gltf.scene)
-              .forEach((line) => {
-                // line.renderOrder = -1;
-                scene.add(line);
-              });
-
-            // Add scroll-based trim control after creating lines
-            setupScrollTrimOffset(envlineHandler);
           }
 
           resolve(gltf);
@@ -633,9 +569,9 @@ function initStatueGroup() {
   scene.traverse((child) => {
     if (
       child.name &&
-      (child.name.includes("statue_") || child.name.includes("_part"))
+      (child.name.includes("crystal") || child.name.includes("_part"))
     ) {
-      objectsToGroup.push(child);
+      // objectsToGroup.push(child);
     }
   });
 
@@ -657,52 +593,6 @@ function initStatueGroup() {
     child.quaternion.copy(worldQuaternion);
     child.scale.copy(worldScale);
   });
-
-  // Add line curves from lineHandler
-  if (lineHandler && lineHandler.getLineCurves) {
-    const lineCurves = lineHandler.getLineCurves();
-    lineCurves.forEach((curve) => {
-      const worldPosition = new THREE.Vector3();
-      const worldQuaternion = new THREE.Quaternion();
-      const worldScale = new THREE.Vector3();
-
-      curve.getWorldPosition(worldPosition);
-      curve.getWorldQuaternion(worldQuaternion);
-      curve.getWorldScale(worldScale);
-
-      if (curve.parent) curve.parent.remove(curve);
-      else scene.remove(curve);
-
-      statueGroup.add(curve);
-
-      curve.position.copy(worldPosition);
-      curve.quaternion.copy(worldQuaternion);
-      curve.scale.copy(worldScale);
-    });
-  }
-
-  // Add environment lines from envlineHandler
-  if (envlineHandler && envlineHandler.getLines) {
-    const envLines = envlineHandler.getLines();
-    envLines.forEach((line) => {
-      const worldPosition = new THREE.Vector3();
-      const worldQuaternion = new THREE.Quaternion();
-      const worldScale = new THREE.Vector3();
-
-      line.getWorldPosition(worldPosition);
-      line.getWorldQuaternion(worldQuaternion);
-      line.getWorldScale(worldScale);
-
-      if (line.parent) line.parent.remove(line);
-      else scene.remove(line);
-
-      statueGroup.add(line);
-
-      line.position.copy(worldPosition);
-      line.quaternion.copy(worldQuaternion);
-      line.scale.copy(worldScale);
-    });
-  }
 
   scene.add(statueGroup);
 
@@ -744,10 +634,10 @@ function initStatueGroup() {
   
     gradientBackground.setupScrollAnimation({
     trigger: '.home-page',
-    start: 'top top',
-    end: '20% top',        // Adjust for speed
+    start: '30% top',
+    end: '60% top',        // Adjust for speed
     startColor: 0x070211,  // Dark (same as bottom)
-    endColor: 0x290a1f    // Purple (change this!)
+    endColor: 0xFFCD94    // Purple (change this!)
   });
 
     composer = new EffectComposer(renderer);
@@ -1019,14 +909,6 @@ function initStatueGroup() {
       mixer.update(delta);
     }
 
-    if (lineHandler && lineHandler.animate) {
-      lineHandler.animate(delta);
-    }
-
-    if (envlineHandler && envlineHandler.animate) {
-      envlineHandler.animate(delta);
-    }
-
     if (dustParticles && dustParticles.animate) {
       dustParticles.animate(delta);
      
@@ -1047,8 +929,9 @@ function initStatueGroup() {
     if (cloudShaderHandler){
       cloudShaderHandler.update(delta);
     }
-
+    
     composer.render();
+    // renderer.render(scene, camera);
   }
 
   // Function to update DOF settings at runtime

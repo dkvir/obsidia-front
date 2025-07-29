@@ -18,49 +18,49 @@ export const useVertexDustParticles = class VertexDustParticles {
     }
 
     // Define presets for each particle type
-  const presets = {
-      normal: {
-        size: { min: 0.1, max: 1.0 },
-        baseSize: 1.0,
-        colors: [
-          { r: 0.5, g: 0, b: 0.5 },    // Purple
-          { r: 0, g: 0, b: 1 },        // Blue  
-          { r: 1, g: 0, b: 1 },        // Magenta
-        ],
-        opacity: 0.01,
-        noiseScale: 0.5,
-        noiseStrength: 0.1,
-        noiseSpeed: 0.3,
-        texture: "./images/dust_particle.png"
-      },
-      big: {
-        size: { min: 0.5, max: 3 },
-        baseSize: 2,
-        colors: [
-          
-         { r: 0.5, g: 0, b: 0.5 },    // Purple
-         
-        ],
-        opacity: 0.01,
-        noiseScale: 0.6,
-        noiseStrength: 0.5,
-        noiseSpeed: 0.2,
-        texture: "./images/dust_particle.png"
-      },
-      small: {
-        size: { min: 0.5, max: 0.7 },
-        baseSize: 0.5,
-        colors: [
-          { r: 0.5, g: 0, b: 0.5 },    // Purple
-          { r: 0, g: 0, b: 1 },        // Blue  
-        ],
-        opacity: 0.02,
-        noiseScale: 1.0,
-        noiseStrength: 0.2,
-        noiseSpeed: 0.7,
-        texture: "./images/dust_particle.png"
-      }
-    };
+ 
+const presets = {
+  normal: {
+    size: { min: 0.1, max: 1.0 },
+    baseSize: 1.0,
+    colors: [
+      { r: 1, g: 0.6, b: 0.2 }, // Orange
+      { r: 1, g: 0.8, b: 0.4 }, // Light Orange
+      { r: 1, g: 1, b: 1 }, // White
+    ],
+    opacity: 0.01,
+    noiseScale: 0.5,
+    noiseStrength: 0.1,
+    noiseSpeed: 0.3,
+    texture: "./images/dust_particle.png"
+  },
+  big: {
+    size: { min: 0.01, max: 0.3 },
+    baseSize: 1.5,
+    colors: [
+      { r: 1, g: 0.5, b: 0 }, // Deep Orange
+      { r: 1, g: 1, b: 1 }, // White
+    ],
+    opacity: 0.01,
+    noiseScale: 0.6,
+    noiseStrength: 0.5,
+    noiseSpeed: 0.2,
+    texture: "./images/dust_particle.png"
+  },
+  small: {
+    size: { min: 0.5, max: 0.7 },
+    baseSize: 0.5,
+    colors: [
+      { r: 1, g: 0.7, b: 0.3 }, // Orange
+      { r: 1, g: 1, b: 1 }, // White
+    ],
+    opacity: 0.02,
+    noiseScale: 1.0,
+    noiseStrength: 0.2,
+    noiseSpeed: 0.7,
+    texture: "./images/dust_particle.png"
+  }
+};
     // Use the appropriate preset
     const preset = presets[particleType];
 

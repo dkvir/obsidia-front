@@ -17,7 +17,7 @@ export function useGradientBackground() {
   // Default settings
   let settings = {
     gradientType: 0, // 0: linear, 1: radial, 2: diagonal
-    smoothness: 1.0,
+    smoothness: 0.0,
     enableVignette: false,
     vignetteStrength: 0.3
   };

@@ -35,7 +35,7 @@ const presets = {
     texture: "./images/dust_particle.png"
   },
   big: {
-    size: { min: 0.01, max: 0.3 },
+    size: { min: 0.01, max: 0.9 },
     baseSize: 1.5,
     colors: [
       { r: 1, g: 0.5, b: 0 }, // Deep Orange

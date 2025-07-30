@@ -9,8 +9,10 @@ import { BokehPass } from "three/examples/jsm/postprocessing/BokehPass.js";
 import { GammaCorrectionShader } from "three/examples/jsm/shaders/GammaCorrectionShader.js";
 import { FilmPass } from "three/examples/jsm/postprocessing/FilmPass.js";
 import gsap from "gsap";
+
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ref } from "vue";
+
 
 
 export function useThreeScene(canvasId) {
@@ -26,7 +28,8 @@ export function useThreeScene(canvasId) {
   let vertexDustSystems;
   let gradientBackground;
   let modelGroup; // Group for all GLB meshes
-  let focusObject; // Reference to focuss object
+
+
 
   // Rotation speed for the model
   const ROTATION_SPEED = 0.2; // Radians per second (adjust this value to change speed)
@@ -85,31 +88,10 @@ export function useThreeScene(canvasId) {
 
     // Depth of Field settings
     dof: {
-      enabled: false,
-      focus: 1.0, // Will be calculated dynamically to focus on scene center
-      aperture: 0.001, // Fixed aperture for consistent blur
-      maxblur: 0.01, // Maximum blur amount
-    },
-
-    cloudShaders: {
-      one: {
-        size: { width: 20, height: 10 },
-        position: { x: 0.0, y: -3.0, z: -10.0 },
-        rotation: { x: 0, y: 0, z: 0 },
-        timeSpeed: 1.2,
-      },
-      two: {
-        size: { width: 5, height: 3 },
-        position: { x: 0.0, y: -0.9, z: 1.0 },
-        rotation: { x: 0, y: 0, z: 0 },
-        timeSpeed: 0.7,
-      },
-      three: {
-        size: { width: 1, height: 3 },
-        position: { x: 2.0, y: -1.5, z: -12.0 },
-        rotation: { x: 0, y: 0, z: 0 },
-        timeSpeed: 0.9,
-      },
+      enabled: true,
+      focus: 3.3, // Will be calculated dynamically to focus on scene center
+      aperture: 0.01, // Fixed aperture for consistent blur
+      maxblur: 0.005, // Maximum blur amount
     },
 
     // Other settings
@@ -129,6 +111,7 @@ export function useThreeScene(canvasId) {
 
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0xffffff);
+
 
   // Sequential loading: HDRI first, then model
   function setupSequentialLoading() {
@@ -159,7 +142,7 @@ export function useThreeScene(canvasId) {
           envMap.mapping = THREE.EquirectangularReflectionMapping;
           scene.environment = envMap;
 
-          const normal = new THREE.TextureLoader().load("./images/normal.jpg");
+          const normal = new THREE.TextureLoader().load("./images/normal.png");
 
           const rough = new THREE.TextureLoader().load("./images/rough.jpg");
 
@@ -169,35 +152,45 @@ export function useThreeScene(canvasId) {
 
           const matcap = new THREE.TextureLoader().load("./images/matcap.png");
 
-          // color.encoding = THREE.sRGBEncoding;
+          // Set tiling for normal map
+        normal.wrapS = THREE.RepeatWrapping;
+        normal.wrapT = THREE.RepeatWrapping;
+        normal.repeat.set(10, 10); // Adjust these values to control tiling (4x4 tiles)
 
-          // material = new THREE.MeshMatcapMaterial({
-         
-          //   matcap: matcap,
-          //   // normalMap: normal,
-          //   flatShading: true
-           
-          // });
+        // Optional: Apply tiling to other maps as well
+        // rough.wrapS = THREE.RepeatWrapping;
+        // rough.wrapT = THREE.RepeatWrapping;
+        // rough.repeat.set(4, 4);
 
-          material = new THREE.MeshPhysicalMaterial({
-            // map: color,
-            color: 0x000000,
-            normalMap: normal,
-            roughnessMap: rough,
-            metalnessMap: metallic,
-            // opacity: 0.5,
-            transmission: 1.0,
-            thickness: 0.8,
-            transparent: true,
-            // color: 0x000000,
-            // metalness: 0,
-            ior: 1.5,
-            roughness: 0.0,
-            side: THREE.DoubleSide,
-            envMap: envMap,
-            // envMapIntensity: 1.0,
-          });
+        // metallic.wrapS = THREE.RepeatWrapping;
+        // metallic.wrapT = THREE.RepeatWrapping;
+        // metallic.repeat.set(4, 4);
 
+        // If you want to tile the color map too
+        // color.wrapS = THREE.RepeatWrapping;
+        // color.wrapT = THREE.RepeatWrapping;
+        // color.repeat.set(4, 4);
+
+        material = new THREE.MeshPhysicalMaterial({
+          // map: color,
+          color: 0xffffff,
+          // normalMap: normal,
+          // normalScale: new THREE.Vector2(0.05, 0.05), // Adjust normal intensity if needed
+          // roughnessMap: rough,
+          // metalnessMap: metallic,
+          // opacity: 0.5,
+          transmission: 1.0,
+          thickness: 0.8,
+          transparent: true,
+          // color: 0x000000,
+          // metalness: 0,
+          ior: 1.7,
+          roughness: 0.0,
+          side: THREE.DoubleSide,
+          envMap: envMap,
+          dispersion: 5,
+          // envMapIntensity: 1.0,
+        });
 
 
           resolve(texture);
@@ -237,11 +230,7 @@ export function useThreeScene(canvasId) {
               }
             }
             
-            // Store reference to focuss object
-            if (child.name === "focuss") {
-              focusObject = child;
-              child.visible = false; // Hide the focuss object
-            }
+           
           });
 
           // Create a parent group and add the entire gltf.scene to it
@@ -473,13 +462,38 @@ function initStatueGroup() {
     start: '30% top',
     end: '60% top',        // Adjust for speed
     startColor: 0x000000,  // Dark (same as bottom)
-    endColor: 0xFFF9F5 // Purple (change this!)
+    endColor: 0xDEC4B6
   });
+
+  if (material) {
+  gsap.to(material.color, {
+    r: 0,  // Target black (0,0,0)
+    g: 0,
+    b: 0,
+    ease: "none",
+    scrollTrigger: {
+      trigger: '.home-page',
+      start: '30% top',
+      end: '32% top',
+      scrub: true,
+      onUpdate: function(self) {
+        // Interpolate from white (1,1,1) to black (0,0,0)
+        const progress = self.progress;
+        material.color.r = 1 - progress;
+        material.color.g = 1 - progress;
+        material.color.b = 1 - progress;
+      }
+    }
+  });
+}
 
     composer = new EffectComposer(renderer);
     composer.setSize(canvas.clientWidth , canvas.clientHeight );
 
     const renderPass = new RenderPass(scene, camera);
+
+   
+   
 
     // Bokeh depth of field pass
     if (config.dof.enabled) {
@@ -492,6 +506,47 @@ function initStatueGroup() {
       });
     }
 
+    if (bokehPass && config.dof.enabled) {
+      // Define the focus values for different scroll positions
+      const focusStops = [
+        { value: 1.0 },      // Start
+        { value: 0.705 },    // Middle
+        { value: 2.907 }     // End
+      ];
+
+      
+  // First transition: 1.0 to 0.705
+  ScrollTrigger.create({
+    trigger: '.home-page',
+    start: 'top top',
+    end: '12% top', // Adjust this to control when the first transition ends
+    scrub: 1,
+    onUpdate: function(self) {
+      const focusValue = gsap.utils.interpolate(3.3, 0.705, self.progress);
+      bokehPass.uniforms["focus"].value = focusValue;
+
+      // console.log("Focus value:", focusValue);
+    }
+  });
+
+  // Second transition: 0.705 to 2.907
+  ScrollTrigger.create({
+    trigger: '.home-page',
+    start: '12% top', // Should match the end of the first transition
+    end: '30% top',
+    scrub: 1,
+    onUpdate: function(self) {
+      const focusValue = gsap.utils.interpolate(0.705, 3, self.progress);
+      bokehPass.uniforms["focus"].value = focusValue;
+      
+      // console.log("Focus value:", focusValue);
+    }
+  });
+
+}
+
+
+
     bloomPass = new UnrealBloomPass(
       new THREE.Vector2(canvas.clientWidth, canvas.clientHeight),
       config.bloom.strength,
@@ -502,7 +557,7 @@ function initStatueGroup() {
     const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
 
     const brightnessCompensationPass = new ShaderPass({
-      uniforms: { tDiffuse: { value: null }, brightness: { value: 0.8 } },
+      uniforms: { tDiffuse: { value: null }, brightness: { value: 0.65 } },
       vertexShader: `
         varying vec2 vUv;
         void main() {
@@ -524,12 +579,17 @@ function initStatueGroup() {
     // Add passes in the correct order
     composer.addPass(renderPass);
     composer.addPass(bloomPass);
+
+    
     // Add DOF before bloom for better results
     if (bokehPass && config.dof.enabled) {
       composer.addPass(bokehPass);
     }
 
     composer.addPass(brightnessCompensationPass);
+
+     const filmPass = new FilmPass(0.8, 0.325, 256, false); // intensity, scanline intensity, scanline count, grayscale
+    composer.addPass(filmPass);
     composer.addPass(gammaCorrectionPass);
 
     window.addEventListener("resize", onWindowResize);
@@ -540,6 +600,8 @@ function initStatueGroup() {
     if (typeof useDustParticles === "function") {
       // dustParticles = new useDustParticles(scene, config.dustParticles);
     }
+
+
   }
 
   // Window resize handler
@@ -589,16 +651,7 @@ function initStatueGroup() {
       modelGroup.rotation.y += ROTATION_SPEED * delta;
     }
 
-    // Update DOF to focus on focuss object
-    if (bokehPass && config.dof.enabled && camera && focusObject) {
-      // Get world position of focuss
-      const targetPosition = new THREE.Vector3();
-      focusObject.getWorldPosition(targetPosition);
-      
-      // Calculate distance from camera to focuss
-      const distance = camera.position.distanceTo(targetPosition);
-      bokehPass.uniforms["focus"].value = distance;
-    }
+
 
      if (gradientBackground) {
     gradientBackground.animate(delta);
@@ -633,6 +686,11 @@ function initStatueGroup() {
   function cleanup() {
     window.removeEventListener("resize", onWindowResize);
     window.removeEventListener("mousemove", onMouseMove);
+
+     if (gui) {
+    gui.destroy();
+  }
+  
 
      if (gradientBackground) {
     gradientBackground.dispose();

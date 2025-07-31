@@ -9,7 +9,7 @@
     <div class="app-footer flex-center justify-between">
       <!-- <div class="copyright uppercase">
         <span class="span">{{ $t("global.footer.copyright") }}</span>
-        <span class="amanita" v-html="$t('global.footer.amanita')"></span>
+        <span class="obsidia" v-html="$t('global.footer.obsidia')"></span>
       </div> -->
       <div class="scroll-down uppercase">
         {{ $t("global.footer.discover") }}
@@ -62,7 +62,7 @@
       .span {
         color: var(--color-gray);
       }
-      .amanita {
+      .obsidia {
         color: var(--color-silver);
       }
     }

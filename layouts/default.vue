@@ -22,8 +22,8 @@ const homeStore = useHomeStore();
 useSeoMeta({
   title: "Obsidia - Fitness Club",
   ogTitle: "Obsidia",
-  description: "Not a gym. Your evolution.",
-  ogDescription: "Not a gym. Your evolution.",
+  description: "Not a gym a journey",
+  ogDescription: "Not a gym a journey",
   ogImage: "/images/share.png",
   twitterCard: "summary_large_image",
 });

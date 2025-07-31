@@ -19,12 +19,14 @@
 import { useHomeStore } from "@/store/home";
 const homeStore = useHomeStore();
 
+const config = useRuntimeConfig();
+
 useSeoMeta({
   title: "Obsidia - Fitness Club",
   ogTitle: "Obsidia",
   description: "Not a gym a journey",
   ogDescription: "Not a gym a journey",
-  ogImage: "/images/share.png",
+  ogImage: config.public.siteUrl + "/images/share.png",
   twitterCard: "summary_large_image",
 });
 

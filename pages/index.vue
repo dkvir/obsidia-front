@@ -6,7 +6,7 @@
       :key="index"
       :class="`stop-${index} stop flex-center couple`"
     ></div>
-    <ul class="content-list">
+    <ul :class="['content-list', { 'is-loaded': isLoaded }]">
       <!-- <div class="header flex-center">
         <home-content :item="$tm('home.welcome')" :index="0" relative />
       </div> -->
@@ -37,6 +37,7 @@ const { setupSequentialLoading, activeTextIndex } = useThreeScene("#canvas");
 
 const content = ref(null);
 const stops = ref(null);
+const isLoaded = ref(false);
 
 onMounted(() => {
   setTimeout(() => {
@@ -162,6 +163,7 @@ onMounted(() => {
         animation: timelines[index],
       });
     });
+    isLoaded.value = true;
   }, 500);
 });
 
@@ -324,6 +326,11 @@ onMounted(() => {
     left: 0;
     width: 100%;
     height: 100%;
+    opacity: var(--content-opacity, 0);
+    @include default-transitions(opacity);
+    &.is-loaded {
+      --content-opacity: 1;
+    }
 
     .header {
       position: absolute;

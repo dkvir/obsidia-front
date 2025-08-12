@@ -13,8 +13,6 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ref } from "vue";
 
-
-
 export function useThreeScene(canvasId) {
   // Three.js variables
   let canvas, scene, renderer, camera, statuemesh, envMap, material;
@@ -28,8 +26,6 @@ export function useThreeScene(canvasId) {
   let vertexDustSystems;
   let gradientBackground;
   let modelGroup; // Group for all GLB meshes
-
-
 
   // Rotation speed for the model
   const ROTATION_SPEED = 0.2; // Radians per second (adjust this value to change speed)
@@ -112,7 +108,6 @@ export function useThreeScene(canvasId) {
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0xffffff);
 
-
   // Sequential loading: HDRI first, then model
   function setupSequentialLoading() {
     // First load HDRI
@@ -148,50 +143,51 @@ export function useThreeScene(canvasId) {
 
           const color = new THREE.TextureLoader().load("./images/color.jpg");
 
-          const metallic= new THREE.TextureLoader().load("./images/metallic.jpg");
+          const metallic = new THREE.TextureLoader().load(
+            "./images/metallic.jpg"
+          );
 
           const matcap = new THREE.TextureLoader().load("./images/matcap.png");
 
           // Set tiling for normal map
-        normal.wrapS = THREE.RepeatWrapping;
-        normal.wrapT = THREE.RepeatWrapping;
-        normal.repeat.set(10, 10); // Adjust these values to control tiling (4x4 tiles)
+          normal.wrapS = THREE.RepeatWrapping;
+          normal.wrapT = THREE.RepeatWrapping;
+          normal.repeat.set(10, 10); // Adjust these values to control tiling (4x4 tiles)
 
-        // Optional: Apply tiling to other maps as well
-        // rough.wrapS = THREE.RepeatWrapping;
-        // rough.wrapT = THREE.RepeatWrapping;
-        // rough.repeat.set(4, 4);
+          // Optional: Apply tiling to other maps as well
+          // rough.wrapS = THREE.RepeatWrapping;
+          // rough.wrapT = THREE.RepeatWrapping;
+          // rough.repeat.set(4, 4);
 
-        // metallic.wrapS = THREE.RepeatWrapping;
-        // metallic.wrapT = THREE.RepeatWrapping;
-        // metallic.repeat.set(4, 4);
+          // metallic.wrapS = THREE.RepeatWrapping;
+          // metallic.wrapT = THREE.RepeatWrapping;
+          // metallic.repeat.set(4, 4);
 
-        // If you want to tile the color map too
-        // color.wrapS = THREE.RepeatWrapping;
-        // color.wrapT = THREE.RepeatWrapping;
-        // color.repeat.set(4, 4);
+          // If you want to tile the color map too
+          // color.wrapS = THREE.RepeatWrapping;
+          // color.wrapT = THREE.RepeatWrapping;
+          // color.repeat.set(4, 4);
 
-        material = new THREE.MeshPhysicalMaterial({
-          // map: color,
-          color: 0xffffff,
-          // normalMap: normal,
-          // normalScale: new THREE.Vector2(0.05, 0.05), // Adjust normal intensity if needed
-          // roughnessMap: rough,
-          // metalnessMap: metallic,
-          // opacity: 0.5,
-          transmission: 1.0,
-          thickness: 0.8,
-          transparent: true,
-          // color: 0x000000,
-          // metalness: 0,
-          ior: 1.7,
-          roughness: 0.0,
-          side: THREE.DoubleSide,
-          envMap: envMap,
-          dispersion: 5,
-          // envMapIntensity: 1.0,
-        });
-
+          material = new THREE.MeshPhysicalMaterial({
+            // map: color,
+            color: 0xffffff,
+            // normalMap: normal,
+            // normalScale: new THREE.Vector2(0.05, 0.05), // Adjust normal intensity if needed
+            // roughnessMap: rough,
+            // metalnessMap: metallic,
+            // opacity: 0.5,
+            transmission: 1.0,
+            thickness: 0.8,
+            transparent: true,
+            // color: 0x000000,
+            // metalness: 0,
+            ior: 1.7,
+            roughness: 0.0,
+            side: THREE.DoubleSide,
+            envMap: envMap,
+            dispersion: 5,
+            // envMapIntensity: 1.0,
+          });
 
           resolve(texture);
         },
@@ -229,8 +225,6 @@ export function useThreeScene(canvasId) {
                 child.visible = true;
               }
             }
-            
-           
           });
 
           // Create a parent group and add the entire gltf.scene to it
@@ -255,17 +249,18 @@ export function useThreeScene(canvasId) {
               animationActions.push(action);
             }
 
-            gsap.registerPlugin(ScrollTrigger, SplitText);
+            // gsap.registerPlugin(ScrollTrigger, SplitText);
 
-            ScrollTrigger.config({
-              limitCallbacks: true,
-              ignoreMobileResize: true,
-            });
+            // ScrollTrigger.config({
+            //   limitCallbacks: true,
+            //   ignoreMobileResize: true,
+            // });
 
-            cameraAnimationOptions.forEach((item, index) => {
-              createAnimationController(mixer, animationActions, item, index);
-            });
+            // cameraAnimationOptions.forEach((item, index) => {
+            //   createAnimationController(mixer, animationActions, item, index);
+            // });
 
+            createAnimationController(mixer, animationActions, animations);
             window.scrollTo(0, 0);
           }
 
@@ -280,7 +275,89 @@ export function useThreeScene(canvasId) {
     });
   }
 
-  function createAnimationController(mixer, actions, item, index) {
+  // function createAnimationController(mixer, actions, item, index) {
+  //   let proxy = {
+  //     get time() {
+  //       return mixer.time;
+  //     },
+  //     set time(value) {
+  //       actions.forEach((action) => {
+  //         action.paused = false;
+  //       });
+  //       mixer.setTime(value);
+  //       actions.forEach((action) => {
+  //         action.paused = true;
+  //       });
+  //     },
+  //   };
+
+  //   proxy.time = 0;
+
+  //   if (index == 0) {
+  //     const split = new SplitText(".window .scroll-down", { type: "chars" });
+
+  //     const tl = gsap.timeline({
+  //       paused: true,
+  //       scrollTrigger: {
+  //         trigger: item.trigger,
+  //         start: "top top",
+  //         end: "bottom top",
+  //         invalidateOnRefresh: false,
+  //         toggleActions: "play none none reverse",
+
+  //         onUpdate: function (self) {
+  //           proxy.time =
+  //             item.startDuration +
+  //             self.progress * (item.maxDuration - item.startDuration);
+  //         },
+  //       },
+  //     });
+
+  //     split.chars.forEach((char, index) => {
+  //       const yOffset =
+  //         index % 2 === 0 ? -50 * Math.random() : 50 * Math.random();
+
+  //       const xOffset = (Math.random() * 2 - 1) * 30;
+  //       const rotateOffset = (Math.random() * 2 - 1) * 30;
+  //       tl.to(
+  //         char,
+  //         {
+  //           y: yOffset,
+  //           x: xOffset,
+  //           rotate: rotateOffset,
+  //           ease: "power2.inOut",
+  //           opacity: 0,
+  //           duration: 0.9,
+  //         },
+  //         0
+  //       );
+  //     });
+  //   } else {
+  //     const scrollTimeline = gsap.timeline({
+  //       scrollTrigger: {
+  //         trigger: item.trigger,
+  //         start: "top top",
+  //         end: "bottom top",
+  //         scrub: true,
+  //         invalidateOnRefresh: false,
+  //         onUpdate: function (self) {
+  //           proxy.time =
+  //             item.startDuration +
+  //             self.progress * (item.maxDuration - item.startDuration);
+  //         },
+  //       },
+  //     });
+  //   }
+  // }
+
+  function createAnimationController(mixer, actions, clips) {
+    gsap.registerPlugin(ScrollTrigger);
+
+    ScrollTrigger.config({
+      limitCallbacks: true,
+      ignoreMobileResize: true,
+    });
+
     let proxy = {
       get time() {
         return mixer.time;
@@ -297,62 +374,20 @@ export function useThreeScene(canvasId) {
     };
 
     proxy.time = 0;
+    const maxDuration = Math.max(...clips.map((clip) => clip.duration));
 
-    if (index == 0) {
-      const split = new SplitText(".window .scroll-down", { type: "chars" });
-
-      const tl = gsap.timeline({
-        paused: true,
-        scrollTrigger: {
-          trigger: item.trigger,
-          start: "top top",
-          end: "bottom top",
-          invalidateOnRefresh: false,
-          toggleActions: "play none none reverse",
-
-          onUpdate: function (self) {
-            proxy.time =
-              item.startDuration +
-              self.progress * (item.maxDuration - item.startDuration);
-          },
+    const scrollTimeline = gsap.timeline({
+      scrollTrigger: {
+        trigger: ".home-page",
+        start: "top top",
+        end: "bottom bottom",
+        scrub: true,
+        invalidateOnRefresh: false,
+        onUpdate: function (self) {
+          proxy.time = self.progress * maxDuration;
         },
-      });
-
-      split.chars.forEach((char, index) => {
-        const yOffset =
-          index % 2 === 0 ? -50 * Math.random() : 50 * Math.random();
-
-        const xOffset = (Math.random() * 2 - 1) * 30;
-        const rotateOffset = (Math.random() * 2 - 1) * 30;
-        tl.to(
-          char,
-          {
-            y: yOffset,
-            x: xOffset,
-            rotate: rotateOffset,
-            ease: "power2.inOut",
-            opacity: 0,
-            duration: 0.9,
-          },
-          0
-        );
-      });
-    } else {
-      const scrollTimeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: item.trigger,
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-          invalidateOnRefresh: false,
-          onUpdate: function (self) {
-            proxy.time =
-              item.startDuration +
-              self.progress * (item.maxDuration - item.startDuration);
-          },
-        },
-      });
-    }
+      },
+    });
   }
 
   // Mouse event handlers
@@ -386,54 +421,54 @@ export function useThreeScene(canvasId) {
     }
   }
 
- // Initialize statue group
-function initStatueGroup() {
-  statueGroup = new THREE.Group();
-  const objectsToGroup = [];
+  // Initialize statue group
+  function initStatueGroup() {
+    statueGroup = new THREE.Group();
+    const objectsToGroup = [];
 
-  scene.traverse((child) => {
-    if (
-      child.name &&
-      (child.name.includes("crystal") || child.name.includes("_part"))
-    ) {
-      // objectsToGroup.push(child);
-    }
-  });
+    scene.traverse((child) => {
+      if (
+        child.name &&
+        (child.name.includes("crystal") || child.name.includes("_part"))
+      ) {
+        // objectsToGroup.push(child);
+      }
+    });
 
-  objectsToGroup.forEach((child) => {
-    const worldPosition = new THREE.Vector3();
-    const worldQuaternion = new THREE.Quaternion();
-    const worldScale = new THREE.Vector3();
+    objectsToGroup.forEach((child) => {
+      const worldPosition = new THREE.Vector3();
+      const worldQuaternion = new THREE.Quaternion();
+      const worldScale = new THREE.Vector3();
 
-    child.getWorldPosition(worldPosition);
-    child.getWorldQuaternion(worldQuaternion);
-    child.getWorldScale(worldScale);
+      child.getWorldPosition(worldPosition);
+      child.getWorldQuaternion(worldQuaternion);
+      child.getWorldScale(worldScale);
 
-    if (child.parent) child.parent.remove(child);
-    else scene.remove(child);
+      if (child.parent) child.parent.remove(child);
+      else scene.remove(child);
 
-    statueGroup.add(child);
+      statueGroup.add(child);
 
-    child.position.copy(worldPosition);
-    child.quaternion.copy(worldQuaternion);
-    child.scale.copy(worldScale);
-  });
+      child.position.copy(worldPosition);
+      child.quaternion.copy(worldQuaternion);
+      child.scale.copy(worldScale);
+    });
 
-  scene.add(statueGroup);
+    scene.add(statueGroup);
 
-  statueGroup.userData.originalPosition = statueGroup.position.clone();
-  statueGroup.userData.originalRotation = new THREE.Vector3(
-    statueGroup.rotation.x,
-    statueGroup.rotation.y,
-    statueGroup.rotation.z
-  );
+    statueGroup.userData.originalPosition = statueGroup.position.clone();
+    statueGroup.userData.originalRotation = new THREE.Vector3(
+      statueGroup.rotation.x,
+      statueGroup.rotation.y,
+      statueGroup.rotation.z
+    );
 
-  mouse.set(0, 0);
-  lastMouse.set(0, 0);
-  rotationOffset.set(0, 0);
+    mouse.set(0, 0);
+    lastMouse.set(0, 0);
+    rotationOffset.set(0, 0);
 
-  window.addEventListener("mousemove", onMouseMove, false);
-}
+    window.addEventListener("mousemove", onMouseMove, false);
+  }
 
   // Initialize renderer and effects
   function init() {
@@ -453,47 +488,44 @@ function initStatueGroup() {
     gradientBackground = useGradientBackground();
 
     gradientBackground.create(scene, camera, {
-    bottomColor: 0x000000,  // Your dark color
-    topColor: 0x070211      // Same color initially
-  });
-  
-    gradientBackground.setupScrollAnimation({
-    trigger: '.home-page',
-    start: '30% top',
-    end: '60% top',        // Adjust for speed
-    startColor: 0x000000,  // Dark (same as bottom)
-    endColor: 0xDEC4B6
-  });
+      bottomColor: 0x000000, // Your dark color
+      topColor: 0x070211, // Same color initially
+    });
 
-  if (material) {
-  gsap.to(material.color, {
-    r: 0,  // Target black (0,0,0)
-    g: 0,
-    b: 0,
-    ease: "none",
-    scrollTrigger: {
-      trigger: '.home-page',
-      start: '30% top',
-      end: '32% top',
-      scrub: true,
-      onUpdate: function(self) {
-        // Interpolate from white (1,1,1) to black (0,0,0)
-        const progress = self.progress;
-        material.color.r = 1 - progress;
-        material.color.g = 1 - progress;
-        material.color.b = 1 - progress;
-      }
+    gradientBackground.setupScrollAnimation({
+      trigger: ".home-page",
+      start: "30% top",
+      end: "60% top", // Adjust for speed
+      startColor: 0x000000, // Dark (same as bottom)
+      endColor: 0xdec4b6,
+    });
+
+    if (material) {
+      gsap.to(material.color, {
+        r: 0, // Target black (0,0,0)
+        g: 0,
+        b: 0,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".home-page",
+          start: "30% top",
+          end: "32% top",
+          scrub: true,
+          onUpdate: function (self) {
+            // Interpolate from white (1,1,1) to black (0,0,0)
+            const progress = self.progress;
+            material.color.r = 1 - progress;
+            material.color.g = 1 - progress;
+            material.color.b = 1 - progress;
+          },
+        },
+      });
     }
-  });
-}
 
     composer = new EffectComposer(renderer);
-    composer.setSize(canvas.clientWidth , canvas.clientHeight );
+    composer.setSize(canvas.clientWidth, canvas.clientHeight);
 
     const renderPass = new RenderPass(scene, camera);
-
-   
-   
 
     // Bokeh depth of field pass
     if (config.dof.enabled) {
@@ -509,43 +541,39 @@ function initStatueGroup() {
     if (bokehPass && config.dof.enabled) {
       // Define the focus values for different scroll positions
       const focusStops = [
-        { value: 1.0 },      // Start
-        { value: 0.705 },    // Middle
-        { value: 2.907 }     // End
+        { value: 1.0 }, // Start
+        { value: 0.705 }, // Middle
+        { value: 2.907 }, // End
       ];
 
-      
-  // First transition: 1.0 to 0.705
-  ScrollTrigger.create({
-    trigger: '.home-page',
-    start: 'top top',
-    end: '12% top', // Adjust this to control when the first transition ends
-    scrub: 1,
-    onUpdate: function(self) {
-      const focusValue = gsap.utils.interpolate(3.3, 0.705, self.progress);
-      bokehPass.uniforms["focus"].value = focusValue;
+      // First transition: 1.0 to 0.705
+      ScrollTrigger.create({
+        trigger: ".home-page",
+        start: "top top",
+        end: "12% top", // Adjust this to control when the first transition ends
+        scrub: 1,
+        onUpdate: function (self) {
+          const focusValue = gsap.utils.interpolate(3.3, 0.705, self.progress);
+          bokehPass.uniforms["focus"].value = focusValue;
 
-      // console.log("Focus value:", focusValue);
+          // console.log("Focus value:", focusValue);
+        },
+      });
+
+      // Second transition: 0.705 to 2.907
+      ScrollTrigger.create({
+        trigger: ".home-page",
+        start: "12% top", // Should match the end of the first transition
+        end: "30% top",
+        scrub: 1,
+        onUpdate: function (self) {
+          const focusValue = gsap.utils.interpolate(0.705, 3, self.progress);
+          bokehPass.uniforms["focus"].value = focusValue;
+
+          // console.log("Focus value:", focusValue);
+        },
+      });
     }
-  });
-
-  // Second transition: 0.705 to 2.907
-  ScrollTrigger.create({
-    trigger: '.home-page',
-    start: '12% top', // Should match the end of the first transition
-    end: '30% top',
-    scrub: 1,
-    onUpdate: function(self) {
-      const focusValue = gsap.utils.interpolate(0.705, 3, self.progress);
-      bokehPass.uniforms["focus"].value = focusValue;
-      
-      // console.log("Focus value:", focusValue);
-    }
-  });
-
-}
-
-
 
     bloomPass = new UnrealBloomPass(
       new THREE.Vector2(canvas.clientWidth, canvas.clientHeight),
@@ -580,7 +608,6 @@ function initStatueGroup() {
     composer.addPass(renderPass);
     composer.addPass(bloomPass);
 
-    
     // Add DOF before bloom for better results
     if (bokehPass && config.dof.enabled) {
       composer.addPass(bokehPass);
@@ -588,7 +615,7 @@ function initStatueGroup() {
 
     composer.addPass(brightnessCompensationPass);
 
-     const filmPass = new FilmPass(0.8, 0.325, 256, false); // intensity, scanline intensity, scanline count, grayscale
+    const filmPass = new FilmPass(0.8, 0.325, 256, false); // intensity, scanline intensity, scanline count, grayscale
     composer.addPass(filmPass);
     composer.addPass(gammaCorrectionPass);
 
@@ -600,8 +627,6 @@ function initStatueGroup() {
     if (typeof useDustParticles === "function") {
       // dustParticles = new useDustParticles(scene, config.dustParticles);
     }
-
-
   }
 
   // Window resize handler
@@ -614,9 +639,9 @@ function initStatueGroup() {
     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
     composer.setSize(canvas.clientWidth, canvas.clientHeight);
 
-     if (gradientBackground) {
-    gradientBackground.updateAspect(camera.aspect);
-  }
+    if (gradientBackground) {
+      gradientBackground.updateAspect(camera.aspect);
+    }
 
     // Update bokeh pass resolution
     if (bokehPass && config.dof.enabled) {
@@ -643,7 +668,8 @@ function initStatueGroup() {
 
     if (statueGroup) {
       // statueGroup.rotation.x = statueGroup.userData.originalRotation.x + rotationOffset.x/4;
-      statueGroup.rotation.y = statueGroup.userData.originalRotation.y - rotationOffset.y;
+      statueGroup.rotation.y =
+        statueGroup.userData.originalRotation.y - rotationOffset.y;
     }
 
     // Apply constant rotation to the model group
@@ -651,10 +677,8 @@ function initStatueGroup() {
       modelGroup.rotation.y += ROTATION_SPEED * delta;
     }
 
-
-
-     if (gradientBackground) {
-    gradientBackground.animate(delta);
+    if (gradientBackground) {
+      gradientBackground.animate(delta);
     }
 
     if (mixer) {
@@ -663,21 +687,16 @@ function initStatueGroup() {
 
     if (dustParticles && dustParticles.animate) {
       dustParticles.animate(delta);
-     
     }
 
-     if (vertexDustSystems && vertexDustSystems.length > 0) {
+    if (vertexDustSystems && vertexDustSystems.length > 0) {
+      vertexDustSystems.forEach((dustSystem) => {
+        if (dustSystem.animate) {
+          dustSystem.animate(delta);
+        }
+      });
+    }
 
-      
-    vertexDustSystems.forEach(dustSystem => {
-      
-      if (dustSystem.animate) {
-       
-        dustSystem.animate(delta);
-      }
-    });
-  }
-    
     composer.render();
     // renderer.render(scene, camera);
   }
@@ -687,14 +706,13 @@ function initStatueGroup() {
     window.removeEventListener("resize", onWindowResize);
     window.removeEventListener("mousemove", onMouseMove);
 
-     if (gui) {
-    gui.destroy();
-  }
-  
+    if (gui) {
+      gui.destroy();
+    }
 
-     if (gradientBackground) {
-    gradientBackground.dispose();
-  }
+    if (gradientBackground) {
+      gradientBackground.dispose();
+    }
 
     if (renderer) {
       renderer.dispose();

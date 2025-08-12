@@ -1,9 +1,9 @@
-import welcome from "./welcome.json";
 import content from "./content.json";
+import schedule from "./schedule.json";
 
 const home = {
-  welcome,
   content,
+  schedule,
 };
 
 export default home;

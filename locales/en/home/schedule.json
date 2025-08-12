@@ -1,0 +1,284 @@
+[
+  {
+    "day": "monday",
+    "list": [
+      {
+        "time": "10:45 - 12:45",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:00 - 12:45",
+        "title": "pilates",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "body pump",
+        "sensei": "s.martashvili"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      }
+    ]
+  },
+  {
+    "day": "tuesday",
+    "list": [
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "10:45 - 12:45",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:00 - 12:45",
+        "title": "pilates",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "body pump",
+        "sensei": "s.martashvili"
+      },
+
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      }
+    ]
+  },
+  {
+    "day": "wednesday",
+    "list": [
+      {
+        "time": "10:45 - 12:45",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:00 - 12:45",
+        "title": "pilates",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "body pump",
+        "sensei": "s.martashvili"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      }
+    ]
+  },
+  {
+    "day": "thursday",
+    "list": [
+      {
+        "time": "10:45 - 12:45",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:00 - 12:45",
+        "title": "pilates",
+        "sensei": "g.avaliani"
+      }
+    ]
+  },
+  {
+    "day": "thursday",
+    "list": [
+      {
+        "time": "10:45 - 12:45",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:00 - 12:45",
+        "title": "pilates",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "body pump",
+        "sensei": "s.martashvili"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "body pump",
+        "sensei": "s.martashvili"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      }
+    ]
+  },
+  {
+    "day": "friday",
+    "list": [
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "10:45 - 12:45",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:00 - 12:45",
+        "title": "pilates",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "body pump",
+        "sensei": "s.martashvili"
+      },
+
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      }
+    ]
+  },
+  {
+    "day": "saturday",
+    "list": [
+      {
+        "time": "10:45 - 12:45",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:00 - 12:45",
+        "title": "pilates",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "body pump",
+        "sensei": "s.martashvili"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      }
+    ]
+  },
+  {
+    "day": "sunday",
+    "list": [
+      {
+        "time": "10:45 - 12:45",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:00 - 12:45",
+        "title": "pilates",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "body pump",
+        "sensei": "s.martashvili"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      },
+      {
+        "time": "12:45 - 13:30",
+        "title": "Morning Yoga",
+        "sensei": "g.avaliani"
+      }
+    ]
+  }
+]

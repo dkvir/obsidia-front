@@ -6,6 +6,7 @@
     </div>
     <div class="scrolling-content">
       <home-video />
+      <home-schedule />
     </div>
     <canvas id="canvas"></canvas>
   </div>

@@ -20,6 +20,7 @@ const changeActiveIndex = (index) => {
 .schedule {
   width: 100%;
   height: 100vh;
-  padding: 160px calc(var(--page-offset-padding) + 240px) 220px;
+  padding: calc(var(--page-offset-padding) + 240px);
+  padding-bottom: 0;
 }
 </style>

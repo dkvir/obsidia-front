@@ -1,5 +1,5 @@
 <template>
-  <div class="video">
+  <div class="video flex-center">
     <video class="video-player" controls>
       <source src="/videos/video.mp4" type="video/mp4" />
     </video>
@@ -11,7 +11,7 @@
 <style lang="scss" scoped>
 .video {
   width: 100%;
-  height: auto;
+  height: 100vh;
 
   .video-player {
     width: 100%;

@@ -249,17 +249,6 @@ export function useThreeScene(canvasId) {
               animationActions.push(action);
             }
 
-            // gsap.registerPlugin(ScrollTrigger, SplitText);
-
-            // ScrollTrigger.config({
-            //   limitCallbacks: true,
-            //   ignoreMobileResize: true,
-            // });
-
-            // cameraAnimationOptions.forEach((item, index) => {
-            //   createAnimationController(mixer, animationActions, item, index);
-            // });
-
             createAnimationController(mixer, animationActions, animations);
             window.scrollTo(0, 0);
           }
@@ -274,81 +263,6 @@ export function useThreeScene(canvasId) {
       );
     });
   }
-
-  // function createAnimationController(mixer, actions, item, index) {
-  //   let proxy = {
-  //     get time() {
-  //       return mixer.time;
-  //     },
-  //     set time(value) {
-  //       actions.forEach((action) => {
-  //         action.paused = false;
-  //       });
-  //       mixer.setTime(value);
-  //       actions.forEach((action) => {
-  //         action.paused = true;
-  //       });
-  //     },
-  //   };
-
-  //   proxy.time = 0;
-
-  //   if (index == 0) {
-  //     const split = new SplitText(".window .scroll-down", { type: "chars" });
-
-  //     const tl = gsap.timeline({
-  //       paused: true,
-  //       scrollTrigger: {
-  //         trigger: item.trigger,
-  //         start: "top top",
-  //         end: "bottom top",
-  //         invalidateOnRefresh: false,
-  //         toggleActions: "play none none reverse",
-
-  //         onUpdate: function (self) {
-  //           proxy.time =
-  //             item.startDuration +
-  //             self.progress * (item.maxDuration - item.startDuration);
-  //         },
-  //       },
-  //     });
-
-  //     split.chars.forEach((char, index) => {
-  //       const yOffset =
-  //         index % 2 === 0 ? -50 * Math.random() : 50 * Math.random();
-
-  //       const xOffset = (Math.random() * 2 - 1) * 30;
-  //       const rotateOffset = (Math.random() * 2 - 1) * 30;
-  //       tl.to(
-  //         char,
-  //         {
-  //           y: yOffset,
-  //           x: xOffset,
-  //           rotate: rotateOffset,
-  //           ease: "power2.inOut",
-  //           opacity: 0,
-  //           duration: 0.9,
-  //         },
-  //         0
-  //       );
-  //     });
-  //   } else {
-  //     const scrollTimeline = gsap.timeline({
-  //       scrollTrigger: {
-  //         trigger: item.trigger,
-  //         start: "top top",
-  //         end: "bottom top",
-  //         scrub: true,
-  //         invalidateOnRefresh: false,
-  //         onUpdate: function (self) {
-  //           proxy.time =
-  //             item.startDuration +
-  //             self.progress * (item.maxDuration - item.startDuration);
-  //         },
-  //       },
-  //     });
-  //   }
-  // }
 
   function createAnimationController(mixer, actions, clips) {
     gsap.registerPlugin(ScrollTrigger);

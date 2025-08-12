@@ -1,9 +1,5 @@
 {
-  "book": {
-    "label": "Book a session"
-  },
-  "join": {
-    "label": "join waitlist",
-    "link": "#"
+  "send": {
+    "label": "send"
   }
 }

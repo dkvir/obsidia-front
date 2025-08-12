@@ -9,7 +9,7 @@
         <li
           v-for="(schedule, key) in item.list"
           :key="index"
-          class="schedule-item flex align-center"
+          class="schedule-item flex align-center uppercase"
         >
           <div class="time">{{ schedule.time }}</div>
           <div class="type">{{ schedule.title }}</div>

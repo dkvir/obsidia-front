@@ -1,0 +1,20 @@
+{
+  "title": {
+    "top": "allowed to",
+    "bottom": "be new"
+  },
+  "form": [
+    {
+      "label": "name",
+      "placeholder": "John"
+    },
+    {
+      "label": "surname",
+      "placeholder": "Doe"
+    },
+    {
+      "label": "mobile",
+      "placeholder": "+995"
+    }
+  ]
+}

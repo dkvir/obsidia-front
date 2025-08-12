@@ -7,6 +7,7 @@
     <div class="scrolling-content">
       <home-video />
       <home-schedule />
+      <home-contact />
     </div>
     <canvas id="canvas"></canvas>
   </div>
@@ -25,6 +26,7 @@ onMounted(() => {
   width: 100vw;
   min-height: 100vh;
   padding: 40px var(--page-offset-padding);
+  padding-bottom: 0;
 
   .sticky-content {
     position: relative;
@@ -35,7 +37,7 @@ onMounted(() => {
 
   .scrolling-content {
     width: 100%;
-    height: 400vh;
+    height: 300vh;
   }
 
   #canvas {

@@ -5,7 +5,10 @@
   >
     <li
       v-for="(item, index) in $tm('home.schedule')"
-      :class="['day flex-center', { 'is-active': activeTextIndex === index }]"
+      :class="[
+        'day flex-center uppercase',
+        { 'is-active': activeTextIndex === index },
+      ]"
       :key="index"
       @mouseenter="hoverIndex = index"
       @mouseleave="hoverIndex = activeTextIndex"

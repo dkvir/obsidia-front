@@ -1,96 +1,178 @@
 <template>
-  <div
-    :class="[
-      `content flex-column`,
-      {
-        'is-relative': relative,
-        'is-center': item.position === 'center',
-      },
-    ]"
-  >
-    <h3 v-if="item.position !== 'center'" class="subtitle uppercase">
-      0{{ index }} /
-    </h3>
-    <home-tiny-titles :titles="item.title.list" :size="item.title.size" />
-    <!-- <div class="descriptions flex-center justify-end">
-      <ul v-if="item.descriptions.length" class="list flex-column">
-        <li v-for="(description, key) in item.descriptions" class="description">
-          {{ description }}
+  <div class="content">
+    <div class="content-frame">
+      <ul class="content-list flex-column">
+        <li
+          v-for="(item, index) in $tm('home.content')"
+          :class="[
+            'item  flex align-center',
+            { 'is-large': item.title.size == 'large' },
+          ]"
+        >
+          <h2 class="title flex-column">
+            <span class="span top">{{ item.title.top }}</span>
+            <span class="span bottom">{{ item.title.bottom }}</span>
+          </h2>
         </li>
-        <nuxt-icon v-if="relative" name="fitness-club" filled />
       </ul>
     </div>
-    <common-tiny-buttons-join v-if="index == 1" /> -->
   </div>
 </template>
 
 <script setup>
-const props = defineProps({
-  item: {
-    type: Object,
-    required: true,
-  },
-  index: {
-    type: Number,
-    required: true,
-  },
-  relative: {
-    type: Boolean,
-    default: false,
-  },
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+onMounted(() => {
+  gsap.registerPlugin(ScrollTrigger, SplitText);
+  const titles = document.querySelectorAll(".content .title");
+  const mainTl = gsap.timeline();
+
+  titles.forEach((title, index) => {
+    const titleTop = new SplitText(title.querySelector(".top"), {
+      type: "lines, chars",
+    });
+    const titleBottom = new SplitText(title.querySelector(".bottom"), {
+      type: "lines, chars",
+    });
+
+    gsap.set(titleTop.chars, {
+      yPercent: 100,
+    });
+    gsap.set(titleBottom.chars, {
+      yPercent: 100,
+    });
+    const tl = gsap.timeline();
+
+    tl.addLabel("enterTop")
+      .to(titleTop.chars, {
+        yPercent: 0,
+        opacity: 1,
+        duration: 0.3,
+        ease: "power1.inOut",
+        stagger: {
+          from: "start",
+          ease: "power1.inOut",
+          each: 0.009,
+        },
+      })
+      .addLabel("enterBottom")
+      .to(
+        titleBottom.chars,
+        {
+          yPercent: 0,
+          opacity: 1,
+          duration: 0.3,
+          ease: "power1.inOut",
+          stagger: {
+            from: "start",
+            ease: "power1.inOut",
+            each: 0.009,
+          },
+        },
+        "<+0.1"
+      )
+      .addLabel("holdTop")
+      .to(titleTop.chars, {
+        duration: 0.1,
+        ease: "none",
+      })
+      .addLabel("holdBottom")
+      .to(
+        titleBottom.chars,
+        {
+          duration: 0.1,
+          ease: "none",
+        },
+        "<"
+      )
+      .addLabel("exitTop")
+      .to(titleTop.chars, {
+        yPercent: 100,
+        opacity: 0,
+        duration: 0.3,
+        ease: "power1.inOut",
+        stagger: {
+          from: "start",
+          ease: "power1.inOut",
+          each: 0.003,
+        },
+      })
+      .addLabel("exitBottom")
+      .to(
+        titleBottom.chars,
+        {
+          yPercent: 100,
+          opacity: 0,
+          duration: 0.3,
+          ease: "power1.inOut",
+          stagger: {
+            from: "start",
+            ease: "power1.inOut",
+            each: 0.003,
+          },
+        },
+        "<+0.1"
+      );
+
+    mainTl.add(tl);
+  });
+
+  setTimeout(() => {
+    ScrollTrigger.create({
+      trigger: ".sticky-content ",
+      start: `top top`,
+      end: `bottom top`,
+      scrub: true,
+      markers: true,
+      animation: mainTl,
+    });
+  }, 500);
 });
 </script>
 
 <style lang="scss" scoped>
 .content {
-  // position: sticky;
-  // top: 5vh;
-  height: min-content;
-  padding-top: 25vh;
-  &.is-relative {
+  position: absolute;
+  width: 100%;
+  height: calc(100% + 100vh);
+  padding: 0 calc(var(--page-offset-padding) + 160px);
+  .content-frame {
+    position: sticky;
+    top: var(--page-offset-padding);
+    left: 0;
+    height: calc(100vh - var(--page-offset-padding) * 2);
+  }
+  .content-list {
     position: relative;
-    top: 0;
-    padding-top: 0;
-  }
-  &.is-center {
-    align-items: center;
-  }
-
-  .subtitle {
-    font-size: 17px;
-    font-family: var(--font-parmigiano-light);
-    color: var(--color-silver);
-  }
-
-  .descriptions {
     width: 100%;
-    @include parent-state(".is-center") {
-      .list {
-        width: 30%;
-      }
-    }
-    @include parent-state(":not(.is-center)") {
-      .list {
-        width: 100%;
-        padding-left: var(--page-offset-padding);
-      }
+    height: 100%;
+  }
+
+  .item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    font-size: 94px;
+    font-family: var(--font-lemonmilk-light);
+    line-height: 1;
+    &.is-large {
+      justify-content: center;
+      font-size: 150px;
     }
   }
-  .list {
-    margin-top: 30px;
-    font-size: 21px;
-    font-family: var(--font-pingl-light);
 
-    .description {
-      @include list-distance(top, 20px);
-      color: var(--color-silver);
+  .title {
+    .span {
+      overflow: hidden;
     }
-    :deep(.nuxt-icon) {
-      margin-top: 30px;
-      svg {
-        height: 12px;
-        width: auto;
-      }
+    .top {
+      color: var(--color-white);
+    }
+    .bottom {
+      color: var(--color-ice);
     }
   }
 }

@@ -2,15 +2,11 @@
   <div class="home-page">
     <home-welcome />
     <div class="sticky-content">
-      <div class="component">
-        <span class="span">1</span>
-        <span class="span">2</span>
-        <span class="span">3</span>
-        <span class="span">4</span>
-        <span class="span">5</span>
-      </div>
+      <home-content />
     </div>
-    <div class="scrolling-content"></div>
+    <div class="scrolling-content">
+      <home-video />
+    </div>
     <canvas id="canvas"></canvas>
   </div>
 </template>
@@ -32,29 +28,13 @@ onMounted(() => {
   .sticky-content {
     position: relative;
     width: 100%;
-    height: 400vh;
-    background-color: var(--color-gray);
+    height: 800vh;
+    margin-bottom: 100vh;
   }
 
   .scrolling-content {
     width: 100%;
     height: 400vh;
-    background-color: var(--color-white);
-  }
-
-  .component {
-    position: sticky;
-    top: var(--page-offset-padding);
-    left: 0;
-    width: 100%;
-    height: calc(100vh - var(--page-offset-padding) * 2);
-    background-color: green;
-  }
-
-  .span {
-    position: absolute;
-    top: 0;
-    left: 0;
   }
 
   #canvas {

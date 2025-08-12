@@ -1,1 +1,23 @@
-[]
+[
+  {
+    "title": {
+      "size": "large",
+      "top": "not a gym",
+      "bottom": "a journey"
+    }
+  },
+  {
+    "title": {
+      "size": "small",
+      "top": "forge your mind",
+      "bottom": "own your body"
+    }
+  },
+  {
+    "title": {
+      "size": "small",
+      "top": "the ritual of",
+      "bottom": "becoming"
+    }
+  }
+]

@@ -9,123 +9,52 @@ import { BokehPass } from "three/examples/jsm/postprocessing/BokehPass.js";
 import { GammaCorrectionShader } from "three/examples/jsm/shaders/GammaCorrectionShader.js";
 import { FilmPass } from "three/examples/jsm/postprocessing/FilmPass.js";
 import gsap from "gsap";
-
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ref } from "vue";
 
 export function useThreeScene(canvasId) {
-  // Three.js variables
   let canvas, scene, renderer, camera, statuemesh, envMap, material;
   let composer, bloomPass, bokehPass;
   let mixer,
     animations,
     animationActions = [];
-  let dustParticles;
   let clock = new THREE.Clock();
-  let statueGroup;
   let vertexDustSystems;
   let gradientBackground;
-  let modelGroup; // Group for all GLB meshes
+  let modelGroup;
 
-  // Rotation speed for the model
-  const ROTATION_SPEED = 0.2; // Radians per second (adjust this value to change speed)
-
-  // Mouse rotation variables
-  let mouse = new THREE.Vector2();
-  let lastMouse = new THREE.Vector2();
-  let rotationOffset = new THREE.Vector2();
-  let mouseMoveFactor = { value: 0.05 };
-  let returnFactor = { value: 0.01 };
-  let isMouseMoving = false;
-  let mouseTimeout;
+  const FPS_LIMIT = 24;
+  const FRAME_TIME = 1000 / FPS_LIMIT;
+  let lastFrameTime = 0;
 
   let activeTextIndex = ref(0);
   const cameraAnimationOptions = [
-    {
-      trigger: ".home-page .stop-0",
-      startDuration: 0,
-      maxDuration: 4,
-    },
-    {
-      trigger: ".home-page .stop-1",
-      startDuration: 4,
-      maxDuration: 8,
-    },
-    {
-      trigger: ".home-page .stop-2",
-      startDuration: 8,
-      maxDuration: 12,
-    },
-    {
-      trigger: ".stop-3",
-      startDuration: 12,
-      maxDuration: 16,
-    },
-    {
-      trigger: ".stop-4",
-      startDuration: 16,
-      maxDuration: 20,
-    },
-    {
-      trigger: ".stop-5",
-      startDuration: 20,
-      maxDuration: 24.16666603088379,
-    },
+    { trigger: ".home-page .stop-0", startDuration: 0, maxDuration: 4 },
+    { trigger: ".home-page .stop-1", startDuration: 4, maxDuration: 8 },
+    { trigger: ".home-page .stop-2", startDuration: 8, maxDuration: 12 },
+    { trigger: ".stop-3", startDuration: 12, maxDuration: 16 },
+    { trigger: ".stop-4", startDuration: 16, maxDuration: 20 },
+    { trigger: ".stop-5", startDuration: 20, maxDuration: 24.16666603088379 },
   ];
 
-  // Configuration
   const config = {
-    // Bloom settings
-    bloom: {
-      strength: 0.1,
-      radius: 0.1,
-      threshold: 0.2,
-    },
-
-    // Depth of Field settings
-    dof: {
-      enabled: true,
-      focus: 3.3, // Will be calculated dynamically to focus on scene center
-      aperture: 0.01, // Fixed aperture for consistent blur
-      maxblur: 0.005, // Maximum blur amount
-    },
-
-    // Other settings
-    dustParticles: {
-      count: 0,
-      size: { min: 0.03, max: 0.5 },
-      area: { width: 5, height: 2, depth: 15 },
-      // opacity: 0.05,
-      speed: { min: 0.0001, max: 0.0004 },
-      color: {
-        hue: { min: 200, max: 300 },
-        saturation: { min: 90, max: 100 },
-        lightness: { min: 70, max: 100 },
-      },
-    },
+    bloom: { strength: 0.1, radius: 0.1, threshold: 0.2 },
+    dof: { enabled: true, focus: 3.3, aperture: 0.01, maxblur: 0.005 },
   };
 
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0xffffff);
 
-  // Sequential loading: HDRI first, then model
   function setupSequentialLoading() {
-    // First load HDRI
     loadEnvironment()
-      .then(() => {
-        return loadModel();
-      })
+      .then(() => loadModel())
       .then(() => {
         init();
-        initStatueGroup();
         animate();
       })
-      .catch((error) => {
-        console.error("Loading sequence failed:", error);
-      });
+      .catch((error) => console.error("Loading sequence failed:", error));
   }
 
-  // Load environment with Promise
   function loadEnvironment() {
     return new Promise((resolve, reject) => {
       const hdriLoader = new RGBELoader();
@@ -137,72 +66,30 @@ export function useThreeScene(canvasId) {
           envMap.mapping = THREE.EquirectangularReflectionMapping;
           scene.environment = envMap;
 
-          const normal = new THREE.TextureLoader().load("./images/normal.png");
-
-          const rough = new THREE.TextureLoader().load("./images/rough.jpg");
-
-          const color = new THREE.TextureLoader().load("./images/color.jpg");
-
-          const metallic = new THREE.TextureLoader().load(
-            "./images/metallic.jpg"
-          );
-
-          const matcap = new THREE.TextureLoader().load("./images/matcap.png");
-
-          // Set tiling for normal map
-          normal.wrapS = THREE.RepeatWrapping;
-          normal.wrapT = THREE.RepeatWrapping;
-          normal.repeat.set(10, 10); // Adjust these values to control tiling (4x4 tiles)
-
-          // Optional: Apply tiling to other maps as well
-          // rough.wrapS = THREE.RepeatWrapping;
-          // rough.wrapT = THREE.RepeatWrapping;
-          // rough.repeat.set(4, 4);
-
-          // metallic.wrapS = THREE.RepeatWrapping;
-          // metallic.wrapT = THREE.RepeatWrapping;
-          // metallic.repeat.set(4, 4);
-
-          // If you want to tile the color map too
-          // color.wrapS = THREE.RepeatWrapping;
-          // color.wrapT = THREE.RepeatWrapping;
-          // color.repeat.set(4, 4);
-
           material = new THREE.MeshPhysicalMaterial({
-            // map: color,
             color: 0xffffff,
-            // normalMap: normal,
-            // normalScale: new THREE.Vector2(0.05, 0.05), // Adjust normal intensity if needed
-            // roughnessMap: rough,
-            // metalnessMap: metallic,
-            // opacity: 0.5,
             transmission: 1.0,
             thickness: 0.8,
             transparent: true,
-            // color: 0x000000,
-            // metalness: 0,
             ior: 1.7,
             roughness: 0.0,
             side: THREE.DoubleSide,
             envMap: envMap,
             dispersion: 5,
-            // envMapIntensity: 1.0,
           });
 
           resolve(texture);
         },
         undefined,
-        function (error) {
+        (error) =>
           console.warn(
             "HDRI loading failed, using fallback environment:",
             error
-          );
-        }
+          )
       );
     });
   }
 
-  // Load 3D model with Promise
   function loadModel() {
     return new Promise((resolve, reject) => {
       const loader = new GLTFLoader();
@@ -210,7 +97,6 @@ export function useThreeScene(canvasId) {
       loader.load(
         "mesh/obsidian.glb",
         (gltf) => {
-          // Use camera from model if available
           if (gltf.cameras && gltf.cameras.length > 0) {
             camera = gltf.cameras[0];
             if (!canvas) canvas = document.querySelector(canvasId);
@@ -227,8 +113,6 @@ export function useThreeScene(canvasId) {
             }
           });
 
-          // Create a parent group and add the entire gltf.scene to it
-          // This preserves the animation hierarchy
           modelGroup = new THREE.Group();
           modelGroup.add(gltf.scene);
           scene.add(modelGroup);
@@ -237,7 +121,6 @@ export function useThreeScene(canvasId) {
 
           if (gltf.animations && gltf.animations.length > 0) {
             animations = gltf.animations;
-            // Keep the mixer targeting the original gltf.scene
             mixer = new THREE.AnimationMixer(gltf.scene);
 
             for (let i = 0; i < animations.length; i++) {
@@ -250,6 +133,7 @@ export function useThreeScene(canvasId) {
             }
 
             createAnimationController(mixer, animationActions, animations);
+
             window.scrollTo(0, 0);
           }
 
@@ -263,7 +147,6 @@ export function useThreeScene(canvasId) {
       );
     });
   }
-
   function createAnimationController(mixer, actions, clips) {
     gsap.registerPlugin(ScrollTrigger);
 
@@ -303,120 +186,46 @@ export function useThreeScene(canvasId) {
       },
     });
   }
-
-  // Mouse event handlers
-  function onMouseMove(event) {
-    lastMouse.x = mouse.x;
-    lastMouse.y = mouse.y;
-
-    mouse.x = (event.clientX / canvas.clientWidth) * 2 - 1;
-    mouse.y = -(event.clientY / canvas.clientHeight) * 2 + 1;
-
-    let deltaX = mouse.x - lastMouse.x;
-    let deltaY = mouse.y - lastMouse.y;
-
-    // Handle statue rotation
-    if (Math.abs(deltaX) > 0.004 || Math.abs(deltaY) > 0.004) {
-      rotationOffset.x = Math.max(
-        -0.5,
-        Math.min(0.5, rotationOffset.x - deltaY * mouseMoveFactor.value)
-      );
-      rotationOffset.y = Math.max(
-        -0.5,
-        Math.min(0.5, rotationOffset.y - deltaX * mouseMoveFactor.value)
-      );
-
-      clearTimeout(mouseTimeout);
-      isMouseMoving = true;
-
-      mouseTimeout = setTimeout(() => {
-        isMouseMoving = false;
-      }, 100);
-    }
-  }
-
-  // Initialize statue group
-  function initStatueGroup() {
-    statueGroup = new THREE.Group();
-    const objectsToGroup = [];
-
-    scene.traverse((child) => {
-      if (
-        child.name &&
-        (child.name.includes("crystal") || child.name.includes("_part"))
-      ) {
-        // objectsToGroup.push(child);
-      }
-    });
-
-    objectsToGroup.forEach((child) => {
-      const worldPosition = new THREE.Vector3();
-      const worldQuaternion = new THREE.Quaternion();
-      const worldScale = new THREE.Vector3();
-
-      child.getWorldPosition(worldPosition);
-      child.getWorldQuaternion(worldQuaternion);
-      child.getWorldScale(worldScale);
-
-      if (child.parent) child.parent.remove(child);
-      else scene.remove(child);
-
-      statueGroup.add(child);
-
-      child.position.copy(worldPosition);
-      child.quaternion.copy(worldQuaternion);
-      child.scale.copy(worldScale);
-    });
-
-    scene.add(statueGroup);
-
-    statueGroup.userData.originalPosition = statueGroup.position.clone();
-    statueGroup.userData.originalRotation = new THREE.Vector3(
-      statueGroup.rotation.x,
-      statueGroup.rotation.y,
-      statueGroup.rotation.z
-    );
-
-    mouse.set(0, 0);
-    lastMouse.set(0, 0);
-    rotationOffset.set(0, 0);
-
-    window.addEventListener("mousemove", onMouseMove, false);
-  }
-
-  // Initialize renderer and effects
   function init() {
     if (!canvas) canvas = document.querySelector(canvasId);
+
+    // Ensure canvas has valid dimensions
+    if (canvas.clientWidth <= 0 || canvas.clientHeight <= 0) {
+      console.warn("Canvas has invalid dimensions, waiting...");
+      setTimeout(() => init(), 100);
+      return;
+    }
 
     renderer = new THREE.WebGLRenderer({
       antialias: true,
       canvas: canvas,
+      powerPreference: "high-performance",
     });
-    renderer.setPixelRatio(window.devicePixelRatio);
+
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.enabled = false; // Shadows completely disabled
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.0;
     renderer.outputEncoding = THREE.sRGBEncoding;
 
     gradientBackground = useGradientBackground();
-
     gradientBackground.create(scene, camera, {
-      bottomColor: 0x000000, // Your dark color
-      topColor: 0x070211, // Same color initially
+      bottomColor: 0x000000,
+      topColor: 0x070211,
     });
 
     gradientBackground.setupScrollAnimation({
       trigger: ".home-page",
       start: "30% top",
-      end: "60% top", // Adjust for speed
-      startColor: 0x000000, // Dark (same as bottom)
-      endColor: 0xdec4b6,
+      end: "60% top",
+      startColor: 0x000000,
+      endColor: 0x000000,
     });
 
     if (material) {
       gsap.to(material.color, {
-        r: 0, // Target black (0,0,0)
+        r: 0,
         g: 0,
         b: 0,
         ease: "none",
@@ -426,7 +235,6 @@ export function useThreeScene(canvasId) {
           end: "32% top",
           scrub: true,
           onUpdate: function (self) {
-            // Interpolate from white (1,1,1) to black (0,0,0)
             const progress = self.progress;
             material.color.r = 1 - progress;
             material.color.g = 1 - progress;
@@ -436,61 +244,55 @@ export function useThreeScene(canvasId) {
       });
     }
 
+    const postProcessWidth = Math.max(1, Math.floor(canvas.clientWidth * 0.5));
+    const postProcessHeight = Math.max(
+      1,
+      Math.floor(canvas.clientHeight * 0.5)
+    );
+
     composer = new EffectComposer(renderer);
-    composer.setSize(canvas.clientWidth, canvas.clientHeight);
+    composer.setSize(postProcessWidth, postProcessHeight);
 
     const renderPass = new RenderPass(scene, camera);
 
-    // Bokeh depth of field pass
     if (config.dof.enabled) {
       bokehPass = new BokehPass(scene, camera, {
         focus: config.dof.focus,
         aperture: config.dof.aperture,
         maxblur: config.dof.maxblur,
-        width: canvas.clientWidth,
-        height: canvas.clientHeight,
+        width: postProcessWidth,
+        height: postProcessHeight,
       });
     }
 
     if (bokehPass && config.dof.enabled) {
-      // Define the focus values for different scroll positions
-      const focusStops = [
-        { value: 1.0 }, // Start
-        { value: 0.705 }, // Middle
-        { value: 2.907 }, // End
-      ];
+      const focusStops = [{ value: 1.0 }, { value: 0.705 }, { value: 2.907 }];
 
-      // First transition: 1.0 to 0.705
       ScrollTrigger.create({
         trigger: ".home-page",
         start: "top top",
-        end: "12% top", // Adjust this to control when the first transition ends
+        end: "12% top",
         scrub: 1,
         onUpdate: function (self) {
           const focusValue = gsap.utils.interpolate(3.3, 0.705, self.progress);
           bokehPass.uniforms["focus"].value = focusValue;
-
-          // console.log("Focus value:", focusValue);
         },
       });
 
-      // Second transition: 0.705 to 2.907
       ScrollTrigger.create({
         trigger: ".home-page",
-        start: "12% top", // Should match the end of the first transition
+        start: "12% top",
         end: "30% top",
         scrub: 1,
         onUpdate: function (self) {
-          const focusValue = gsap.utils.interpolate(0.705, 3, self.progress);
+          const focusValue = gsap.utils.interpolate(0.705, 2, self.progress);
           bokehPass.uniforms["focus"].value = focusValue;
-
-          // console.log("Focus value:", focusValue);
         },
       });
     }
 
     bloomPass = new UnrealBloomPass(
-      new THREE.Vector2(canvas.clientWidth, canvas.clientHeight),
+      new THREE.Vector2(postProcessWidth, postProcessHeight),
       config.bloom.strength,
       config.bloom.radius,
       config.bloom.threshold
@@ -518,78 +320,46 @@ export function useThreeScene(canvasId) {
       `,
     });
 
-    // Add passes in the correct order
     composer.addPass(renderPass);
     composer.addPass(bloomPass);
 
-    // Add DOF before bloom for better results
     if (bokehPass && config.dof.enabled) {
       composer.addPass(bokehPass);
     }
 
     composer.addPass(brightnessCompensationPass);
 
-    const filmPass = new FilmPass(0.8, 0.325, 256, false); // intensity, scanline intensity, scanline count, grayscale
+    const filmPass = new FilmPass(0.8, 0.325, 256, false);
     composer.addPass(filmPass);
     composer.addPass(gammaCorrectionPass);
 
     window.addEventListener("resize", onWindowResize);
 
     if (camera) camera.userData.defaultPosition = camera.position.clone();
-
-    // Only create dust particles if the class exists
-    if (typeof useDustParticles === "function") {
-      // dustParticles = new useDustParticles(scene, config.dustParticles);
-    }
   }
 
-  // Window resize handler
   function onWindowResize() {
-    if (!camera || !renderer || !composer || useDevice().isMobileOrTablet)
-      return;
+    if (!camera || !renderer) return;
 
-    camera.aspect = canvas.clientWidth / canvas.clientHeight;
+    camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-    composer.setSize(canvas.clientWidth, canvas.clientHeight);
+    renderer.setSize(window.innerWidth, window.innerHeight);
 
-    if (gradientBackground) {
-      gradientBackground.updateAspect(camera.aspect);
-    }
-
-    // Update bokeh pass resolution
-    if (bokehPass && config.dof.enabled) {
-      bokehPass.uniforms["aspect"].value = camera.aspect;
-    }
-
-    if (dustParticles && dustParticles.updateSettings) {
-      const aspectRatio = canvas.clientWidth / canvas.clientHeight;
-      dustParticles.updateSettings({
-        area: { width: 15 * aspectRatio, height: 15, depth: 15 * aspectRatio },
-      });
+    if (composer) {
+      composer.setSize(window.innerWidth, window.innerHeight);
     }
   }
 
-  // Animation loop
-  function animate() {
-    const delta = clock.getDelta();
+  function animate(currentTime) {
     requestAnimationFrame(animate);
 
-    if (!isMouseMoving) {
-      rotationOffset.x += (0 - rotationOffset.x) * returnFactor.value;
-      rotationOffset.y += (0 - rotationOffset.y) * returnFactor.value;
+    if (currentTime - lastFrameTime < FRAME_TIME) {
+      return;
     }
 
-    if (statueGroup) {
-      // statueGroup.rotation.x = statueGroup.userData.originalRotation.x + rotationOffset.x/4;
-      statueGroup.rotation.y =
-        statueGroup.userData.originalRotation.y - rotationOffset.y;
-    }
+    lastFrameTime = currentTime - ((currentTime - lastFrameTime) % FRAME_TIME);
 
-    // Apply constant rotation to the model group
-    if (modelGroup) {
-      modelGroup.rotation.y += ROTATION_SPEED * delta;
-    }
+    const delta = Math.min(clock.getDelta(), FRAME_TIME / 1000);
 
     if (gradientBackground) {
       gradientBackground.animate(delta);
@@ -597,10 +367,6 @@ export function useThreeScene(canvasId) {
 
     if (mixer) {
       mixer.update(delta);
-    }
-
-    if (dustParticles && dustParticles.animate) {
-      dustParticles.animate(delta);
     }
 
     if (vertexDustSystems && vertexDustSystems.length > 0) {
@@ -612,13 +378,10 @@ export function useThreeScene(canvasId) {
     }
 
     composer.render();
-    // renderer.render(scene, camera);
   }
 
-  // Cleanup function
   function cleanup() {
     window.removeEventListener("resize", onWindowResize);
-    window.removeEventListener("mousemove", onMouseMove);
 
     if (gui) {
       gui.destroy();
@@ -631,6 +394,20 @@ export function useThreeScene(canvasId) {
     if (renderer) {
       renderer.dispose();
     }
+
+    if (envMap) envMap.dispose();
+    if (material) material.dispose();
+
+    scene.traverse((child) => {
+      if (child.geometry) child.geometry.dispose();
+      if (child.material) {
+        if (Array.isArray(child.material)) {
+          child.material.forEach((mat) => mat.dispose());
+        } else {
+          child.material.dispose();
+        }
+      }
+    });
   }
 
   return {

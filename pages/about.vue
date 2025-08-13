@@ -171,7 +171,7 @@ onMounted(() => {
 .about-page {
   position: relative;
   width: 100vw;
-  min-height: 100vh;
+  min-height: 100svh;
   padding: 40px var(--page-offset-padding);
 
   .stop {
@@ -181,7 +181,7 @@ onMounted(() => {
 
   .separator {
     width: 100%;
-    height: 100vh;
+    height: 100svh;
   }
 
   .content-list {

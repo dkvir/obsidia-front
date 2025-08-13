@@ -1,6 +1,11 @@
 <template>
   <div class="video flex-center">
-    <video class="video-player" controls>
+    <video
+      class="video-player"
+      preload="metadata"
+      poster="/images/share.png"
+      controls
+    >
       <source src="/videos/video.mp4" type="video/mp4" />
     </video>
   </div>
@@ -11,7 +16,7 @@
 <style lang="scss" scoped>
 .video {
   width: 100%;
-  height: 100vh;
+  height: 100svh;
 
   .video-player {
     width: 100%;

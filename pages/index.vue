@@ -24,7 +24,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 .home-page {
   width: 100vw;
-  min-height: 100vh;
+  min-height: 100svh;
   padding: 40px var(--page-offset-padding);
   padding-bottom: 0;
 
@@ -32,7 +32,7 @@ onMounted(() => {
     position: relative;
     width: 100%;
     height: 800vh;
-    margin-bottom: 100vh;
+    margin-bottom: 100svh;
   }
 
   .scrolling-content {

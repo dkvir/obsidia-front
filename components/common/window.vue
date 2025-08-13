@@ -72,7 +72,7 @@ onMounted(() => {
   inset: 0;
   z-index: 1;
   width: 100vw;
-  height: 100vh;
+  height: 100svh;
   padding: 40px var(--page-offset-padding);
   pointer-events: none;
   @include mq(max-width 768px) {
@@ -106,7 +106,10 @@ onMounted(() => {
       height: 100%;
       transform: translate(
           0,
-          calc(50vh - var(--page-offset-padding) - var(--app-header-height) / 2)
+          calc(
+            50svh - var(--page-offset-padding) * 3 - var(--app-header-height) /
+              2
+          )
         )
         scale(var(--logo-container-scale));
     }

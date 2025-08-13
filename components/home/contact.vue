@@ -47,7 +47,7 @@
 <style lang="scss" scoped>
 .contact {
   width: 100%;
-  height: 100vh;
+  height: 100svh;
   padding: 0 calc(var(--page-offset-padding) + css-clamp(40px, 160px));
   @include mq(max-width 768px) {
     padding: 0 calc(var(--page-offset-padding) + css-clamp(5px, 40px, 768));

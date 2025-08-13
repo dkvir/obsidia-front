@@ -19,7 +19,7 @@ const changeActiveIndex = (index) => {
 <style lang="scss" scoped>
 .schedule {
   width: 100%;
-  height: 100vh;
+  height: 100svh;
   padding: calc(var(--page-offset-padding) + css-clamp(40px, 240px));
   padding-bottom: 0;
   @include mq(max-width 1366px) {

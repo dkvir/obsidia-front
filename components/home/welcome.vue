@@ -7,6 +7,6 @@
 <style lang="scss" scoped>
 .welcome {
   width: 100%;
-  height: 100vh;
+  height: 100svh;
 }
 </style>

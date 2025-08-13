@@ -134,7 +134,7 @@ onMounted(() => {
 .content {
   position: absolute;
   width: 100%;
-  height: calc(100% + 100vh);
+  height: calc(100% + 100svh);
   padding: 0 calc(var(--page-offset-padding) + css-clamp(40px, 160px));
   @include mq(max-width 768px) {
     padding: 0 calc(var(--page-offset-padding) + css-clamp(5px, 40px, 768));
@@ -143,7 +143,7 @@ onMounted(() => {
     position: sticky;
     top: var(--page-offset-padding);
     left: 0;
-    height: calc(100vh - var(--page-offset-padding) * 2);
+    height: calc(100svh - var(--page-offset-padding) * 2);
   }
   .content-list {
     position: relative;

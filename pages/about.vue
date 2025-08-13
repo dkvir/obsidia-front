@@ -176,7 +176,7 @@ onMounted(() => {
 
   .stop {
     width: 100%;
-    height: 200vh;
+    height: 200svh;
   }
 
   .separator {

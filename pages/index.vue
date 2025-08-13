@@ -31,13 +31,13 @@ onMounted(() => {
   .sticky-content {
     position: relative;
     width: 100%;
-    height: 800vh;
+    height: 800svh;
     margin-bottom: 100svh;
   }
 
   .scrolling-content {
     width: 100%;
-    height: 300vh;
+    height: 300svh;
   }
 
   #canvas {

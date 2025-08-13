@@ -135,7 +135,10 @@ onMounted(() => {
   position: absolute;
   width: 100%;
   height: calc(100% + 100vh);
-  padding: 0 calc(var(--page-offset-padding) + 160px);
+  padding: 0 calc(var(--page-offset-padding) + css-clamp(40px, 160px));
+  @include mq(max-width 768px) {
+    padding: 0 calc(var(--page-offset-padding) + css-clamp(5px, 40px, 768));
+  }
   .content-frame {
     position: sticky;
     top: var(--page-offset-padding);
@@ -154,18 +157,27 @@ onMounted(() => {
     left: 0;
     width: 100%;
     height: 100%;
-    font-size: 94px;
+    font-size: css-clamp(48px, 94px);
     font-family: var(--font-lemonmilk-light);
     line-height: 1;
+
+    @include mq(max-width 768px) {
+      font-size: css-clamp-vw(34px, 48px, 768);
+    }
     &.is-large {
       justify-content: center;
-      font-size: 150px;
+      font-size: css-clamp(56px, 150px);
+      @include mq(max-width 768px) {
+        font-size: css-clamp-vw(34px, 56px, 768);
+      }
     }
   }
 
   .title {
     .span {
       overflow: hidden;
+      width: max-content;
+      white-space: nowrap;
     }
     .top {
       color: var(--color-white);

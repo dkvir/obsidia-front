@@ -48,17 +48,26 @@
 .contact {
   width: 100%;
   height: 100vh;
-  padding: 0 calc(var(--page-offset-padding) + 160px);
+  padding: 0 calc(var(--page-offset-padding) + css-clamp(40px, 160px));
+  @include mq(max-width 768px) {
+    padding: 0 calc(var(--page-offset-padding) + css-clamp(5px, 40px, 768));
+  }
 
   .contact-frame {
     width: 100%;
+    @include mq(max-width 768px) {
+      flex-direction: column;
+    }
   }
 
   .title {
-    font-size: 120px;
+    font-size: css-clamp(48px, 120px);
     font-family: var(--font-lemonmilk-light);
     line-height: 1;
     white-space: nowrap;
+    @include mq(max-width 768px) {
+      font-size: css-clamp-vw(34px, 48px, 768);
+    }
     .span {
       overflow: hidden;
     }
@@ -71,8 +80,12 @@
   }
 
   .form {
-    margin-left: 160px;
+    margin-left: get-vw(160px);
     width: 100%;
+    @include mq(max-width 768px) {
+      margin-left: 0;
+      margin-top: var(--page-offset-padding);
+    }
     .form-list {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -80,12 +93,25 @@
       grid-column-gap: 50px;
       grid-row-gap: 35px;
 
+      @include mq(max-width 768px) {
+        grid-template-columns: 1fr;
+        grid-auto-rows: auto;
+        grid-column-gap: 0;
+        grid-row-gap: var(--page-offset-padding);
+      }
+
       .item:nth-child(1) {
         grid-column: 1;
+        @include mq(max-width 768px) {
+          grid-column: 1 / -1;
+        }
       }
       .item:nth-child(2) {
         grid-column: 2;
         grid-row: 1;
+        @include mq(max-width 768px) {
+          grid-column: 1 / -1;
+        }
       }
 
       .item:nth-child(3) {

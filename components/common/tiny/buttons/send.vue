@@ -18,6 +18,9 @@
   font-size: 18px;
   font-family: var(--font-lemonmilk-light);
   cursor: pointer;
+  @include mq(max-width 768px) {
+    margin-top: var(--page-offset-padding);
+  }
   &:hover {
     --send-bg: var(--color-tube);
     --send-color: var(--color-hazy);

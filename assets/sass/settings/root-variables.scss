@@ -18,9 +18,8 @@
   --selection-color: var(--color-white);
 
   --page-offset-padding: 20px;
-  --app-header-height: #{css-clamp(15px, 25px)};
-
+  --app-header-height: 25px;
   @include mq(max-width 768px) {
-    --app-header-height: 44px;
+    --app-header-height: #{css-clamp-vw(15px, 25px, 768)};
   }
 }

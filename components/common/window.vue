@@ -75,19 +75,40 @@ onMounted(() => {
   height: 100vh;
   padding: 40px var(--page-offset-padding);
   pointer-events: none;
+  @include mq(max-width 768px) {
+    padding: 40px var(--page-offset-padding) var(--page-offset-padding);
+  }
 
   .app-header {
     width: 100%;
     height: var(--app-header-height);
 
     .logo-container {
+      --logo-container-scale: 6.5;
+
+      @include mq(max-width 1440px) {
+        --logo-container-scale: 5.5;
+      }
+
+      @include mq(max-width 1366px) {
+        --logo-container-scale: 4.5;
+      }
+
+      @include mq(max-width 768px) {
+        --logo-container-scale: 3.5;
+      }
+
+      @include mq(max-width 600px) {
+        --logo-container-scale: 2.5;
+      }
+
       width: min-content;
       height: 100%;
       transform: translate(
           0,
           calc(50vh - var(--page-offset-padding) - var(--app-header-height) / 2)
         )
-        scale(6.5);
+        scale(var(--logo-container-scale));
     }
 
     :deep(.logo-icon) {
@@ -134,6 +155,8 @@ onMounted(() => {
       position: absolute;
       top: 50%;
       left: 50%;
+      width: max-content;
+      white-space: nowrap;
       transform: translate(-50%, -50%);
       font-family: var(--font-pingl-medium);
       color: var(--color-silver);

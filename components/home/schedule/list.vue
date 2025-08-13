@@ -35,6 +35,10 @@ const props = defineProps({
   @include size(100%);
   margin-top: 100px;
 
+  @include mq(max-width 1024px) {
+    margin-top: css-clamp-vw(40px, 100px, 1024);
+  }
+
   .item {
     position: absolute;
     top: 0;
@@ -42,7 +46,10 @@ const props = defineProps({
     @include size(100%);
     opacity: var(--item-opacity, 0);
     @include default-transitions(opacity);
-    font-size: 18px;
+    font-size: css-clamp(16px, 18px);
+    @include mq(max-width 768px) {
+      font-size: css-clamp-vw(11px, 16px, 768);
+    }
     &.is-active {
       --item-opacity: 1;
     }

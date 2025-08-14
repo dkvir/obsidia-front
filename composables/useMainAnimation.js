@@ -339,15 +339,13 @@ export function useThreeScene(canvasId) {
   }
 
   function onWindowResize() {
-    if (!camera || !renderer) return;
+    if (!camera || !renderer || !composer || useDevice().isMobileOrTablet)
+      return;
 
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-
-    if (composer) {
-      composer.setSize(window.innerWidth, window.innerHeight);
-    }
+    composer.setSize(window.innerWidth, window.innerHeight);
   }
 
   function animate(currentTime) {

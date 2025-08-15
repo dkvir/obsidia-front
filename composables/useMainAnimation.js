@@ -13,11 +13,9 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ref } from "vue";
 
 export function useThreeScene(canvasId) {
-  let canvas, scene, renderer, camera, statuemesh, envMap, material;
+  let canvas, scene, renderer, camera, envMap, material;
   let composer, bloomPass, bokehPass;
-  let mixer,
-    animations,
-    animationActions = [];
+  let mixer, animations, animationActions = [];
   let clock = new THREE.Clock();
   let vertexDustSystems;
   let gradientBackground;
@@ -28,15 +26,7 @@ export function useThreeScene(canvasId) {
   let lastFrameTime = 0;
 
   let activeTextIndex = ref(0);
-  const cameraAnimationOptions = [
-    { trigger: ".home-page .stop-0", startDuration: 0, maxDuration: 4 },
-    { trigger: ".home-page .stop-1", startDuration: 4, maxDuration: 8 },
-    { trigger: ".home-page .stop-2", startDuration: 8, maxDuration: 12 },
-    { trigger: ".stop-3", startDuration: 12, maxDuration: 16 },
-    { trigger: ".stop-4", startDuration: 16, maxDuration: 20 },
-    { trigger: ".stop-5", startDuration: 20, maxDuration: 24.16666603088379 },
-  ];
-
+  
   const config = {
     bloom: { strength: 0.1, radius: 0.1, threshold: 0.2 },
     dof: { enabled: true, focus: 3.3, aperture: 0.01, maxblur: 0.005 },
@@ -105,11 +95,9 @@ export function useThreeScene(canvasId) {
           }
 
           gltf.scene.traverse((child) => {
-            if (child.name.includes("crystal_")) {
-              if (material && child.isMesh) {
-                child.material = material;
-                child.visible = true;
-              }
+            if (child.name.includes("crystal_") && material && child.isMesh) {
+              child.material = material;
+              child.visible = true;
             }
           });
 
@@ -123,17 +111,16 @@ export function useThreeScene(canvasId) {
             animations = gltf.animations;
             mixer = new THREE.AnimationMixer(gltf.scene);
 
-            for (let i = 0; i < animations.length; i++) {
-              const action = mixer.clipAction(animations[i]);
+            animations.forEach((animation) => {
+              const action = mixer.clipAction(animation);
               action.timeScale = 1;
               action.setLoop(THREE.LoopOnce);
               action.clampWhenFinished = true;
               action.play();
               animationActions.push(action);
-            }
+            });
 
             createAnimationController(mixer, animationActions, animations);
-
             window.scrollTo(0, 0);
           }
 
@@ -147,6 +134,7 @@ export function useThreeScene(canvasId) {
       );
     });
   }
+
   function createAnimationController(mixer, actions, clips) {
     gsap.registerPlugin(ScrollTrigger);
 
@@ -160,20 +148,16 @@ export function useThreeScene(canvasId) {
         return mixer.time;
       },
       set time(value) {
-        actions.forEach((action) => {
-          action.paused = false;
-        });
+        actions.forEach((action) => action.paused = false);
         mixer.setTime(value);
-        actions.forEach((action) => {
-          action.paused = true;
-        });
+        actions.forEach((action) => action.paused = true);
       },
     };
 
     proxy.time = 0;
     const maxDuration = Math.max(...clips.map((clip) => clip.duration));
 
-    const scrollTimeline = gsap.timeline({
+    gsap.timeline({
       scrollTrigger: {
         trigger: ".home-page",
         start: "top top",
@@ -186,10 +170,10 @@ export function useThreeScene(canvasId) {
       },
     });
   }
+
   function init() {
     if (!canvas) canvas = document.querySelector(canvasId);
 
-    // Ensure canvas has valid dimensions
     if (canvas.clientWidth <= 0 || canvas.clientHeight <= 0) {
       console.warn("Canvas has invalid dimensions, waiting...");
       setTimeout(() => init(), 100);
@@ -204,7 +188,7 @@ export function useThreeScene(canvasId) {
 
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-    renderer.shadowMap.enabled = false; // Shadows completely disabled
+    renderer.shadowMap.enabled = false;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.0;
     renderer.outputEncoding = THREE.sRGBEncoding;
@@ -223,32 +207,8 @@ export function useThreeScene(canvasId) {
       endColor: 0x000000,
     });
 
-    if (material) {
-      gsap.to(material.color, {
-        r: 0,
-        g: 0,
-        b: 0,
-        ease: "none",
-        scrollTrigger: {
-          trigger: ".home-page",
-          start: "30% top",
-          end: "32% top",
-          scrub: true,
-          onUpdate: function (self) {
-            const progress = self.progress;
-            material.color.r = 1 - progress;
-            material.color.g = 1 - progress;
-            material.color.b = 1 - progress;
-          },
-        },
-      });
-    }
-
     const postProcessWidth = Math.max(1, Math.floor(canvas.clientWidth * 0.5));
-    const postProcessHeight = Math.max(
-      1,
-      Math.floor(canvas.clientHeight * 0.5)
-    );
+    const postProcessHeight = Math.max(1, Math.floor(canvas.clientHeight * 0.5));
 
     composer = new EffectComposer(renderer);
     composer.setSize(postProcessWidth, postProcessHeight);
@@ -263,10 +223,6 @@ export function useThreeScene(canvasId) {
         width: postProcessWidth,
         height: postProcessHeight,
       });
-    }
-
-    if (bokehPass && config.dof.enabled) {
-      const focusStops = [{ value: 1.0 }, { value: 0.705 }, { value: 2.907 }];
 
       ScrollTrigger.create({
         trigger: ".home-page",
@@ -274,8 +230,7 @@ export function useThreeScene(canvasId) {
         end: "12% top",
         scrub: 1,
         onUpdate: function (self) {
-          const focusValue = gsap.utils.interpolate(3.3, 0.705, self.progress);
-          bokehPass.uniforms["focus"].value = focusValue;
+          bokehPass.uniforms["focus"].value = gsap.utils.interpolate(1, 0.705, self.progress);
         },
       });
 
@@ -285,8 +240,7 @@ export function useThreeScene(canvasId) {
         end: "30% top",
         scrub: 1,
         onUpdate: function (self) {
-          const focusValue = gsap.utils.interpolate(0.705, 2, self.progress);
-          bokehPass.uniforms["focus"].value = focusValue;
+          bokehPass.uniforms["focus"].value = gsap.utils.interpolate(0.705, 2, self.progress);
         },
       });
     }
@@ -328,9 +282,7 @@ export function useThreeScene(canvasId) {
     }
 
     composer.addPass(brightnessCompensationPass);
-
-    const filmPass = new FilmPass(0.8, 0.325, 256, false);
-    composer.addPass(filmPass);
+    composer.addPass(new FilmPass(0.8, 0.325, 256, false));
     composer.addPass(gammaCorrectionPass);
 
     window.addEventListener("resize", onWindowResize);
@@ -339,8 +291,7 @@ export function useThreeScene(canvasId) {
   }
 
   function onWindowResize() {
-    if (!camera || !renderer || !composer || useDevice().isMobileOrTablet)
-      return;
+    if (!camera || !renderer || !composer || useDevice().isMobileOrTablet) return;
 
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
@@ -351,27 +302,18 @@ export function useThreeScene(canvasId) {
   function animate(currentTime) {
     requestAnimationFrame(animate);
 
-    if (currentTime - lastFrameTime < FRAME_TIME) {
-      return;
-    }
+    if (currentTime - lastFrameTime < FRAME_TIME) return;
 
     lastFrameTime = currentTime - ((currentTime - lastFrameTime) % FRAME_TIME);
 
     const delta = Math.min(clock.getDelta(), FRAME_TIME / 1000);
 
-    if (gradientBackground) {
-      gradientBackground.animate(delta);
-    }
-
-    if (mixer) {
-      mixer.update(delta);
-    }
+    if (gradientBackground) gradientBackground.animate(delta);
+    if (mixer) mixer.update(delta);
 
     if (vertexDustSystems && vertexDustSystems.length > 0) {
       vertexDustSystems.forEach((dustSystem) => {
-        if (dustSystem.animate) {
-          dustSystem.animate(delta);
-        }
+        if (dustSystem.animate) dustSystem.animate(delta);
       });
     }
 
@@ -381,18 +323,8 @@ export function useThreeScene(canvasId) {
   function cleanup() {
     window.removeEventListener("resize", onWindowResize);
 
-    if (gui) {
-      gui.destroy();
-    }
-
-    if (gradientBackground) {
-      gradientBackground.dispose();
-    }
-
-    if (renderer) {
-      renderer.dispose();
-    }
-
+    if (gradientBackground) gradientBackground.dispose();
+    if (renderer) renderer.dispose();
     if (envMap) envMap.dispose();
     if (material) material.dispose();
 

@@ -8,7 +8,7 @@
     ]"
     type="submit"
   >
-    <span v-if="submitedForm" class="span">Submited</span>
+    <span v-if="submitedForm" class="span">Submitted!</span>
     <span v-else class="span">{{ $t("global.buttons.send.label") }}</span>
   </button>
 </template>

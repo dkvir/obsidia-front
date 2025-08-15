@@ -5,52 +5,107 @@
         <span class="span top">{{ $t("home.contact.title.top") }}</span>
         <span class="span bottom">{{ $t("home.contact.title.bottom") }}</span>
       </h2>
-      <form class="form">
-        <ul class="form-list flex-column">
-          <li
-            v-for="(item, index) in $tm('home.contact.form')"
-            :key="index"
-            class="item flex-column"
-          >
-            <div class="label">{{ item.label }}</div>
 
-            <input
-              v-if="item.label == 'mobile'"
-              type="tel"
-              maxlength="9"
-              pattern="[0-9]{3}-[0-9]{3}"
-              :name="item.label"
-              :id="item.label"
-              :placeholder="item.placeholder"
-              class="input"
-              required
-            />
-            <input
-              v-else
-              type="text"
-              :name="item.label"
-              :id="item.label"
-              :placeholder="item.placeholder"
-              class="input"
-              required
-            />
+      <Form class="form" @submit="onSubmit" v-slot="{ resetForm }">
+        <ul class="form-list flex-column">
+          <!-- Name -->
+          <li class="item flex-column">
+            <div class="label">Name</div>
+            <Field
+              name="Name"
+              rules="required|min:2"
+              v-slot="{ field, meta, errors }"
+            >
+              <input
+                v-bind="field"
+                placeholder="John"
+                :class="[
+                  'input',
+                  { 'is-invalid': errors.length && meta.touched },
+                  { 'is-valid': meta.valid && meta.touched },
+                ]"
+              />
+            </Field>
+            <ErrorMessage name="Name" class="error-messagse" />
+          </li>
+
+          <!-- Lastname -->
+          <li class="item flex-column">
+            <div class="label">Lastname</div>
+            <Field
+              name="Lastname"
+              rules="required|min:2"
+              v-slot="{ field, meta, errors }"
+            >
+              <input
+                v-bind="field"
+                placeholder="Doe"
+                :class="[
+                  'input',
+                  { 'is-invalid': errors.length && meta.touched },
+                  { 'is-valid': meta.valid && meta.touched },
+                ]"
+              />
+            </Field>
+            <ErrorMessage name="Lastname" class="error-messagse" />
+          </li>
+
+          <!-- Phone -->
+          <li class="item flex-column">
+            <div class="label">Phone</div>
+            <Field
+              name="Phone"
+              rules="required|numeric|min:9"
+              v-slot="{ field, meta, errors }"
+            >
+              <input
+                v-bind="field"
+                type="number"
+                placeholder="+995 123 456 789"
+                :class="[
+                  'input',
+                  { 'is-invalid': errors.length && meta.touched },
+                  { 'is-valid': meta.valid && meta.touched },
+                ]"
+              />
+            </Field>
+            <ErrorMessage name="Phone" class="error-messagse" />
           </li>
         </ul>
-        <common-tiny-buttons-send />
-      </form>
+
+        <!-- Send button -->
+        <common-tiny-buttons-send :submitedForm="submitedForm" />
+      </Form>
     </div>
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { Form, Field, ErrorMessage } from "vee-validate";
+
+const submitedForm = ref(null);
+
+const onSubmit = (values, { resetForm }) => {
+  console.log("Form Submitted:", values);
+
+  submitedForm.value = true;
+
+  setTimeout(() => {
+    submitedForm.value = null;
+  }, 1500);
+
+  resetForm();
+};
+</script>
 
 <style lang="scss" scoped>
 .contact {
   width: 100%;
   height: 100svh;
   padding: 0 calc(var(--page-offset-padding) + css-clamp(40px, 160px));
-  @include mq(max-width 768px) {
-    padding: 0 calc(var(--page-offset-padding) + css-clamp(5px, 40px, 768));
+
+  @include mq(max-width 1366px) {
+    padding: 0;
   }
 
   .contact-frame {
@@ -97,7 +152,10 @@
         grid-template-columns: 1fr;
         grid-auto-rows: auto;
         grid-column-gap: 0;
-        grid-row-gap: var(--page-offset-padding);
+        grid-row-gap: calc(var(--page-offset-padding) * 2);
+      }
+      .item {
+        position: relative;
       }
 
       .item:nth-child(1) {
@@ -125,10 +183,26 @@
       }
       .input {
         margin-top: 15px;
-        border: 1px solid var(--color-blackjack);
+        border: 1px solid var(--border-color, var(--color-blackjack));
         font-size: 16px;
         color: var(--color-blackjack);
         padding: 6px 10px 10px;
+        @include default-transitions(border);
+        &.is-invalid {
+          --border-color: red;
+        }
+        &.is-valid {
+          --border-color: green;
+        }
+      }
+      .error-messagse {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        transform: translate3d(0, 100%, 0);
+        color: red;
+        font-size: 12px;
+        padding-top: 5px;
       }
     }
   }

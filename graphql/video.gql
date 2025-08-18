@@ -1,9 +1,9 @@
-query videoComponent {
+query VideoComponent {
   videoComponent {
-    Video {
+    poster {
       url
     }
-    Poster {
+    video {
       url
     }
   }

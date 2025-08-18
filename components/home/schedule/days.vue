@@ -91,7 +91,7 @@ const onMouseMove = (e) => {
     position: absolute;
     top: 0;
     left: 0;
-    width: calc(100% / 8);
+    width: calc(100% / 7);
     height: 100%;
     z-index: -1;
     background-color: var(--color-hazy);
@@ -112,14 +112,14 @@ const onMouseMove = (e) => {
     font-size: css-clamp(16px, 18px);
     color: var(--color-souls);
     padding: 7px 0;
-    width: calc(100% / 8);
+    width: calc(100% / 7);
     z-index: 1;
     cursor: pointer;
     @include mq(max-width 1024px) {
       background-color: var(--day-bg, transparent);
       padding: 7px var(--page-offset-padding);
       width: max-content;
-      min-width: calc(100% / 8);
+      min-width: calc(100% / 7);
       @include default-transitions(background-color);
 
       &:first-child {

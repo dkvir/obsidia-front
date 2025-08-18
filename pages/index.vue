@@ -33,6 +33,7 @@ onMounted(() => {
     width: 100%;
     height: 800svh;
     margin-bottom: 100svh;
+    user-select: none;
   }
 
   .scrolling-content {

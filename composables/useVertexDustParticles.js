@@ -21,7 +21,7 @@ export const useVertexDustParticles = class VertexDustParticles {
  
 const presets = {
   normal: {
-    size: { min: 0.1, max: 1.0 },
+    size: { min: 0.1, max: 0.5 },
     baseSize: 1.0,
     colors: [
       { r: 1, g: 0.6, b: 0.2 }, // Orange
@@ -35,7 +35,7 @@ const presets = {
     texture: "./images/dust_particle.png"
   },
   big: {
-    size: { min: 0.01, max: 0.9 },
+    size: { min: 0.1, max: 0.3 },
     baseSize: 1.5,
     colors: [
       { r: 1, g: 0.5, b: 0 }, // Deep Orange
@@ -48,7 +48,7 @@ const presets = {
     texture: "./images/dust_particle.png"
   },
   small: {
-    size: { min: 0.5, max: 0.7 },
+    size: { min: 0.01, max: 0.3 },
     baseSize: 0.5,
     colors: [
       { r: 1, g: 0.7, b: 0.3 }, // Orange

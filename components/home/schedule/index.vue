@@ -9,7 +9,12 @@
 </template>
 
 <script setup>
+import { useScheduleStore } from "~/store/schedule";
+
 const activeTextIndex = ref(0);
+
+const scheduleStore = useScheduleStore();
+await scheduleStore.fetchSchedule();
 
 const changeActiveIndex = (index) => {
   activeTextIndex.value = index;

@@ -1,19 +1,27 @@
 <template>
   <ul class="list flex-column">
     <li
-      v-for="(item, index) in $tm('home.schedule')"
+      v-for="(item, index) in scheduleStore.data"
       :key="index"
       :class="['item', { 'is-active': activeTextIndex === index }]"
     >
       <ul class="schedules-list flex-column">
         <li
-          v-for="(schedule, key) in item.list"
+          v-for="(schedule, key) in item.scheduleList"
           :key="index"
           class="schedule-item flex align-center uppercase"
         >
-          <div class="time">{{ schedule.time }}</div>
-          <div class="type">{{ schedule.title }}</div>
-          <div class="sensei">{{ schedule.sensei }}</div>
+          <div class="time flex">
+            <span class="start span">{{
+              formatStrapiTime(schedule.startTime)
+            }}</span>
+            <span class="divider">-</span>
+            <span class="end span">{{
+              formatStrapiTime(schedule.endTime)
+            }}</span>
+          </div>
+          <div class="type">{{ schedule.type }}</div>
+          <div class="sensei">{{ schedule.costructor }}</div>
         </li>
       </ul>
     </li>
@@ -21,12 +29,21 @@
 </template>
 
 <script setup>
+import { useScheduleStore } from "~/store/schedule";
+
 const props = defineProps({
   activeTextIndex: {
     type: Number,
     default: 0,
   },
 });
+
+const scheduleStore = useScheduleStore();
+
+const formatStrapiTime = (timeString) => {
+  if (!timeString) return null;
+  return timeString.split(".")[0].substring(0, 5);
+};
 </script>
 
 <style lang="scss" scoped>
@@ -64,6 +81,10 @@ const props = defineProps({
 
   .time {
     font-family: var(--font-lemonmilk-light);
+    width: 150px;
+    .divider {
+      margin: 0 10px;
+    }
   }
   .type {
     margin-left: get-vw(160px);

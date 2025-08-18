@@ -1,0 +1,11 @@
+query ScheduleComponents {
+  scheduleComponents(sort: "createdAt:asc") {
+    label
+    scheduleList {
+      startTime
+      endTime
+      type
+      costructor
+    }
+  }
+}

@@ -14,7 +14,7 @@
         @scroll="onScroll"
       >
         <li
-          v-for="(item, index) in $tm('home.schedule')"
+          v-for="(item, index) in scheduleStore.data"
           :class="[
             'day flex-center uppercase',
             { 'is-active': activeTextIndex === index },
@@ -24,7 +24,7 @@
           @mouseleave="hoverIndex = activeTextIndex"
           @click="onClick(index)"
         >
-          {{ item.day }}
+          {{ item.label }}
         </li>
       </vue-horizontal>
     </client-only>
@@ -32,12 +32,16 @@
 </template>
 
 <script setup>
+import { useScheduleStore } from "~/store/schedule";
+
 const props = defineProps({
   activeTextIndex: {
     type: Number,
     default: 0,
   },
 });
+
+const scheduleStore = useScheduleStore();
 
 const emit = defineEmits(["changeActiveIndex"]);
 const hoverIndex = ref(props.activeTextIndex);

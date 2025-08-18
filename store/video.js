@@ -1,3 +1,5 @@
+import videoComponent from "~/graphql/video.gql";
+
 export const useVideoStore = defineStore("video", {
   state: () => ({
     data: null,
@@ -5,28 +7,17 @@ export const useVideoStore = defineStore("video", {
 
   actions: {
     async fetchVideo() {
-      try {
-        const query = `
-          query {
-            videoComponent {
-              Video {
-                url
-              }
-              Poster {
-                url
-              }
-            }
-          }
-        `;
+      const config = useRuntimeConfig();
 
+      try {
         const { data, error } = await useFetch(
-          "http://localhost:1337/graphql",
+          config.public.strapi.url + "/graphql",
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: { query },
+            body: { query: videoComponent },
           }
         );
 

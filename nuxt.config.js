@@ -82,6 +82,19 @@ export default defineNuxtConfig({
         },
       },
     },
+    plugins: [
+      {
+        name: "graphql-loader",
+        transform(code, id) {
+          if (id.endsWith(".graphql") || id.endsWith(".gql")) {
+            return {
+              code: `export default ${JSON.stringify(code)};`,
+              map: null,
+            };
+          }
+        },
+      },
+    ],
   },
   build: {
     transpile: ["three"],

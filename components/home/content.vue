@@ -125,6 +125,9 @@ onMounted(() => {
       end: `bottom top`,
       scrub: true,
       animation: mainTl,
+      onEnter: () => {
+        document.documentElement.style.setProperty("--content-opacity", "1");
+      },
     });
   }, 500);
 });
@@ -136,6 +139,7 @@ onMounted(() => {
   width: 100%;
   height: calc(100% + 100svh);
   padding: 0 calc(var(--page-offset-padding) + css-clamp(40px, 160px));
+  opacity: var(--content-opacity, 0);
   @include mq(max-width 768px) {
     padding: 0 calc(var(--page-offset-padding) + css-clamp(5px, 40px, 768));
   }

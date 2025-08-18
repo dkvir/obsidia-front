@@ -1,6 +1,7 @@
 <template>
   <div class="video flex-center">
     <video
+      v-if="videoStore.data.poster.url"
       class="video-player"
       preload="metadata"
       :poster="config.public.strapi.url + videoStore.data.poster.url"
@@ -11,6 +12,15 @@
         type="video/mp4"
       />
     </video>
+    <video
+      v-else
+      class="video-player"
+      preload="metadata"
+      poster="/images/share.png"
+      controls
+    >
+      <source src="/videos/video.mp4" type="video/mp4" />
+    </video>
   </div>
 </template>
 
@@ -20,8 +30,6 @@ const videoStore = useVideoStore();
 const config = useRuntimeConfig();
 
 await videoStore.fetchVideo();
-
-console.log();
 </script>
 
 <style lang="scss" scoped>

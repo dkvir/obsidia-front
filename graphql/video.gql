@@ -1,0 +1,10 @@
+query {
+  videoComponent {
+    Video {
+      url
+    }
+    Poster {
+      url
+    }
+  }
+}

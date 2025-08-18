@@ -4,7 +4,15 @@ import favicon from "./config/favicon";
 export default defineNuxtConfig({
   compatibilityDate: "2025-05-15",
   devtools: { enabled: false },
-
+  modules: [
+    "nuxt-icons",
+    "@pinia/nuxt",
+    "@nuxtjs/robots",
+    "@nuxtjs/sitemap",
+    "@nuxtjs/device",
+    "@nuxtjs/i18n",
+    "@nuxtjs/strapi",
+  ],
   app: {
     head: {
       meta: [
@@ -22,19 +30,23 @@ export default defineNuxtConfig({
       script: [{ src: "/js/SplitText.min.js" }],
     },
   },
+  strapi: {
+    url: process.env.STRAPI_URL || "http://localhost:1337",
+    token: process.env.STRAPI_TOKEN || undefined,
+    prefix: "/api",
+    admin: "/admin",
+    version: "v5",
+    cookie: {
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+    },
+    cookieName: "strapi_jwt",
+  },
   runtimeConfig: {
     public: {
       siteUrl: process.env.PUBLIC_SITE_URL,
     },
   },
-  modules: [
-    "nuxt-icons",
-    "@pinia/nuxt",
-    "@nuxtjs/robots",
-    "@nuxtjs/sitemap",
-    "@nuxtjs/device",
-    "@nuxtjs/i18n",
-  ],
+
   i18n: {
     strategy: "no_prefix",
     detectBrowserLanguage: {

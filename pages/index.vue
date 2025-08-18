@@ -15,6 +15,11 @@
 
 <script setup>
 const { setupSequentialLoading, activeTextIndex } = useThreeScene("#canvas");
+import { useVideoStore } from "~/store/video";
+
+const videoStore = useVideoStore();
+
+await videoStore.fetchVideo();
 
 onMounted(() => {
   setupSequentialLoading();

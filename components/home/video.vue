@@ -1,7 +1,7 @@
 <template>
   <div class="video flex-center">
     <video
-      v-if="videoStore.data.poster.url"
+      v-if="videoStore?.data"
       class="video-player"
       preload="metadata"
       :poster="config.public.strapi.url + videoStore.data.poster.url"

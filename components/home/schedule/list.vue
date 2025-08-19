@@ -82,8 +82,14 @@ const formatStrapiTime = (timeString) => {
   .time {
     font-family: var(--font-lemonmilk-light);
     width: 150px;
+    @include mq(max-width 768px) {
+      width: 100px;
+    }
     .divider {
       margin: 0 10px;
+      @include mq(max-width 768px) {
+        margin: 0 5px;
+      }
     }
   }
   .type {

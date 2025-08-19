@@ -82,19 +82,29 @@
 
 <script setup>
 import { Form, Field, ErrorMessage } from "vee-validate";
+import { useContactStore } from "~/store/contact"; // 👈 the store we made
 
+const contactStore = useContactStore();
 const submitedForm = ref(null);
 
-const onSubmit = (values, { resetForm }) => {
-  console.log("Form Submitted:", values);
+const onSubmit = async (values, { resetForm }) => {
+  try {
+    await contactStore.createContact({
+      firstName: values.Name,
+      lastName: values.Lastname,
+      phone: values.Phone,
+    });
 
-  submitedForm.value = true;
+    submitedForm.value = true;
 
-  setTimeout(() => {
-    submitedForm.value = null;
-  }, 1500);
+    resetForm();
 
-  resetForm();
+    setTimeout(() => {
+      submitedForm.value = null;
+    }, 1500);
+  } catch (err) {
+    console.error("Error submitting form:", err);
+  }
 };
 </script>
 

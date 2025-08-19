@@ -4,13 +4,10 @@
       v-if="videoStore?.data"
       class="video-player"
       preload="metadata"
-      :poster="config.public.strapi.url + videoStore.data.poster.url"
+      :poster="videoStore.data.poster.url"
       controls
     >
-      <source
-        :src="config.public.strapi.url + videoStore.data.video.url"
-        type="video/mp4"
-      />
+      <source :src="videoStore.data.video.url" type="video/mp4" />
     </video>
     <video
       v-else

@@ -31,7 +31,7 @@ onMounted(() => {
   .sticky-content {
     position: relative;
     width: 100%;
-    height: 500svh;
+    height: 400svh;
     margin-bottom: 100svh;
     user-select: none;
   }

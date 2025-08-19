@@ -15,21 +15,35 @@ import { ref } from "vue";
 export function useThreeScene(canvasId) {
   let canvas, scene, renderer, camera, envMap, material;
   let composer, bloomPass, bokehPass;
-  let mixer, animations, animationActions = [];
+  let mixer,
+    animations,
+    animationActions = [];
   let clock = new THREE.Clock();
   let vertexDustSystems;
   let gradientBackground;
   let modelGroup;
 
-  const FPS_LIMIT = 24;
+  // Device detection
+  const isMobile = useDevice().isMobile;
+
+  const FPS_LIMIT = isMobile ? 15 : 24;
   const FRAME_TIME = 1000 / FPS_LIMIT;
   let lastFrameTime = 0;
 
   let activeTextIndex = ref(0);
-  
+
   const config = {
-    bloom: { strength: 0.1, radius: 0.1, threshold: 0.2 },
-    dof: { enabled: true, focus: 3.3, aperture: 0.01, maxblur: 0.005 },
+    bloom: {
+      strength: isMobile ? 0.05 : 0.1,
+      radius: isMobile ? 0.05 : 0.1,
+      threshold: isMobile ? 0.3 : 0.2,
+    },
+    dof: {
+      enabled: !isMobile,
+      focus: 3.3,
+      aperture: 0.01,
+      maxblur: 0.005,
+    },
   };
 
   scene = new THREE.Scene();
@@ -71,11 +85,12 @@ export function useThreeScene(canvasId) {
           resolve(texture);
         },
         undefined,
-        (error) =>
+        (error) => {
           console.warn(
             "HDRI loading failed, using fallback environment:",
             error
-          )
+          );
+        }
       );
     });
   }
@@ -148,9 +163,13 @@ export function useThreeScene(canvasId) {
         return mixer.time;
       },
       set time(value) {
-        actions.forEach((action) => action.paused = false);
+        actions.forEach((action) => {
+          action.paused = false;
+        });
         mixer.setTime(value);
-        actions.forEach((action) => action.paused = true);
+        actions.forEach((action) => {
+          action.paused = true;
+        });
       },
     };
 
@@ -162,7 +181,7 @@ export function useThreeScene(canvasId) {
         trigger: ".home-page",
         start: "top top",
         end: "bottom bottom",
-        scrub: true,
+        scrub: isMobile ? 0.5 : true,
         invalidateOnRefresh: false,
         onUpdate: function (self) {
           proxy.time = self.progress * maxDuration;
@@ -181,12 +200,14 @@ export function useThreeScene(canvasId) {
     }
 
     renderer = new THREE.WebGLRenderer({
-      antialias: true,
+      antialias: !isMobile,
       canvas: canvas,
-      powerPreference: "high-performance",
+      powerPreference: isMobile ? "default" : "high-performance",
     });
 
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(
+      isMobile ? 1.1 : Math.min(window.devicePixelRatio, 2)
+    );
     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
     renderer.shadowMap.enabled = false;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -208,7 +229,10 @@ export function useThreeScene(canvasId) {
     });
 
     const postProcessWidth = Math.max(1, Math.floor(canvas.clientWidth * 0.5));
-    const postProcessHeight = Math.max(1, Math.floor(canvas.clientHeight * 0.5));
+    const postProcessHeight = Math.max(
+      1,
+      Math.floor(canvas.clientHeight * 0.5)
+    );
 
     composer = new EffectComposer(renderer);
     composer.setSize(postProcessWidth, postProcessHeight);
@@ -230,7 +254,11 @@ export function useThreeScene(canvasId) {
         end: "12% top",
         scrub: 1,
         onUpdate: function (self) {
-          bokehPass.uniforms["focus"].value = gsap.utils.interpolate(1, 0.705, self.progress);
+          bokehPass.uniforms["focus"].value = gsap.utils.interpolate(
+            1,
+            0.705,
+            self.progress
+          );
         },
       });
 
@@ -240,7 +268,11 @@ export function useThreeScene(canvasId) {
         end: "30% top",
         scrub: 1,
         onUpdate: function (self) {
-          bokehPass.uniforms["focus"].value = gsap.utils.interpolate(0.705, 2, self.progress);
+          bokehPass.uniforms["focus"].value = gsap.utils.interpolate(
+            0.705,
+            2,
+            self.progress
+          );
         },
       });
     }
@@ -255,7 +287,10 @@ export function useThreeScene(canvasId) {
     const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
 
     const brightnessCompensationPass = new ShaderPass({
-      uniforms: { tDiffuse: { value: null }, brightness: { value: 0.65 } },
+      uniforms: {
+        tDiffuse: { value: null },
+        brightness: { value: isMobile ? 0.8 : 0.65 },
+      },
       vertexShader: `
         varying vec2 vUv;
         void main() {
@@ -291,7 +326,7 @@ export function useThreeScene(canvasId) {
   }
 
   function onWindowResize() {
-    if (!camera || !renderer || !composer || useDevice().isMobileOrTablet) return;
+    if (!camera || !renderer || !composer || isMobile) return;
 
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
@@ -320,29 +355,8 @@ export function useThreeScene(canvasId) {
     composer.render();
   }
 
-  function cleanup() {
-    window.removeEventListener("resize", onWindowResize);
-
-    if (gradientBackground) gradientBackground.dispose();
-    if (renderer) renderer.dispose();
-    if (envMap) envMap.dispose();
-    if (material) material.dispose();
-
-    scene.traverse((child) => {
-      if (child.geometry) child.geometry.dispose();
-      if (child.material) {
-        if (Array.isArray(child.material)) {
-          child.material.forEach((mat) => mat.dispose());
-        } else {
-          child.material.dispose();
-        }
-      }
-    });
-  }
-
   return {
     setupSequentialLoading,
     activeTextIndex,
-    cleanup,
   };
 }

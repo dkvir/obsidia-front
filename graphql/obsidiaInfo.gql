@@ -1,0 +1,8 @@
+query ObsidiaInformation {
+  obsidiaInformation {
+    phone
+    instagram
+    facebook
+    youtube
+  }
+}

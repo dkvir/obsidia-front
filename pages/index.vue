@@ -1,14 +1,17 @@
 <template>
   <div class="home-page">
-    <home-welcome />
-    <div class="sticky-content">
-      <home-content />
+    <div class="home-content">
+      <home-welcome />
+      <div class="sticky-content">
+        <home-content />
+      </div>
+      <div class="scrolling-content">
+        <home-video />
+        <home-schedule />
+        <home-contact />
+      </div>
     </div>
-    <div class="scrolling-content">
-      <home-video />
-      <home-schedule />
-      <home-contact />
-    </div>
+    <common-app-footer />
     <canvas id="canvas"></canvas>
   </div>
 </template>
@@ -25,8 +28,13 @@ onMounted(() => {
 .home-page {
   width: 100vw;
   min-height: 100svh;
-  padding: 40px var(--page-offset-padding);
-  padding-bottom: 0;
+
+  .home-content {
+    width: 100%;
+    height: 100%;
+    padding: 40px var(--page-offset-padding);
+    padding-bottom: 0;
+  }
 
   .sticky-content {
     position: relative;

@@ -11,6 +11,7 @@ import { FilmPass } from "three/examples/jsm/postprocessing/FilmPass.js";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ref } from "vue";
+import { useHomeStore } from "~/store/home";
 
 export function useThreeScene(canvasId) {
   let canvas, scene, renderer, camera, envMap, material;
@@ -22,6 +23,7 @@ export function useThreeScene(canvasId) {
   let vertexDustSystems;
   let gradientBackground;
   let modelGroup;
+  const homeStore = useHomeStore();
 
   // Device detection
   const isMobile = useDevice().isMobile;
@@ -55,6 +57,9 @@ export function useThreeScene(canvasId) {
       .then(() => {
         init();
         animate();
+        setTimeout(() => {
+          homeStore.changeLoaderFinished(true);
+        }, 2000);
       })
       .catch((error) => console.error("Loading sequence failed:", error));
   }

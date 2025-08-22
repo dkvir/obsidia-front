@@ -10,6 +10,7 @@
       <div class="default-layout">
         <slot />
         <common-window />
+        <common-loader />
       </div>
     </Body>
   </Html>
@@ -33,6 +34,7 @@ useSeoMeta({
 onBeforeMount(() => {
   useLenisScroll();
   homeStore.changeWebsiteLoaded(true);
+  window.lenis.stop();
 });
 </script>
 

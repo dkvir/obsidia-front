@@ -1,34 +1,39 @@
 <template>
-  <ul
-    class="days flex justify-between"
-    :style="`--active-index: ${activeTextIndex}; --hover-index: ${hoverIndex}`"
-    @mousedown.left="onMouseDown"
-  >
-    <client-only>
-      <vue-horizontal
-        responsive
-        class="horizontal"
-        ref="horizontal"
-        snap="none"
-        :button="false"
-        @scroll="onScroll"
-      >
-        <li
-          v-for="(item, index) in scheduleStore.data"
-          :class="[
-            'day flex-center uppercase',
-            { 'is-active': activeTextIndex === index },
-          ]"
-          :key="index"
-          @mouseenter="hoverIndex = index"
-          @mouseleave="hoverIndex = activeTextIndex"
-          @click="onClick(index)"
+  <div class="days">
+    <div class="arrow flex justify-end">
+      <nuxt-icon name="visit-arrow" class="arrow-icon" filled />
+    </div>
+    <ul
+      class="days-list flex justify-between"
+      :style="`--active-index: ${activeTextIndex}; --hover-index: ${hoverIndex}`"
+      @mousedown.left="onMouseDown"
+    >
+      <client-only>
+        <vue-horizontal
+          responsive
+          class="horizontal"
+          ref="horizontal"
+          snap="none"
+          :button="false"
+          @scroll="onScroll"
         >
-          {{ item.label }}
-        </li>
-      </vue-horizontal>
-    </client-only>
-  </ul>
+          <li
+            v-for="(item, index) in scheduleStore.data"
+            :class="[
+              'day flex-center uppercase',
+              { 'is-active': activeTextIndex === index },
+            ]"
+            :key="index"
+            @mouseenter="hoverIndex = index"
+            @mouseleave="hoverIndex = activeTextIndex"
+            @click="onClick(index)"
+          >
+            {{ item.label }}
+          </li>
+        </vue-horizontal>
+      </client-only>
+    </ul>
+  </div>
 </template>
 
 <script setup>
@@ -58,6 +63,7 @@ const onClick = (index) => {
 
 const onScroll = ({ left: scrollLeft }) => {
   left.value = scrollLeft;
+  console.log(left.value);
 };
 const onMouseDown = (e) => {
   originX.value = e.pageX;
@@ -79,86 +85,148 @@ const onMouseMove = (e) => {
 
 <style lang="scss" scoped>
 .days {
-  position: relative;
-  z-index: 1;
-  user-select: none;
-
-  @include mq(max-width 1024px) {
-    top: 0;
-    left: 50%;
-    width: calc(100% + 2 * var(--page-offset-padding));
-    transform: translate3d(-50%, 0, 0);
-  }
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: calc(100% / 7);
-    height: 100%;
-    z-index: -1;
-    background-color: var(--color-hazy);
-    transform: translate3d(calc(var(--active-index) * 100%), 0, 0);
-    @include default-transitions(transform);
-    @include mq(max-width 1024px) {
+  .arrow {
+    @include mq(min-width 1025px) {
       display: none;
     }
-  }
+    :deep(.arrow-icon) {
+      display: block;
+      height: 20px;
+      width: auto;
+      margin-bottom: 10px;
 
-  .horizontal {
-    width: 100%;
-  }
-
-  .day {
-    position: relative;
-    font-family: var(--font-lemonmilk-light);
-    font-size: css-clamp(16px, 18px);
-    color: var(--color-souls);
-    padding: 7px 0;
-    width: calc(100% / 7);
-    z-index: 1;
-    cursor: pointer;
-    @include mq(max-width 1024px) {
-      background-color: var(--day-bg, transparent);
-      padding: 7px var(--page-offset-padding);
-      width: max-content;
-      min-width: calc(100% / 7);
-      @include default-transitions(background-color);
-
-      &:first-child {
-        margin-left: var(--page-offset-padding);
+      svg {
+        width: auto;
+        height: 100%;
+        transform: rotate(45deg);
+      }
+      path {
+        stroke: var(--color-souls);
       }
     }
-    @include mq(max-width 768px) {
-      font-size: css-clamp-vw(11px, 16px, 768);
+  }
+  .days-list {
+    position: relative;
+    z-index: 1;
+    user-select: none;
+
+    @include mq(max-width 1024px) {
+      top: 0;
+      left: 50%;
+      width: calc(100% + 2 * var(--page-offset-padding));
+      transform: translate3d(-50%, 0, 0);
     }
+
     &::before {
       content: "";
       position: absolute;
-      bottom: 0;
-      left: 50%;
-      width: 70%;
-      height: 1px;
+      top: 0;
+      left: 0;
+      width: calc(100% / 7);
+      height: 100%;
       z-index: -1;
       background-color: var(--color-hazy);
-      opacity: var(--before-opacity, 0);
-      transform: translate3d(-50%, 0, 0);
-      @include default-transitions(opacity);
+      transform: translate3d(calc(var(--active-index) * 100%), 0, 0);
+      @include default-transitions(transform);
       @include mq(max-width 1024px) {
         display: none;
       }
     }
 
-    &.is-active {
-      @include mq(max-width 1024px) {
-        --day-bg: var(--color-hazy);
+    .horizontal {
+      width: 100%;
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: var(--page-offset-padding);
+        height: 100%;
+        pointer-events: none;
+        z-index: 2;
+        background: linear-gradient(
+          to right,
+          var(--color-black) 0%,
+          rgba(0, 0, 0, 0) 100%
+        );
+
+        @include mq(min-width 1025px) {
+          display: none;
+        }
+      }
+      &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: var(--page-offset-padding);
+        height: 100%;
+        pointer-events: none;
+        background: linear-gradient(
+          to right,
+          rgba(0, 0, 0, 0) 0%,
+          var(--color-black) 100%
+        );
+
+        @include mq(min-width 1025px) {
+          display: none;
+        }
       }
     }
 
-    &:hover {
-      --before-transform: var(--day-index);
-      --before-opacity: 1;
+    .day {
+      position: relative;
+      font-family: var(--font-lemonmilk-light);
+      font-size: css-clamp(16px, 18px);
+      color: var(--color-souls);
+      padding: 7px 0;
+      width: calc(100% / 7);
+      z-index: 1;
+      cursor: pointer;
+      @include mq(max-width 1024px) {
+        background-color: var(--day-bg, transparent);
+        padding: 7px var(--page-offset-padding);
+        width: max-content;
+        min-width: calc(100% / 7);
+        @include default-transitions(background-color);
+
+        &:first-child {
+          margin-left: var(--page-offset-padding);
+        }
+        &:last-child {
+          margin-right: var(--page-offset-padding);
+        }
+      }
+      @include mq(max-width 768px) {
+        font-size: css-clamp-vw(11px, 16px, 768);
+      }
+      &::before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 70%;
+        height: 1px;
+        z-index: -1;
+        background-color: var(--color-hazy);
+        opacity: var(--before-opacity, 0);
+        transform: translate3d(-50%, 0, 0);
+        @include default-transitions(opacity);
+        @include mq(max-width 1024px) {
+          display: none;
+        }
+      }
+
+      &.is-active {
+        @include mq(max-width 1024px) {
+          --day-bg: var(--color-hazy);
+        }
+      }
+
+      &:hover {
+        --before-transform: var(--day-index);
+        --before-opacity: 1;
+      }
     }
   }
 }

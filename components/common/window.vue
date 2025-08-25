@@ -107,7 +107,7 @@ onMounted(() => {
       transform: translate(
           0,
           calc(
-            50svh - var(--page-offset-padding) * 3 - var(--app-header-height) /
+            50svh - var(--page-offset-padding) * 2 - var(--app-header-height) /
               2
           )
         )
@@ -161,8 +161,8 @@ onMounted(() => {
       width: max-content;
       white-space: nowrap;
       transform: translate(-50%, -50%);
-      font-family: var(--font-pingl-medium);
-      color: var(--color-silver);
+      font-family: var(--font-lemonmilk-regular);
+      color: var(--color-ice);
     }
   }
 }

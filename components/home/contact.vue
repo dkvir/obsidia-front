@@ -31,9 +31,9 @@
 
           <!-- Lastname -->
           <li class="item flex-column">
-            <div class="label">Lastname</div>
+            <div class="label">Last Name</div>
             <Field
-              name="Lastname"
+              name="Last Name"
               rules="required|min:2"
               v-slot="{ field, meta, errors }"
             >
@@ -61,7 +61,7 @@
               <input
                 v-bind="field"
                 type="number"
-                placeholder="+995 123 456 789"
+                placeholder="123 456 789"
                 :class="[
                   'input',
                   { 'is-invalid': errors.length && meta.touched },
@@ -82,7 +82,7 @@
 
 <script setup>
 import { Form, Field, ErrorMessage } from "vee-validate";
-import { useContactStore } from "~/store/contact"; // 👈 the store we made
+import { useContactStore } from "~/store/contact";
 
 const contactStore = useContactStore();
 const submitedForm = ref(null);
@@ -179,6 +179,7 @@ const onSubmit = async (values, { resetForm }) => {
         grid-row: 1;
         @include mq(max-width 768px) {
           grid-column: 1 / -1;
+          grid-row: 2;
         }
       }
 

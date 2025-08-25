@@ -129,7 +129,7 @@ onMounted(() => {
     transform: translate(
         0,
         calc(
-          50svh - var(--page-offset-padding) * 3 - var(--app-header-height) / 2
+          50svh - var(--page-offset-padding) * 2 - var(--app-header-height) / 2
         )
       )
       scale(var(--logo-container-scale));

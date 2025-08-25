@@ -1,12 +1,14 @@
 <template>
   <div class="app-footer flex-center justify-between">
     <div class="left-wrapper flex-center">
-      <div class="label uppercase">contact us</div>
-      <a :href="`tel:+995${infoStore.data.phone}`" class="link phone"
-        >+995{{ infoStore.data.phone }}</a
-      >
+      <div class="label uppercase">Call us</div>
+      <a :href="`tel:+995${infoStore.data.phone}`" class="link phone">{{
+        giveNumberSpaces(infoStore.data.phone)
+      }}</a>
     </div>
-    <div class="center uppercase">home</div>
+    <div @click="scrollToTop" class="center uppercase">
+      <nuxt-icon name="logo-o" class="footer-logo" />
+    </div>
     <div class="right-wrapper flex-center">
       <div class="label uppercase">follow us</div>
       <ul class="list flex-center">
@@ -47,6 +49,18 @@ import { useInfoStore } from "~/store/info";
 
 const infoStore = useInfoStore();
 infoStore.fetchInfo();
+
+const giveNumberSpaces = (num) => {
+  const str = num.toString();
+
+  return str.replace(/^(\d{3})(\d{2})(\d{2})(\d{2})$/, "$1 $2 $3 $4");
+};
+
+const scrollToTop = () => {
+  window.lenis.scrollTo(".welcome", {
+    duration: 1.5,
+  });
+};
 </script>
 
 <style lang="scss" scoped>
@@ -94,6 +108,16 @@ infoStore.fetchInfo();
     top: 50%;
     left: 50%;
     transform: translate3d(-50%, -50%, 0);
+    height: var(--app-header-height);
+    cursor: pointer;
+    :deep(.footer-logo) {
+      @include size(100%);
+      display: block;
+      svg {
+        height: 100%;
+        width: auto;
+      }
+    }
     @include mq(max-width 1024px) {
       top: initial;
       left: initial;

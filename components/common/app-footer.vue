@@ -10,7 +10,6 @@
       <nuxt-icon name="logo-o" class="footer-logo" />
     </div>
     <div class="right-wrapper flex-center">
-      <div class="label uppercase">follow us</div>
       <ul class="list flex-center">
         <li class="item">
           <a
@@ -89,17 +88,6 @@ const scrollToTop = () => {
   .right-wrapper {
     @include mq(max-width 1024px) {
       margin-top: calc(var(--page-offset-padding) * 2);
-    }
-  }
-
-  .label {
-    font-size: 14px;
-    font-family: var(--font-lemonmilk-regular);
-    color: var(--color-hazy);
-    opacity: 0.5;
-
-    @include mq(max-width 768px) {
-      font-size: css-clamp-vw(12px, 14px, 768);
     }
   }
 

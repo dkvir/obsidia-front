@@ -29,11 +29,11 @@
             <ErrorMessage name="Name" class="error-messagse" />
           </li>
 
-          <!-- Lastname -->
+          <!-- Last Name -->
           <li class="item flex-column">
             <div class="label">Last Name</div>
             <Field
-              name="Last Name"
+              name="LastName"
               rules="required|min:2"
               v-slot="{ field, meta, errors }"
             >
@@ -47,7 +47,7 @@
                 ]"
               />
             </Field>
-            <ErrorMessage name="Lastname" class="error-messagse" />
+            <ErrorMessage name="LastName" class="error-messagse" />
           </li>
 
           <!-- Phone -->
@@ -60,7 +60,7 @@
             >
               <input
                 v-bind="field"
-                type="number"
+                type="tel"
                 placeholder="123 456 789"
                 :class="[
                   'input',
@@ -91,7 +91,7 @@ const onSubmit = async (values, { resetForm }) => {
   try {
     await contactStore.createContact({
       firstName: values.Name,
-      lastName: values.Lastname,
+      lastName: values.LastName, // Fixed: was values.Lastname
       phone: values.Phone,
     });
 

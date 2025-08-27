@@ -63,7 +63,6 @@ const onClick = (index) => {
 
 const onScroll = ({ left: scrollLeft }) => {
   left.value = scrollLeft;
-  console.log(left.value);
 };
 const onMouseDown = (e) => {
   originX.value = e.pageX;

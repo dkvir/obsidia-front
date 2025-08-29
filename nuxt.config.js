@@ -44,6 +44,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       siteUrl: process.env.PUBLIC_SITE_URL,
+      backUrl: process.env.STRAPI_URL,
     },
   },
 

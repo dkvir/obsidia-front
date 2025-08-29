@@ -11,7 +11,7 @@ export const useInfoStore = defineStore("info", {
 
       try {
         const { data, error } = await useFetch(
-          config.public.strapi.url + "/graphql",
+          config.public.backUrl + "/graphql",
           {
             method: "POST",
             headers: {

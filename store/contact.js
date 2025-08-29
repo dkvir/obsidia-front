@@ -18,7 +18,7 @@ export const useContactStore = defineStore("contact", {
 
       try {
         const { data, error } = await $fetch(
-          config.public.strapi.url + "/graphql",
+          config.public.backUrl + "/graphql",
           {
             method: "POST",
             headers: {

@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
+import { EXRLoader } from "three/addons/loaders/EXRLoader.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
@@ -59,17 +60,17 @@ export function useThreeScene(canvasId) {
         animate();
         setTimeout(() => {
           homeStore.changeLoaderFinished(true);
-        }, 2000);
+        }, 1500);
       })
       .catch((error) => console.error("Loading sequence failed:", error));
   }
 
   function loadEnvironment() {
     return new Promise((resolve, reject) => {
-      const hdriLoader = new RGBELoader();
+      const hdriLoader = new EXRLoader();
 
       hdriLoader.load(
-        "images/03.hdr",
+        "images/03.exr",
         function (texture) {
           envMap = texture;
           envMap.mapping = THREE.EquirectangularReflectionMapping;

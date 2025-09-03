@@ -53,8 +53,7 @@ export function useThreeScene(canvasId) {
   scene.background = new THREE.Color(0xffffff);
 
   function setupSequentialLoading() {
-    loadEnvironment()
-      .then(() => loadModel())
+    Promise.all([loadEnvironmentOptimized(), loadModelOptimized()])
       .then(() => {
         init();
         animate();
@@ -65,30 +64,32 @@ export function useThreeScene(canvasId) {
       .catch((error) => console.error("Loading sequence failed:", error));
   }
 
-  function loadEnvironment() {
+  function loadEnvironmentOptimized() {
     return new Promise((resolve, reject) => {
       const hdriLoader = new EXRLoader();
 
       hdriLoader.load(
         "images/03.exr",
         function (texture) {
-          envMap = texture;
-          envMap.mapping = THREE.EquirectangularReflectionMapping;
-          scene.environment = envMap;
+          requestAnimationFrame(() => {
+            envMap = texture;
+            envMap.mapping = THREE.EquirectangularReflectionMapping;
+            scene.environment = envMap;
 
-          material = new THREE.MeshPhysicalMaterial({
-            color: 0xffffff,
-            transmission: 1.0,
-            thickness: 0.8,
-            transparent: true,
-            ior: 1.7,
-            roughness: 0.0,
-            side: THREE.DoubleSide,
-            envMap: envMap,
-            dispersion: 5,
+            material = new THREE.MeshPhysicalMaterial({
+              color: 0xffffff,
+              transmission: 1.0,
+              thickness: 0.8,
+              transparent: true,
+              ior: 1.7,
+              roughness: 0.0,
+              side: THREE.DoubleSide,
+              envMap: envMap,
+              dispersion: 5,
+            });
+
+            resolve(texture);
           });
-
-          resolve(texture);
         },
         undefined,
         (error) => {
@@ -101,7 +102,7 @@ export function useThreeScene(canvasId) {
     });
   }
 
-  function loadModel() {
+  function loadModelOptimized() {
     return new Promise((resolve, reject) => {
       const loader = new GLTFLoader();
 

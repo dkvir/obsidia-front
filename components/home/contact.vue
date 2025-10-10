@@ -18,7 +18,7 @@
             >
               <input
                 v-bind="field"
-                placeholder="John"
+                placeholder="Obsidia"
                 :class="[
                   'input',
                   { 'is-invalid': errors.length && meta.touched },
@@ -39,7 +39,7 @@
             >
               <input
                 v-bind="field"
-                placeholder="Doe"
+                placeholder="Life"
                 :class="[
                   'input',
                   { 'is-invalid': errors.length && meta.touched },
@@ -61,7 +61,7 @@
               <input
                 v-bind="field"
                 type="tel"
-                placeholder="123 456 789"
+                placeholder="514 05 77 77"
                 :class="[
                   'input',
                   { 'is-invalid': errors.length && meta.touched },

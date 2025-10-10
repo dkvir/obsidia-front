@@ -11,7 +11,7 @@
     </div>
     <div class="right-wrapper flex-center">
       <ul class="list flex-center">
-        <li class="item">
+        <li v-if="infoStore.data.instagram" class="item">
           <a
             :href="infoStore.data.instagram"
             target="_blank"
@@ -20,7 +20,7 @@
             instagram
           </a>
         </li>
-        <li class="item">
+        <li v-if="infoStore.data.facebook" class="item">
           <a
             :href="infoStore.data.facebook"
             class="link instagfacebookram uppercase"
@@ -29,7 +29,7 @@
             facebook
           </a>
         </li>
-        <li class="item">
+        <li v-if="infoStore.data.youtube" class="item">
           <a
             :href="infoStore.data.youtube"
             target="_blank"

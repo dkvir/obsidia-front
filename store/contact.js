@@ -16,8 +16,6 @@ export const useContactStore = defineStore("contact", {
       this.error = null;
       this.success = false;
 
-      console.log(config.public.backUrl);
-
       try {
         const { data, error } = await $fetch(
           config.public.backUrl + "/graphql",

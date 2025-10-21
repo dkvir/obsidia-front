@@ -2,9 +2,18 @@
   <div class="app-footer flex-center justify-between">
     <div class="left-wrapper flex-center">
       <div class="label uppercase">Call us</div>
-      <a :href="`tel:+995${infoStore.data.phone}`" class="link phone">{{
-        giveNumberSpaces(infoStore.data.phone)
-      }}</a>
+      <a
+        v-if="infoStore.data.show_phone"
+        :href="`tel:+995${infoStore.data.phone}`"
+        class="link phone"
+        >{{ giveNumberSpaces(infoStore.data.phone) }}</a
+      >
+      <a
+        v-if="infoStore.data.show_mobile_number"
+        :href="`tel:+995${infoStore.data.mobile_number}`"
+        class="link phone"
+        >{{ giveNumberSpaces(infoStore.data.mobile_number) }}</a
+      >
     </div>
     <div @click="scrollToTop" class="center uppercase">
       <nuxt-icon name="logo-o" class="footer-logo" />

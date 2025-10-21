@@ -3,15 +3,12 @@
     <div class="content-frame">
       <ul class="content-list flex-column">
         <li
-          v-for="(item, index) in $tm('home.content')"
-          :class="[
-            'item  flex align-center',
-            { 'is-large': item.title.size == 'large' },
-          ]"
+          v-for="(item, index) in contentStore.data"
+          :class="['item  flex align-center', { 'is-large': item.large }]"
         >
           <h2 class="title flex-column">
-            <span class="span top">{{ item.title.top }}</span>
-            <span class="span bottom">{{ item.title.bottom }}</span>
+            <span class="span top">{{ item.top_line }}</span>
+            <span class="span bottom">{{ item.bottom_line }}</span>
           </h2>
         </li>
       </ul>
@@ -22,6 +19,10 @@
 <script setup>
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { UseContentStore } from "~/store/content";
+
+const contentStore = UseContentStore();
+await contentStore.fetchContent();
 
 onMounted(() => {
   gsap.registerPlugin(ScrollTrigger, SplitText);

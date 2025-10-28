@@ -12,6 +12,7 @@ export default defineNuxtConfig({
     "@nuxtjs/device",
     "@nuxtjs/i18n",
     "@nuxtjs/strapi",
+    "nuxt-mail",
   ],
   app: {
     head: {
@@ -45,6 +46,19 @@ export default defineNuxtConfig({
     public: {
       siteUrl: process.env.PUBLIC_SITE_URL,
       backUrl: process.env.STRAPI_URL,
+    },
+    mail: {
+      message: {
+        to: "info@obsidia.life",
+      },
+      smtp: {
+        host: "smtp.gmail.com",
+        port: 587,
+        auth: {
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PASSWORD,
+        },
+      },
     },
   },
 

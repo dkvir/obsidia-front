@@ -86,6 +86,7 @@ import { useContactStore } from "~/store/contact";
 
 const contactStore = useContactStore();
 const submitedForm = ref(null);
+const mail = useMail();
 
 const onSubmit = async (values, { resetForm }) => {
   try {
@@ -93,6 +94,12 @@ const onSubmit = async (values, { resetForm }) => {
       firstName: values.Name,
       lastName: values.LastName, // Fixed: was values.Lastname
       phone: values.Phone,
+    });
+
+    mail.send({
+      from: "Obsidia",
+      subject: "New Contact Form Submission",
+      text: `Name: ${values.Name} ${values.LastName}\nPhone: ${values.Phone}`,
     });
 
     submitedForm.value = true;

@@ -19,35 +19,7 @@
       <nuxt-icon name="logo-o" class="footer-logo" />
     </div>
     <div class="right-wrapper flex-center">
-      <ul class="list flex-center">
-        <li v-if="infoStore.data.instagram" class="item">
-          <a
-            :href="infoStore.data.instagram"
-            target="_blank"
-            class="link instagram uppercase"
-          >
-            instagram
-          </a>
-        </li>
-        <li v-if="infoStore.data.facebook" class="item">
-          <a
-            :href="infoStore.data.facebook"
-            class="link instagfacebookram uppercase"
-            target="_blank"
-          >
-            facebook
-          </a>
-        </li>
-        <li v-if="infoStore.data.youtube" class="item">
-          <a
-            :href="infoStore.data.youtube"
-            target="_blank"
-            class="link youtube uppercase"
-          >
-            youtube
-          </a>
-        </li>
-      </ul>
+      <common-tiny-socials />
     </div>
   </div>
 </template>
@@ -121,40 +93,6 @@ const scrollToTop = () => {
       right: var(--page-offset-padding);
       bottom: var(--page-offset-padding);
       transform: none;
-    }
-  }
-
-  .list {
-    @include mq(min-width 1025px) {
-      margin-left: var(--page-offset-padding);
-    }
-    .item {
-      position: relative;
-      cursor: pointer;
-      margin-left: var(--page-offset-padding);
-      @include mq(min-width 1025px) {
-        padding: 5px 0;
-        &:hover {
-          --line-width: 100%;
-        }
-
-        &:before {
-          position: absolute;
-          content: "";
-          left: 0;
-          bottom: 0;
-          right: 0;
-          margin: 0 auto;
-          width: var(--line-width, 0);
-          height: 1.5px;
-          background-color: var(--color-hazy);
-          transition: 0.3s ease;
-        }
-      }
-      @include mq(max-width 1024px) {
-        margin-left: 0;
-        margin-top: calc(var(--page-offset-padding) / 2);
-      }
     }
   }
 

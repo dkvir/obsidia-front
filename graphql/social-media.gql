@@ -1,0 +1,8 @@
+query Icon {
+  socialMedias {
+    icon {
+      url
+    }
+    link
+  }
+}

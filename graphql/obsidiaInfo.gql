@@ -1,8 +1,5 @@
 query ObsidiaInformation {
   obsidiaInformation {
-    facebook
-    instagram
-    youtube
     mobile_number
     phone
     show_mobile_number

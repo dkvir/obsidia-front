@@ -49,7 +49,7 @@ export default defineNuxtConfig({
     },
     mail: {
       message: {
-        to: "info@obsidia.life",
+        to: process.env.MAIL_ADDRESS,
       },
       smtp: {
         host: "smtp.gmail.com",

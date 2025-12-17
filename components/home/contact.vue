@@ -86,24 +86,27 @@ import { useContactStore } from "~/store/contact";
 
 const contactStore = useContactStore();
 const submitedForm = ref(null);
-const mail = useMail();
 
 const onSubmit = async (values, { resetForm }) => {
   try {
+    // Save to Strapi
     await contactStore.createContact({
       firstName: values.Name,
-      lastName: values.LastName, // Fixed: was values.Lastname
+      lastName: values.LastName,
       phone: values.Phone,
     });
 
-    mail.send({
-      from: "Obsidia",
-      subject: "New Contact Form Submission",
-      text: `Name: ${values.Name} ${values.LastName}\nPhone: ${values.Phone}`,
+    await $fetch("/api/send-email", {
+      method: "POST",
+      body: {
+        name: values.Name,
+        lastName: values.LastName,
+        phone: values.Phone,
+        subject: "New Contact Form Submission from Obsidia",
+      },
     });
 
     submitedForm.value = true;
-
     resetForm();
 
     setTimeout(() => {

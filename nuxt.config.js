@@ -12,7 +12,6 @@ export default defineNuxtConfig({
     "@nuxtjs/device",
     "@nuxtjs/i18n",
     "@nuxtjs/strapi",
-    "nuxt-mail",
   ],
   app: {
     head: {
@@ -25,7 +24,6 @@ export default defineNuxtConfig({
         },
         { name: "pinterest", content: "nopin" },
         { name: "google", content: "notranslate" },
-        // ...favicon.meta,
       ],
       link: [...favicon.links],
       script: [{ src: "/js/SplitText.min.js" }],
@@ -38,30 +36,18 @@ export default defineNuxtConfig({
     admin: "/admin",
     version: "v5",
     cookie: {
-      maxAge: 60 * 60 * 24 * 30, // 30 days
+      maxAge: 60 * 60 * 24 * 30,
     },
     cookieName: "strapi_jwt",
   },
   runtimeConfig: {
+    resendApiKey: process.env.RESEND_API_KEY,
+    mailAddress: process.env.MAIL_ADDRESS,
     public: {
       siteUrl: process.env.PUBLIC_SITE_URL,
       backUrl: process.env.STRAPI_URL,
     },
-    mail: {
-      message: {
-        to: process.env.MAIL_ADDRESS,
-      },
-      smtp: {
-        host: "smtp.gmail.com",
-        port: 587,
-        auth: {
-          user: process.env.MAIL_USER,
-          pass: process.env.MAIL_PASSWORD,
-        },
-      },
-    },
   },
-
   i18n: {
     strategy: "no_prefix",
     detectBrowserLanguage: {

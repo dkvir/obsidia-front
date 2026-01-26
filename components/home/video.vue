@@ -4,10 +4,13 @@
       v-if="videoStore?.data"
       class="video-player"
       preload="metadata"
-      :poster="videoStore.data.poster.url"
+      :poster="config.public.backUrl + videoStore.data.poster.url"
       controls
     >
-      <source :src="videoStore.data.video.url" type="video/mp4" />
+      <source
+        :src="config.public.backUrl + videoStore.data.video.url"
+        type="video/mp4"
+      />
     </video>
     <video
       v-else

@@ -2,7 +2,7 @@
   <ul class="socials flex-center">
     <li v-for="(social, index) in socialsStore.data" class="social">
       <a :href="social.link" target="_blank" class="social-link flex-center">
-        <img :src="social.icon.url" class="img" />
+        <img :src="config.public.backUrl + social.icon.url" class="img" />
         <!-- <nuxt-icon :name="`${social.name}-icon`" class="social-icon" filled /> -->
       </a>
     </li>
@@ -12,6 +12,7 @@
 <script setup>
 import { useSocialsStore } from "~/store/socials";
 
+const config = useRuntimeConfig();
 const socialsStore = useSocialsStore();
 socialsStore.fetchSocials();
 </script>

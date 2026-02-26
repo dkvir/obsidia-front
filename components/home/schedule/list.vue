@@ -11,16 +11,18 @@
           :key="index"
           class="schedule-item flex align-center uppercase"
         >
-          <div class="time flex">
-            <span class="start span">{{
-              formatStrapiTime(schedule.startTime)
-            }}</span>
-            <span class="divider">-</span>
-            <span class="end span">{{
-              formatStrapiTime(schedule.endTime)
-            }}</span>
+          <div class="separator flex justify-between">
+            <div class="time flex">
+              <span class="start span">{{
+                formatStrapiTime(schedule.startTime)
+              }}</span>
+              <span class="divider">-</span>
+              <span class="end span">{{
+                formatStrapiTime(schedule.endTime)
+              }}</span>
+            </div>
+            <div class="type">{{ schedule.type }}</div>
           </div>
-          <div class="type">{{ schedule.type }}</div>
           <div class="sensei">{{ schedule.costructor }}</div>
         </li>
       </ul>
@@ -65,7 +67,7 @@ const formatStrapiTime = (timeString) => {
     @include default-transitions(opacity);
     font-size: css-clamp(16px, 18px);
     @include mq(max-width 768px) {
-      font-size: css-clamp-vw(11px, 16px, 768);
+      font-size: css-clamp-vw(12px, 16px, 768);
     }
     &.is-active {
       --item-opacity: 1;
@@ -79,11 +81,21 @@ const formatStrapiTime = (timeString) => {
     }
   }
 
+  .separator {
+    @include mq(max-width 768px) {
+      flex-direction: column;
+      align-items: flex-start;
+      width: 50%;
+    }
+  }
+
   .time {
     font-family: var(--font-lemonmilk-light);
     width: 150px;
     @include mq(max-width 768px) {
       width: 100px;
+      font-size: css-clamp-vw(10px, 16px, 768);
+      opacity: 0.8;
     }
     .divider {
       margin: 0 10px;
@@ -95,6 +107,10 @@ const formatStrapiTime = (timeString) => {
   .type {
     margin-left: get-vw(160px);
     font-family: var(--font-lemonmilk-medium);
+    @include mq(max-width 768px) {
+      margin-left: 0;
+      margin-top: 5px;
+    }
   }
 
   .sensei {
